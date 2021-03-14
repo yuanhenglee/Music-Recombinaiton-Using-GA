@@ -64,6 +64,7 @@ def parseMIDI( mid ):
                         print("current Time = " + str(curTime) + "\n---\n" )
                         # test
 
+                        noteSeq[curTime/MINLENGTH] = firstEvent.note
 
 
                         

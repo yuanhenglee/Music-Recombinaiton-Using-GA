@@ -30,7 +30,7 @@ def findPeriodGCD( mid ):
 def parseMIDI( mid ):
 
     # Constant
-    MAXNOTE = 100
+    MAXNOTE = 99999 
     MINLENGTH = findPeriodGCD( mid )
 
     # initialize
@@ -64,7 +64,13 @@ def parseMIDI( mid ):
                         print("current Time = " + str(curTime) + "\n---\n" )
                         # test
 
-                        noteSeq[curTime/MINLENGTH] = firstEvent.note
+                        start = int(curTime/MINLENGTH)
+                        period = int(deltaTime/MINLENGTH)
+                        for count in range(period):
+                            noteSeq[ start + count ] = -1 #TODO just temporary
+
+                        noteSeq[ start ] = firstEvent.note
+
 
 
                         
@@ -74,7 +80,8 @@ def parseMIDI( mid ):
                 if not pairFound:
                     raise ValueError("Input notes can't be paired. QQ~")
                     
-
+    for i in noteSeq[0:100]:
+        print(i, end = " ")
 
 
 

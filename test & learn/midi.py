@@ -16,22 +16,28 @@ def isPair( a, b ):
 def findPeriodGCD( mid ):
 
     timeSet = [] # store possible periods
+    totalTime = 0
+
     for i, track in enumerate(mid.tracks):
-        for j,firstEvent in enumerate(track):
-            if firstEvent.time > 0:
-                timeSet.append(firstEvent.time) 
+        for j, Event in enumerate(track):
+            if Event.time > 0:
+                timeSet.append(Event.time)
+                totalTime += Event.time
 
     # drop first event's time
     timeSet.pop(0)
-
-    return gcd(*timeSet) 
+    res = gcd(*timeSet)
+    return  res  , totalTime//res
 
 
 def parseMIDI( mid ):
 
     # Constant
-    MAXNOTE = 99999 
-    MINLENGTH = findPeriodGCD( mid )
+    
+    MINLENGTH , MAXNOTE = findPeriodGCD( mid )
+
+    print( MINLENGTH )
+    print( MAXNOTE )
 
     # initialize
     noteSeq = np.zeros(MAXNOTE)
@@ -87,5 +93,4 @@ def parseMIDI( mid ):
 
 if __name__ == "__main__":
     mid = MidiFile("C:/Users/user/Documents/code/Music Recombination/test & learn/test1.mid")
-    print("??")
     parseMIDI( mid )

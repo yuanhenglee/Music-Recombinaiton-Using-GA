@@ -27,11 +27,11 @@ def exploreMIDI( mid ):
                 totalTime += event.time
 
                 lowest = event.note if event.note < lowest else lowest
-                highest = event.note if event.note > highest else highest 
+                highest = event.note if event.note > highest else highest
 
 
 
-    # drop first event's time
+    # drop first event's delta time
     timeSet.pop(0)
     res = gcd(*timeSet)
     return  res  , totalTime//res , lowest , highest
@@ -48,7 +48,7 @@ def parseMIDI( mid ):
 
     # initialize
     noteSeq = np.full( MAXNOTE , BREAK )
-    curTime = -1
+    curTime = -1 # will be 0 when we find the first ON event
 
     for i, track in enumerate(mid.tracks):
         print('Track {}: {}'.format(i, track.name))
@@ -81,19 +81,14 @@ def parseMIDI( mid ):
                         period = int(deltaTime/MINLENGTH)
                         for count in range(period):
                             noteSeq[ start + count ] = SUSTAIN #TODO just temporary
-
                         noteSeq[ start ] = firstEvent.note + OFFSET
-
-
-
                         
                         pairFound = True
-
                         break;
                 if not pairFound:
                     raise ValueError("Input notes can't be paired. QQ~")
                     
-    for i in noteSeq[0:100]:
+    for i in noteSeq:
         print(i, end = " ")
 
 

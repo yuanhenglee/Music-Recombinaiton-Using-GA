@@ -32,6 +32,7 @@ class notesPeriod:
 
         for i, track in enumerate(self.OG_Mido.tracks):
             for j, event in enumerate(track):
+                print(event)
                 if event.type == "set_tempo":
                     tempo = event.tempo
                 if event.time > 0:
@@ -55,7 +56,7 @@ class notesPeriod:
         print("highest: " + str(self.highest))
         print("noteSeq: ")
         for i in self.noteSeq:
-            print( i , end = "")
+            print( i , end = " ")
 
 
 

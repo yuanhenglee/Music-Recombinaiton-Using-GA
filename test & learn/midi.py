@@ -54,11 +54,6 @@ def parseMIDI( mid ):
         print('Track {}: {}'.format(i, track.name))
         for j,firstEvent in enumerate(track):
 
-            # GOAL:
-            # - check if monophonic
-            # - find gcd among "time"
-            # - convert events to notes sequence on a timeline  
-
             if firstEvent.type == "note_on" and curTime == -1: curTime = 0 # first note-on
             else: curTime += firstEvent.time
 
@@ -80,7 +75,7 @@ def parseMIDI( mid ):
                         start = int(curTime/MINLENGTH)
                         period = int(deltaTime/MINLENGTH)
                         for count in range(period):
-                            noteSeq[ start + count ] = SUSTAIN #TODO just temporary
+                            noteSeq[ start + count ] = SUSTAIN 
                         noteSeq[ start ] = firstEvent.note + OFFSET
                         
                         pairFound = True
@@ -88,11 +83,12 @@ def parseMIDI( mid ):
                 if not pairFound:
                     raise ValueError("Input notes can't be paired. QQ~")
                     
-    for i in noteSeq:
-        print(i, end = " ")
+    return noteSeq
 
 
 
 if __name__ == "__main__":
     mid = MidiFile("C:/Users/user/Documents/code/Music Recombination/test & learn/test1.mid")
-    parseMIDI( mid )
+    noteSeq = parseMIDI( mid )
+    for i in noteSeq:
+        print(i, end = " ")

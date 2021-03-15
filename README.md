@@ -6,7 +6,8 @@
   - Polyphonic
   - File with multiple tracks or songs
 - [x] Things we need before parsing
-  - GCD( all possible time length )
-  - Lowest/Highest note
-  - Total length
+  - [x] GCD( all possible time length )
+  - [x] Lowest/Highest note
+  - [x] Total length
+  - [ ] Support for multiple MIDI file
 - [x] Parsing into a array

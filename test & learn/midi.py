@@ -13,34 +13,41 @@ def isPair( a, b ):
         return True;
     return False;
 
-def findPeriodGCD( mid ):
+def exploreMIDI( mid ):
 
     timeSet = [] # store possible periods
     totalTime = 0
+    lowest = 109
+    highest = 20
 
     for i, track in enumerate(mid.tracks):
-        for j, Event in enumerate(track):
-            if Event.time > 0:
-                timeSet.append(Event.time)
-                totalTime += Event.time
+        for j, event in enumerate(track):
+            if event.time > 0:
+                timeSet.append(event.time)
+                totalTime += event.time
+
+                lowest = event.note if event.note < lowest else lowest
+                highest = event.note if event.note > highest else highest 
+
+
 
     # drop first event's time
     timeSet.pop(0)
     res = gcd(*timeSet)
-    return  res  , totalTime//res
+    return  res  , totalTime//res , lowest , highest
 
 
 def parseMIDI( mid ):
 
-    # Constant
+    # DEFINE ENCODING
+    MINLENGTH , MAXNOTE , LOWESTNOTE , HIGHESTNOTE = exploreMIDI( mid )
     
-    MINLENGTH , MAXNOTE = findPeriodGCD( mid )
-
-    print( MINLENGTH )
-    print( MAXNOTE )
+    OFFSET = 1 - LOWESTNOTE
+    BREAK = 0
+    SUSTAIN = HIGHESTNOTE +OFFSET + 1
 
     # initialize
-    noteSeq = np.zeros(MAXNOTE)
+    noteSeq = np.full( MAXNOTE , BREAK )
     curTime = -1
 
     for i, track in enumerate(mid.tracks):
@@ -73,9 +80,9 @@ def parseMIDI( mid ):
                         start = int(curTime/MINLENGTH)
                         period = int(deltaTime/MINLENGTH)
                         for count in range(period):
-                            noteSeq[ start + count ] = -1 #TODO just temporary
+                            noteSeq[ start + count ] = SUSTAIN #TODO just temporary
 
-                        noteSeq[ start ] = firstEvent.note
+                        noteSeq[ start ] = firstEvent.note + OFFSET
 
 
 

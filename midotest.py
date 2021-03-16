@@ -40,7 +40,7 @@ for i, track in enumerate(mid.tracks):
             # 紀錄音
             for i in range((int)(msg.time / gcd_value)):
                 if i != 0:
-                    note_list.append(max_value + 1)
+                    note_list.append(max_value - min_value + 1 + 1)
                 else:
                     note_list.append(msg.note - min_value + 1)
 

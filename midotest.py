@@ -57,4 +57,3 @@ for i, track in enumerate(mid.tracks):
 
 print(note_arr)
 print(length_arr)
-combine(gcd_value, max_value-min_value + 1)

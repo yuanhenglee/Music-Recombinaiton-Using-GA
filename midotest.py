@@ -5,7 +5,8 @@ mid = MidiFile('bee.mid')
 gcd_value = 0
 min_value = 109
 max_value = 20
-note_list = []
+note_arr = []
+length_arr = []
 
 
 def findMaxMin(note):
@@ -14,6 +15,19 @@ def findMaxMin(note):
         max_value = note
     if note < min_value:
         min_value = note
+
+
+def combine(gcd_value, n):
+    global note_arr, length_arr
+    note_arr2 = []
+    index = 0
+    for i in range(len(note_arr)):
+        for j in range((int)(length_arr[i]/gcd_value)):
+            if j == 0:
+                note_arr2.append(note_arr[i])
+            else:
+                note_arr2.append(n+1)
+    print(note_arr2)
 
 
 # 計算gcd
@@ -33,15 +47,14 @@ for i, track in enumerate(mid.tracks):
     for msg in track:
         if msg.type == 'note_on':
             # 紀錄休止符為0
-            if note_list != [] and msg.time != 0:
-                for i in range((int)(msg.time / gcd_value)):
-                    note_list.append(0)
+            if note_arr != [] and msg.time != 0:
+                note_arr.append(0)
+                length_arr.append(msg.time)
         elif msg.type == 'note_off':
             # 紀錄音
-            for i in range((int)(msg.time / gcd_value)):
-                if i != 0:
-                    note_list.append(max_value - min_value + 1 + 1)
-                else:
-                    note_list.append(msg.note - min_value + 1)
+            note_arr.append(msg.note - min_value + 1)
+            length_arr.append(msg.time)
 
-print(note_list)
+print(note_arr)
+print(length_arr)
+combine(gcd_value, max_value-min_value + 1)

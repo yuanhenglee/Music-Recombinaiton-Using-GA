@@ -8,12 +8,9 @@ import numpy as np
 BREAK = 0
 PITCHINDEX = 0
 DURATIONINDEX = 1
+INTERVALINDEX = 2
+RESTINDEX = 3
 
-# check if two events can possiblely be a pair
-def isPair( a, b ):
-    if a.channel == b.channel and a.note == b.note :
-        return True;
-    return False;
 
 class ProcessedMIDI:
     OG_Mido = MidiFile()
@@ -66,7 +63,7 @@ class ProcessedMIDI:
         OFFSET = 1 - self.lowestNote
 
         # initialize
-        self.noteSeq = np.zeros( ( 2,self.numberOfNotes) )
+        self.noteSeq = np.zeros( ( 4,self.numberOfNotes) )
         curNoteIndex = 0
 
         for track in (mid.tracks):
@@ -84,6 +81,13 @@ class ProcessedMIDI:
                     pairFound = False
                     for secondEvent in track[j+1:-1]:
                         deltaTime += secondEvent.time;
+
+                        # check if two events can possiblely be a pair
+                        def isPair( a, b ):
+                            if a.channel == b.channel and a.note == b.note :
+                                return True;
+                            return False;
+
                         if secondEvent.type == "note_off" and isPair (firstEvent,secondEvent):
 
                             # duration
@@ -96,6 +100,19 @@ class ProcessedMIDI:
                             break;
                     if not pairFound:
                         raise ValueError("Input notes can't be paired. QQ~")
+
+            # add pitch interval sequence
+            # by the current encoding method, same note & (note,break) are both been consider as interval = 0
+            for i, curPitch in enumerate( self.noteSeq[PITCHINDEX][:-1] ):
+                nextPitch = self.noteSeq[PITCHINDEX][i+1]
+                if curPitch == 0 or nextPitch == 0:
+                    self.noteSeq[INTERVALINDEX][i] = 0
+                    if curPitch == 0:
+                        self.noteSeq[RESTINDEX][i] = self.noteSeq[DURATIONINDEX][i]
+                else:
+                    # TODO solve same interval with different step difference
+                    self.noteSeq[INTERVALINDEX][i] = ( nextPitch  - curPitch )
+
 
     def printPeriod(self):
         print("minLengthInTicks: " + str(self.minLengthInTicks))
@@ -111,43 +128,55 @@ def LBDM( target ):
     PR = 1
 
     seqTable = copy.deepcopy( target.noteSeq )
-    seqTable = np.vstack( ( seqTable , np.zeros( (9,target.numberOfNotes) ) ) )
+    
 
     # TODO pack this into a function
     # input: target sequence
     # output: generated weight
 
-    # ICR + PR + duration 
-    for i, previousDuration in enumerate( seqTable[DURATIONINDEX][:-1] ):
-        currentDuration = seqTable[DURATIONINDEX][i+1]
-        PIncrement = 0
-        CIncrement = 0
-        if previousDuration != currentDuration: 
-            CIncrement += ICR
-            PIncrement += ICR
-        if previousDuration < currentDuration: 
-            CIncrement += PR
-        if previousDuration > currentDuration: 
-            PIncrement += PR
-
-        ## find true duration including break
-        fixedDuration = previousDuration
-        if seqTable[PITCHINDEX][i] == 0 and i > 1:
-            fixedDuration = previousDuration + seqTable[DURATIONINDEX][i-1]
-        if fixedDuration != currentDuration:
-            PIncrement += 2
-
-        seqTable[DURATIONINDEX + 1][i] += PIncrement
-        seqTable[DURATIONINDEX + 1][i+1] += CIncrement
-    
+    def calculateWeight( sequenceIndex ):
+        sumOfWeight = np.zeros( target.numberOfNotes )
+        # ICR + PR + duration 
+        for i, previous in enumerate( seqTable[sequenceIndex][:-1] ):
 
 
+            current = seqTable[sequenceIndex][i+1]
+            PIncrement = 0
+            CIncrement = 0
+            if previous != current: 
+                CIncrement += ICR
+                PIncrement += ICR
+            if previous < current: 
+                CIncrement += PR
+            if previous > current: 
+                PIncrement += PR
 
+            ## find true duration including break
+            fixed = previous
+            if seqTable[PITCHINDEX][i] == 0 and i > 1:
+                fixed = previous + seqTable[sequenceIndex][i-1]
+            if fixed != current:
+                PIncrement += 2
 
+            sumOfWeight[i] += PIncrement
+            sumOfWeight[i+1] += CIncrement
 
+        return sumOfWeight
+        
+    durationWeight = calculateWeight( DURATIONINDEX )
+    intervalWeight = calculateWeight( INTERVALINDEX )
+    restWeight = calculateWeight( RESTINDEX )
 
-    # seqTable = np.append( seqTable , )
-    print( seqTable )
+    print("DURATION:")
+    print(durationWeight)
+    print("INTERVAL:")
+    print(intervalWeight)
+    print("REST:")
+    print(restWeight)
+
+    print( seqTable[PITCHINDEX] )
+    print(" SUM OF ABOVE: ")
+    print( durationWeight + intervalWeight + restWeight )
 
 
 

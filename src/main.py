@@ -1,10 +1,9 @@
 from Preprocess import ProcessedMIDI
 from LBDM import LBDM
 
+from pathlib import Path
 from mido import MidiFile
 
-import csv
-from pathlib import Path
 
 
 

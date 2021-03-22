@@ -128,11 +128,6 @@ def LBDM( target ):
     PR = 1
 
     seqTable = copy.deepcopy( target.noteSeq )
-    
-
-    # TODO pack this into a function
-    # input: target sequence
-    # output: generated weight
 
     def calculateWeight( sequenceIndex ):
         sumOfWeight = np.zeros( target.numberOfNotes )

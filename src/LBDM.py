@@ -55,12 +55,12 @@ def LBDM( target ):
             print( "%3d" % ( target[i] ) , end = '')
         print("\n")
 
-    print("DURATION:")
+    print("Duration Weight:")
     formattedPrint( durationWeight )
-    print("INTERVAL:")
+    print("Interval Weight:")
     formattedPrint( intervalWeight )
-    print("REST:")
+    print("Rest Weight:")
     formattedPrint( restWeight )
 
-    print(" SUM OF ABOVE: ")
+    print("SUM OF ABOVE: ")
     formattedPrint( durationWeight + intervalWeight + restWeight )

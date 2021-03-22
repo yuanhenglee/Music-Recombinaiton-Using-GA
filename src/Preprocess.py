@@ -1,7 +1,4 @@
-import os
-import sys
-import copy
-from mido import MidiFile, Message, second2tick
+from mido import MidiFile
 from math import gcd
 import numpy as np
 
@@ -14,7 +11,7 @@ RESTINDEX = 3
 
 class ProcessedMIDI:
     OG_Mido = MidiFile()
-    noteSeq = np.array([]) # TODO
+    noteSeq = np.array([]) 
     tempo = 500000 # Default value
     minLengthInTicks = 0
     numberOfMinLength = 0
@@ -66,7 +63,7 @@ class ProcessedMIDI:
         self.noteSeq = np.zeros( ( 4,self.numberOfNotes) )
         curNoteIndex = 0
 
-        for track in (mid.tracks):
+        for track in (self.OG_Mido.tracks):
             # print('Track {}: {}'.format(i, track.name))
             for j,firstEvent in enumerate(track):
 
@@ -101,7 +98,7 @@ class ProcessedMIDI:
                     if not pairFound:
                         raise ValueError("Input notes can't be paired. QQ~")
 
-            # add pitch interval sequence
+            # add pitch interval sequence & temporary rest sequence encoding
             # by the current encoding method, same note & (note,break) are both been consider as interval = 0
             for i, curPitch in enumerate( self.noteSeq[PITCHINDEX][:-1] ):
                 nextPitch = self.noteSeq[PITCHINDEX][i+1]
@@ -122,65 +119,4 @@ class ProcessedMIDI:
         print("noteSeq: ")
         print(self.noteSeq)
 
-def LBDM( target ):
-    # DEFINE ICR PR DURATION WEIGHT
-    ICR = 1
-    PR = 1
 
-    seqTable = copy.deepcopy( target.noteSeq )
-
-    def calculateWeight( sequenceIndex ):
-        sumOfWeight = np.zeros( target.numberOfNotes )
-        # ICR + PR + duration 
-        for i, previous in enumerate( seqTable[sequenceIndex][:-1] ):
-
-
-            current = seqTable[sequenceIndex][i+1]
-            PIncrement = 0
-            CIncrement = 0
-            if previous != current: 
-                CIncrement += ICR
-                PIncrement += ICR
-            if previous < current: 
-                CIncrement += PR
-            if previous > current: 
-                PIncrement += PR
-
-            ## find true duration including break
-            fixed = previous
-            if seqTable[PITCHINDEX][i] == 0 and i > 1:
-                fixed = previous + seqTable[sequenceIndex][i-1]
-            if fixed != current:
-                PIncrement += 2
-
-            sumOfWeight[i] += PIncrement
-            sumOfWeight[i+1] += CIncrement
-
-        return sumOfWeight
-        
-    durationWeight = calculateWeight( DURATIONINDEX )
-    intervalWeight = calculateWeight( INTERVALINDEX )
-    restWeight = calculateWeight( RESTINDEX )
-
-    print("DURATION:")
-    print(durationWeight)
-    print("INTERVAL:")
-    print(intervalWeight)
-    print("REST:")
-    print(restWeight)
-
-    print( seqTable[PITCHINDEX] )
-    print(" SUM OF ABOVE: ")
-    print( durationWeight + intervalWeight + restWeight )
-
-
-
-if __name__ == "__main__":
-
-        mid = MidiFile("C:/Users/user/Documents/code/Music Recombination/midi_file/young.mid")
-
-        period = ProcessedMIDI( mid)
-
-        period.printPeriod()
-
-        LBDM( period )

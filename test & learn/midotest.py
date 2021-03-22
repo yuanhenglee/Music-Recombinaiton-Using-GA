@@ -1,7 +1,7 @@
 from mido import MidiFile
 from math import gcd
 
-mid = MidiFile("./midi_file/bee.mid")
+mid = MidiFile("../midi_file/bee.mid")
 gcd_value = 0
 min_value = 109
 max_value = 20

@@ -48,12 +48,19 @@ def LBDM( target ):
     intervalWeight = calculateWeight( INTERVALINDEX )
     restWeight = calculateWeight( RESTINDEX )
 
+
+
+    def formattedPrint( target ):
+        for i in range(len(target)):
+            print( "%3d" % ( target[i] ) , end = '')
+        print("\n")
+
     print("DURATION:")
-    print(durationWeight)
+    formattedPrint( durationWeight )
     print("INTERVAL:")
-    print(intervalWeight)
+    formattedPrint( intervalWeight )
     print("REST:")
-    print(restWeight)
+    formattedPrint( restWeight )
 
     print(" SUM OF ABOVE: ")
-    print( durationWeight + intervalWeight + restWeight )
+    formattedPrint( durationWeight + intervalWeight + restWeight )

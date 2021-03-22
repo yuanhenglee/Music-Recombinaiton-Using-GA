@@ -121,7 +121,19 @@ class ProcessedMIDI:
         print("numberOfMinLength: " + str(self.numberOfMinLength))
         print("lowestNote: " + str(self.lowestNote))
         print("highestNote: " + str(self.highestNote))
-        print("noteSeq: ")
-        print(self.noteSeq)
+
+        def formattedPrint( target ):
+            for i in range(self.numberOfNotes):
+                print( "%3d" % ( target[i] ) , end = '')
+            print("\n")
+                        
+        print( "Pitch Sequence:" )
+        formattedPrint( self.noteSeq[PITCHINDEX] )
+        print( "Duration Sequence:" )
+        formattedPrint( self.noteSeq[DURATIONINDEX] )
+        print( "Interval Sequence:" )
+        formattedPrint( self.noteSeq[INTERVALINDEX]  )
+        print( "Rest Sequence:" )
+        formattedPrint( self.noteSeq[RESTINDEX] )
 
 

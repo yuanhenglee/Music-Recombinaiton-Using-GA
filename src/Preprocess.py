@@ -104,8 +104,13 @@ class ProcessedMIDI:
                 nextPitch = self.noteSeq[PITCHINDEX][i+1]
                 if curPitch == 0 or nextPitch == 0:
                     self.noteSeq[INTERVALINDEX][i] = 0
+
+                    # cutpoint might appear between each break
                     if curPitch == 0:
                         self.noteSeq[RESTINDEX][i] = self.noteSeq[DURATIONINDEX][i]
+                    else: 
+                        self.noteSeq[RESTINDEX][i] = self.noteSeq[DURATIONINDEX][i+1]
+
                 else:
                     # TODO solve same interval with different step difference
                     self.noteSeq[INTERVALINDEX][i] = ( nextPitch  - curPitch )

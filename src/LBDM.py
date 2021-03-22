@@ -32,11 +32,12 @@ def LBDM( target ):
                 PIncrement += PR
 
             ## find true duration including break
-            fixed = previous
-            if seqTable[PITCHINDEX][i] == 0 and i > 1:
-                fixed = previous + seqTable[sequenceIndex][i-1]
-            if fixed != current:
-                PIncrement += 2
+            if sequenceIndex == DURATIONINDEX: # only duration sequence use this
+                fixed = previous
+                if seqTable[PITCHINDEX][i] == 0 and i > 1:
+                    fixed = previous + seqTable[sequenceIndex][i-1]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                if fixed != current:
+                    PIncrement += 2
 
             sumOfWeight[i] += PIncrement
             sumOfWeight[i+1] += CIncrement

@@ -3,14 +3,17 @@ from LBDM import LBDM
 
 from mido import MidiFile
 
+import csv
+from pathlib import Path
+
+
 
 if __name__ == "__main__":
 
-<<<<<<< HEAD
-        mid = MidiFile("../midi_file/young.mid")
-=======
-    mid = MidiFile("../midi_file/young.mid")
->>>>>>> 4b615c6c199504f329d3cd3beb63fb325b6814e2
+    base_path = Path(__file__).parent
+    file_path = (base_path / "../midi_file/young.mid").resolve()
+
+    mid = MidiFile(file_path)
 
     period = ProcessedMIDI(mid)
 

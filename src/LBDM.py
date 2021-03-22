@@ -54,6 +54,5 @@ def LBDM( target ):
     print("REST:")
     print(restWeight)
 
-    print( seqTable[PITCHINDEX] )
     print(" SUM OF ABOVE: ")
     print( durationWeight + intervalWeight + restWeight )

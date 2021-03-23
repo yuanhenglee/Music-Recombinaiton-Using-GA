@@ -4,15 +4,14 @@ from LBDM import LBDM
 from pathlib import Path
 from mido import MidiFile
 
-
+import sys
 
 
 if __name__ == "__main__":
 
-    base_path = Path(__file__).parent
-    file_path = (base_path / "../midi_file/young.mid").resolve()
+    path = sys.argv[1]
 
-    mid = MidiFile(file_path)
+    mid = MidiFile(path)
 
     period = ProcessedMIDI(mid)
 

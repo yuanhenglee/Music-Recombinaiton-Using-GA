@@ -1,5 +1,5 @@
 from Preprocess import ProcessedMIDI
-from LBDM import LBDM
+from ILBDM import ILBDM
 
 from pathlib import Path
 from mido import MidiFile
@@ -17,4 +17,4 @@ if __name__ == "__main__":
 
     period.printPeriod()
 
-    LBDM(period)
+    ILBDM(period)

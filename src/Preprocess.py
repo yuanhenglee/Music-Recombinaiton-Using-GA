@@ -98,18 +98,21 @@ class ProcessedMIDI:
             # by the current encoding method, same note & (note,break) are both been consider as interval = 0
             for i, curPitch in enumerate(self.noteSeq[C.PITCHINDEX][:-1]):
                 nextPitch = self.noteSeq[C.PITCHINDEX][i+1]
-                if curPitch == 0 or nextPitch == 0:
-                    self.noteSeq[C.INTERVALINDEX][i] = 0
-
-                    # cutpoint might appear between each break
-                    if curPitch == 0:
-                        self.noteSeq[C.RESTINDEX][i] = self.noteSeq[C.DURATIONINDEX][i]
-                    else:
-                        self.noteSeq[C.RESTINDEX][i] = self.noteSeq[C.DURATIONINDEX][i+1]
+                # cutpoint might appear between each break
+                if curPitch == 0:
+                    self.noteSeq[C.RESTINDEX][i] = self.noteSeq[C.DURATIONINDEX][i]
+                elif nextPitch == 0 and i + 2 < self.numberOfNotes:
+                    nextNextPitch = self.noteSeq[C.PITCHINDEX][i+2]
+                    self.noteSeq[C.RESTINDEX][i] = self.noteSeq[C.DURATIONINDEX][i+1]
+                    self.noteSeq[C.INTERVALINDEX][i]\
+                        = abs(nextNextPitch - curPitch)
+                    self.noteSeq[C.INTERVALINDEX][i+1]\
+                        = abs(nextNextPitch - curPitch)
 
                 else:
                     # TODO solve same interval with different step difference
-                    self.noteSeq[C.INTERVALINDEX][i] = (nextPitch - curPitch)
+                    self.noteSeq[C.INTERVALINDEX][i] = abs(
+                        nextPitch - curPitch)
 
             # accumulative beat sequence
             for i, curDuration in enumerate(self.noteSeq[C.DURATIONINDEX][:-1]):

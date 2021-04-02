@@ -47,7 +47,7 @@ def ILBDM(target):
 
     durationWeight = calculateWeight(C.DURATIONINDEX)
     intervalWeight = calculateWeight(C.INTERVALINDEX)
-    restWeight = calculateWeight(C.RESTINDEX)
+    restWeight = seqTable[C.RESTINDEX]
     accumulativeWeight = calculateWeight(C.ACCUMULATIVEINDEX)
 
     def formattedPrint(target):

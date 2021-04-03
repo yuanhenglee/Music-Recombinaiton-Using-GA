@@ -1,5 +1,6 @@
 from Preprocess import ProcessedMIDI
 from ILBDM import ILBDM
+from ReaptingPattern import findReaptingPattern
 
 from pathlib import Path
 from mido import MidiFile
@@ -21,3 +22,5 @@ if __name__ == "__main__":
     period.printPeriod()
 
     ILBDM(period)
+
+    findReaptingPattern(period)

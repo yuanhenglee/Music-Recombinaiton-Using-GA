@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 import Constant as C
+from Utility import formattedPrint
 
 
 def ILBDM(target):
@@ -50,10 +51,6 @@ def ILBDM(target):
     restWeight = seqTable[C.RESTINDEX]
     accumulativeWeight = calculateWeight(C.ACCUMULATIVEINDEX)
 
-    def formattedPrint(target):
-        for i in range(len(target)):
-            print("%3d" % (target[i]), end='')
-        print("\n")
 
     print("Duration Weight:")
     formattedPrint(durationWeight)

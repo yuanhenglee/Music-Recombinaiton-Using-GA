@@ -1,6 +1,6 @@
 import copy
 import numpy as np
-from Constant import C
+import Constant as C
 
 
 def ILBDM(target):

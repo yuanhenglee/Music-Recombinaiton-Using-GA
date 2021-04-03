@@ -9,7 +9,10 @@ import sys
 
 if __name__ == "__main__":
 
-    path = sys.argv[1]
+    try:
+        path = sys.argv[1]
+    except:
+        print("Missing input MIDI file!")
 
     mid = MidiFile(path)
 

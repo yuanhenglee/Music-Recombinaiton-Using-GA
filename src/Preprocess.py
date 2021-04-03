@@ -1,6 +1,6 @@
 from mido import MidiFile
 from math import gcd
-from Constant import C
+import Constant as C
 import numpy as np
 
 

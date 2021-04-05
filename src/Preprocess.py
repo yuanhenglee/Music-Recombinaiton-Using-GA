@@ -47,13 +47,15 @@ class ProcessedMIDI:
 
         # drop first event's delta time
         timeSet.pop(0)
+        self.lowestNote = Utility.value2Pitch( Utility.recodePitch( self.lowestNote ) )
+        self.highestNote = Utility.value2Pitch( Utility.recodePitch( self.highestNote ) )
         self.minLengthInTicks = gcd(*timeSet)
         self.numberOfMinLength = totalTime//self.minLengthInTicks
 
     def parseMIDI(self):
 
         # DEFINE SYMBOL FOR ENCODING
-        OFFSET = 1 - self.lowestNote
+        # OFFSET = 1 - self.lowestNote
 
         # initialize
         self.noteSeq = np.zeros((5, self.numberOfNotes))
@@ -93,14 +95,8 @@ class ProcessedMIDI:
                                formula: 
                                 T(n) = 7*(n//12-3) + stepDiff2Interval(n%12)
                             """
-                            def recodePitch( n ):
-                                stepDiff2Interval = {0:1, 2:2, 4:3, 5:4, 7:5, 9:6, 11:7}
-                                if n%12 in stepDiff2Interval:
-                                    return 7*(n//12-3) + stepDiff2Interval[n%12]
-                                else:
-                                    raise ValueError
                             self.noteSeq[C.PITCHINDEX,
-                                         curNoteIndex] = recodePitch( firstEvent.note )
+                                         curNoteIndex] = Utility.recodePitch( firstEvent.note )
                             self.noteSeq[C.DURATIONINDEX,
                                          curNoteIndex] = duration
                             curNoteIndex += 1

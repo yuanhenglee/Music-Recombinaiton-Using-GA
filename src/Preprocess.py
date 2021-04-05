@@ -3,6 +3,8 @@ from math import gcd
 import Constant as C
 import numpy as np
 
+import Utility 
+
 
 class ProcessedMIDI:
     OG_Mido = MidiFile()
@@ -83,8 +85,22 @@ class ProcessedMIDI:
 
                             # duration
                             duration = int(deltaTime/self.minLengthInTicks)
+                            # ! ATTEMPTS : convert pitch in other rule
+                            """                           
+                               range: c2 to c6
+                               c2 in midi: 36 -> 1
+                               c6 in midi: 84 -> 29
+                               formula: 
+                                T(n) = 7*(n//12-3) + stepDiff2Interval(n%12)
+                            """
+                            def recodePitch( n ):
+                                stepDiff2Interval = {0:1, 2:2, 4:3, 5:4, 7:5, 9:6, 11:7}
+                                if n%12 in stepDiff2Interval:
+                                    return 7*(n//12-3) + stepDiff2Interval[n%12]
+                                else:
+                                    raise ValueError
                             self.noteSeq[C.PITCHINDEX,
-                                         curNoteIndex] = firstEvent.note + OFFSET
+                                         curNoteIndex] = recodePitch( firstEvent.note )
                             self.noteSeq[C.DURATIONINDEX,
                                          curNoteIndex] = duration
                             curNoteIndex += 1
@@ -132,18 +148,16 @@ class ProcessedMIDI:
         print("lowestNote: " + str(self.lowestNote))
         print("highestNote: " + str(self.highestNote))
 
-        def formattedPrint(target):
-            for i in range(self.numberOfNotes):
-                print("%3d" % (target[i]), end='')
-            print("\n")
 
         print("Pitch Sequence:")
-        formattedPrint(self.noteSeq[C.PITCHINDEX])
+        pitchInName = [ Utility.value2Pitch(i) for i in self.noteSeq[C.PITCHINDEX] ]
+        Utility.formattedPrint(pitchInName)
+        # Utility.formattedPrint(self.noteSeq[C.PITCHINDEX])
         print("Duration Sequence:")
-        formattedPrint(self.noteSeq[C.DURATIONINDEX])
+        Utility.formattedPrint(self.noteSeq[C.DURATIONINDEX])
         print("Interval Sequence:")
-        formattedPrint(self.noteSeq[C.INTERVALINDEX])
+        Utility.formattedPrint(self.noteSeq[C.INTERVALINDEX])
         print("Rest Sequence:")
-        formattedPrint(self.noteSeq[C.RESTINDEX])
+        Utility.formattedPrint(self.noteSeq[C.RESTINDEX])
         print("Accumulative Beat Sequence:")
-        formattedPrint(self.noteSeq[C.ACCUMULATIVEINDEX])
+        Utility.formattedPrint(self.noteSeq[C.ACCUMULATIVEINDEX])

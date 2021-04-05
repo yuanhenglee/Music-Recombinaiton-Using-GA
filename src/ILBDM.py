@@ -44,7 +44,7 @@ def ILBDM(target):
             sumOfWeight[i] += PIncrement
             sumOfWeight[i+1] += CIncrement
 
-        return sumOfWeight
+        return sumOfWeight.astype(int)
 
     durationWeight = calculateWeight(C.DURATIONINDEX)
     intervalWeight = calculateWeight(C.INTERVALINDEX)

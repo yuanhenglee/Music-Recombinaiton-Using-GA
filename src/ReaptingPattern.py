@@ -29,7 +29,8 @@ def findReaptingPattern( target ):
 
     print("Correlative Matrix based on pitch & duration sequence")
     pitchInName = np.array([ Utility.value2Pitch(i) for i in target.noteSeq[C.PITCHINDEX] ])
-    pitchCorrMatrix = np.c_[ pitchInName.reshape((pitchInName.size,1)) , pitchCorrMatrix ]
-    print( tabulate( pitchCorrMatrix ,tablefmt="rst", headers = pitchInName ) )
+    print( tabulate( np.c_[ pitchInName.reshape((pitchInName.size,1)) , pitchCorrMatrix ] ,tablefmt="rst", headers = pitchInName ) )
 
-    # print("Maximal Reapting Pattern:")
+    print("Maximal Reapting Pattern:")
+
+    

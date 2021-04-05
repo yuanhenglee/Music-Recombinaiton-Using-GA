@@ -42,9 +42,9 @@ def findReaptingPattern( target ):
                 possibleReaptingPatterns.add( RP )
 
     print( possibleReaptingPatterns )
-    for reaptingPattern in possibleReaptingPatterns:
-        for i in reaptingPattern:
-            
+    # for reaptingPattern in possibleReaptingPatterns:
+    #     for i in reaptingPattern:
+
                 
 
     

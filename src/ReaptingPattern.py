@@ -2,7 +2,7 @@ import numpy as np
 import Constant as C
 
 # for printing
-from Utility import formattedPrint
+import Utility
 from tabulate import tabulate
 
 
@@ -28,5 +28,6 @@ def findReaptingPattern( target ):
     pitchCorrMatrix = corrMatrix( zip( target.noteSeq[C.PITCHINDEX], target.noteSeq[C.DURATIONINDEX] ) )
 
     print("Correlative Matrix based on pitch & duration sequence")
-    print( tabulate( pitchCorrMatrix ,tablefmt="rst", headers = target.noteSeq[C.PITCHINDEX]))
-    # [formattedPrint(i.tolist()) for i in pitchCorrMatrix]
+    pitchInName = np.array([ Utility.value2Pitch(i) for i in target.noteSeq[C.PITCHINDEX] ])
+    pitchCorrMatrix = np.c_[ pitchInName.reshape((pitchInName.size,1)) , pitchCorrMatrix ]
+    print( tabulate( pitchCorrMatrix ,tablefmt="rst", headers = pitchInName ) )

@@ -33,4 +33,18 @@ def findReaptingPattern( target ):
 
     print("Maximal Reapting Pattern:")
 
+    possibleReaptingPatterns = set()
+
+    for i in range( pitchCorrMatrix.shape[0]-1 ):
+        for j in range( pitchCorrMatrix.shape[1]-1 ):
+            if pitchCorrMatrix[i][j] > 0 and pitchCorrMatrix[i+1][j+1] == 0:
+                RP = range( j-pitchCorrMatrix[i][j] , j+1 )
+                possibleReaptingPatterns.add( RP )
+
+    print( possibleReaptingPatterns )
+    for reaptingPattern in possibleReaptingPatterns:
+        for i in reaptingPattern:
+            
+                
+
     

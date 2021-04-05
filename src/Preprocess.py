@@ -123,8 +123,10 @@ class ProcessedMIDI:
                         if preDuration < 8:
                             if self.noteSeq[C.PITCHINDEX][i-1] != 0 or preDuration <= 4:
                                 self.noteSeq[C.ACCUMULATIVEINDEX][i] += self.noteSeq[C.ACCUMULATIVEINDEX][i-1]
+        self.noteSeq = self.noteSeq.astype(int)
 
     def printPeriod(self):
+
         print("minLengthInTicks: " + str(self.minLengthInTicks))
         print("numberOfMinLength: " + str(self.numberOfMinLength))
         print("lowestNote: " + str(self.lowestNote))

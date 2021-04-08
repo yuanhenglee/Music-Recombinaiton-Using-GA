@@ -5,7 +5,6 @@ import Constant as C
 import Utility
 from tabulate import tabulate
 
-
 def corrMatrix( cmpFactors ):
 
     cmpFactors = list( cmpFactors )
@@ -27,9 +26,15 @@ def findReaptingPattern( target ):
     # step 1: find based on pitch sequence
     pitchCorrMatrix = corrMatrix( zip( target.noteSeq[C.PITCHINDEX], target.noteSeq[C.DURATIONINDEX] ) )
 
+    # step 2: find based on pitch interval sequence
+    intervalCorrMatrix = corrMatrix ( zip( target.noteSeq[C.INTERVALINDEX], target.noteSeq[C.DURATIONINDEX] ) )
+
     print("Correlative Matrix based on pitch & duration sequence")
     pitchInName = np.array([ Utility.value2Pitch(i) for i in target.noteSeq[C.PITCHINDEX] ])
     print( tabulate( np.c_[ pitchInName.reshape((pitchInName.size,1)) , pitchCorrMatrix ] ,tablefmt="rst", headers = pitchInName ) )
+
+    print("Correlative Matrix based on pitch interval & duration sequence")
+    print( tabulate( np.c_[ pitchInName.reshape((pitchInName.size,1)) , intervalCorrMatrix ] ,tablefmt="rst", headers = pitchInName ) )
 
     print("Maximal Reapting Pattern:")
 

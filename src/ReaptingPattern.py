@@ -43,12 +43,11 @@ def findReaptingPattern( target ):
     for i in range( pitchCorrMatrix.shape[0]-1 ):
         for j in range( pitchCorrMatrix.shape[1]-1 ):
             if pitchCorrMatrix[i][j] > 0 and pitchCorrMatrix[i+1][j+1] == 0:
-                RP = range( j-pitchCorrMatrix[i][j] , j )
+                RP = range( 1+j-pitchCorrMatrix[i][j] , 1+j )
+                # RP = range( index of the start of RP , index of the end of RP + 1)
                 possibleReaptingPatterns.add( RP )
 
     print( possibleReaptingPatterns )
-    # for reaptingPattern in possibleReaptingPatterns:
-    #     for i in reaptingPattern:
 
                 
 

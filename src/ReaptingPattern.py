@@ -56,7 +56,7 @@ def findReaptingPattern(target):
         zip(target.noteSeq[C.INTERVALINDEX], target.noteSeq[C.DURATIONINDEX]))
 
     # step 3: Augmentation & Diminution (AD) (find only based on pitch interval sequence)
-    ADCorrMatrix = corrMatrix(target.noteSeq[C.INTERVALINDEX])
+    ADCorrMatrix = corrMatrix(target.noteSeq[C.PITCHINDEX])
 
     # print correlative matrix
     print("Correlative Matrix based on pitch & duration sequence")

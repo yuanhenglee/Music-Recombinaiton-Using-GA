@@ -14,5 +14,5 @@ def value2Pitch( value ):
     if value == 0:
         return "-"
     octave = value//7 + 2
-    notationNameTable = {1:'C', 2:'D', 3:'E', 4:'F', 5:'G', 6:'A', 7:'B'}
-    return notationNameTable[value%7 + 1] + str(octave)
+    notationNameTable = {1:'C', 2:'D', 3:'E', 4:'F', 5:'G', 6:'A', 0:'B'}
+    return notationNameTable[value%7] + str(octave)

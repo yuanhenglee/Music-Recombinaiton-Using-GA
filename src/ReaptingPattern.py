@@ -20,20 +20,41 @@ def corrMatrix(cmpFactors):
     return matrix.astype(int)
 
 
+def checkRepeat( RP1, RP2 ):
+    return np.array_equal()
+
+
 def findMaximalRP(CorrMatrix):
-    possibleReaptingPatterns = np.array([set() for i in range(20)])
+    # possibleReaptingPatterns = np.array([set() for i in range(20)])
+    possibleReaptingPatterns = []
     for i in range(CorrMatrix.shape[0]-1):
         for j in range(CorrMatrix.shape[1]-1):
             if CorrMatrix[i][j] > 0 and CorrMatrix[i+1][j+1] == 0:
-                RP = range(1+j-CorrMatrix[i][j], 1+j)
-                # RP = range( index of the start of RP , index of the end of RP + 1)
-                possibleReaptingPatterns[len(RP)].add(RP)
+                # TODO what to do after finding a RP
+                # Data stored in a list of sets of pairs(tuples)
+                # if this kind of RP already exist :
+                #   add to set
+                # else:
+                #   create new set
 
-    for i in range(20):
-        if len(possibleReaptingPatterns[i]) > 0:
-            print("length of RP = ", i)
-            print(possibleReaptingPatterns[i])
-            print()
+                # RP = range( index of the start of RP , index of the end of RP + 1)
+                RPSet = set()
+                RP1 = (1+j-CorrMatrix[i][j], 1+j)
+                RP2 = (1+i-CorrMatrix[i][j], 1+i)
+                possibleReaptingPatterns.append( set( [RP1, RP2] ) )
+                # possibleReaptingPatterns[len(RP)].add(RP)
+
+    print([i for i in possibleReaptingPatterns])
+    for i, RPSet1 in enumerate( possibleReaptingPatterns[:-1]):
+        for RPSet2 in possibleReaptingPatterns[i+1:]:
+            #TODO if intersection of RPSet1 & 2 is not empty
+            #   merge!!
+        
+    # for i in range(20):
+    #     if len(possibleReaptingPatterns[i]) > 0:
+    #         print("length of RP = ", i)
+    #         print(possibleReaptingPatterns[i])
+    #         print()
 
 
 def printCorrMatrix(target, CorrMatrix):
@@ -66,7 +87,7 @@ def findReaptingPattern(target):
     print("Correlative Matrix only based on pitch interval sequence (Augmentation & Diminution)")
     printCorrMatrix(target, ADCorrMatrix)
 
-    print("Maximal Reapting Pattern:")
+    print("Maximal Repeating Pattern:")
     print("1. based on pitch: ")
     findMaximalRP(pitchCorrMatrix)
     print("2. based on pitch interval: ")

@@ -1,6 +1,6 @@
 from Preprocess import ProcessedMIDI
 from ILBDM import ILBDM
-from ReaptingPattern import findReaptingPattern
+from RepeatingPattern import findRepeatingPattern
 
 from pathlib import Path
 from mido import MidiFile
@@ -23,4 +23,4 @@ if __name__ == "__main__":
 
     ILBDM(period)
 
-    findReaptingPattern(period)
+    findRepeatingPattern(period)

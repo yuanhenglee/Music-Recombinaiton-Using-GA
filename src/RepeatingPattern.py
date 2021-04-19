@@ -5,6 +5,12 @@ import Constant as C
 import Utility
 from tabulate import tabulate
 
+class RepeatingPattern:
+    def __init__(self, RPSet):
+        self.RPSet = RPSet
+        self.RPLength = list(RPSet)[0][1] - list(RPSet)[0][0] 
+    def __repr__(self):
+        return repr( sorted(self.RPSet) )
 
 def corrMatrix(cmpFactors):
 
@@ -25,8 +31,8 @@ def checkRepeat( RP1, RP2 ):
 
 
 def findMaximalRP(CorrMatrix):
-    # possibleReaptingPatterns = np.array([set() for i in range(20)])
-    possibleReaptingPatterns = []
+    # possibleRepeatingPatterns = np.array([set() for i in range(20)])
+    possibleRepeatingPatterns = []
     for i in range(CorrMatrix.shape[0]-1):
         for j in range(CorrMatrix.shape[1]-1):
             if CorrMatrix[i][j] >= C.MINRPLENTH and CorrMatrix[i+1][j+1] == 0:
@@ -40,26 +46,21 @@ def findMaximalRP(CorrMatrix):
                 # RP = range( index of the start of RP , index of the end of RP + 1)
                 RP1 = (1+j-CorrMatrix[i][j], 1+j)
                 RP2 = (1+i-CorrMatrix[i][j], 1+i)
-                possibleReaptingPatterns.append( set( [RP1, RP2] ) )
-                # possibleReaptingPatterns[len(RP)].add(RP)
+                possibleRepeatingPatterns.append( set( [RP1, RP2] ) )
+                # possibleRepeatingPatterns[len(RP)].add(RP)
 
-    print([i for i in possibleReaptingPatterns])
-    for i in range( len(possibleReaptingPatterns) - 1 ):
-        for j in range( i+1,len(possibleReaptingPatterns) ):
+    print([i for i in possibleRepeatingPatterns])
+    for i in range( len(possibleRepeatingPatterns) - 1 ):
+        for j in range( i+1,len(possibleRepeatingPatterns) ):
             #TODO if intersection of RPSet1 & 2 is not empty
-            if not possibleReaptingPatterns[i].isdisjoint(possibleReaptingPatterns[j]):
-                print("MERGE: ", possibleReaptingPatterns[i], possibleReaptingPatterns[j])
-                possibleReaptingPatterns[i] = possibleReaptingPatterns[i].union(possibleReaptingPatterns[j])
-                possibleReaptingPatterns[j] = set() 
+            if not possibleRepeatingPatterns[i].isdisjoint(possibleRepeatingPatterns[j]):
+                # print("MERGE: ", possibleRepeatingPatterns[i], possibleRepeatingPatterns[j])
+                possibleRepeatingPatterns[i] = possibleRepeatingPatterns[i].union(possibleRepeatingPatterns[j])
+                possibleRepeatingPatterns[j] = set() 
         
-    possibleReaptingPatterns = [i  for i in possibleReaptingPatterns if i != set()]
-    print([i for i in possibleReaptingPatterns])
-    # for i in range(20):
-    #     if len(possibleReaptingPatterns[i]) > 0:
-    #         print("length of RP = ", i)
-    #         print(possibleReaptingPatterns[i])
-    #         print()
-
+    possibleRepeatingPatterns = [ RepeatingPattern(i)  for i in possibleRepeatingPatterns if i != set()]
+    possibleRepeatingPatterns.sort( key = lambda x: x.RPLength)
+    print( possibleRepeatingPatterns )
 
 def printCorrMatrix(target, CorrMatrix):
     pitchInName = np.array([Utility.value2Pitch(i)
@@ -68,7 +69,7 @@ def printCorrMatrix(target, CorrMatrix):
         (pitchInName.size, 1)), CorrMatrix], tablefmt="rst", headers=pitchInName))
 
 
-def findReaptingPattern(target):
+def findRepeatingPattern(target):
 
     # seqTable = copy.deepcopy(target.noteSeq)
 

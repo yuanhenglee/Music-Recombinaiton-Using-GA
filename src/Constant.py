@@ -7,3 +7,6 @@ RESTINDEX = 3
 ACCUMULATIVEINDEX = 4
 BeatInMeasure = 16
 AccumulativeWeight = 3
+
+#RP
+MINRPLENTH = 3

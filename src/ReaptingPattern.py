@@ -29,7 +29,7 @@ def findMaximalRP(CorrMatrix):
     possibleReaptingPatterns = []
     for i in range(CorrMatrix.shape[0]-1):
         for j in range(CorrMatrix.shape[1]-1):
-            if CorrMatrix[i][j] > 0 and CorrMatrix[i+1][j+1] == 0:
+            if CorrMatrix[i][j] >= C.MINRPLENTH and CorrMatrix[i+1][j+1] == 0:
                 # TODO what to do after finding a RP
                 # Data stored in a list of sets of pairs(tuples)
                 # if this kind of RP already exist :
@@ -38,18 +38,22 @@ def findMaximalRP(CorrMatrix):
                 #   create new set
 
                 # RP = range( index of the start of RP , index of the end of RP + 1)
-                RPSet = set()
                 RP1 = (1+j-CorrMatrix[i][j], 1+j)
                 RP2 = (1+i-CorrMatrix[i][j], 1+i)
                 possibleReaptingPatterns.append( set( [RP1, RP2] ) )
                 # possibleReaptingPatterns[len(RP)].add(RP)
 
     print([i for i in possibleReaptingPatterns])
-    for i, RPSet1 in enumerate( possibleReaptingPatterns[:-1]):
-        for RPSet2 in possibleReaptingPatterns[i+1:]:
+    for i in range( len(possibleReaptingPatterns) - 1 ):
+        for j in range( i+1,len(possibleReaptingPatterns) ):
             #TODO if intersection of RPSet1 & 2 is not empty
-            #   merge!!
+            if not possibleReaptingPatterns[i].isdisjoint(possibleReaptingPatterns[j]):
+                print("MERGE: ", possibleReaptingPatterns[i], possibleReaptingPatterns[j])
+                possibleReaptingPatterns[i] = possibleReaptingPatterns[i].union(possibleReaptingPatterns[j])
+                possibleReaptingPatterns[j] = set() 
         
+    possibleReaptingPatterns = [i  for i in possibleReaptingPatterns if i != set()]
+    print([i for i in possibleReaptingPatterns])
     # for i in range(20):
     #     if len(possibleReaptingPatterns[i]) > 0:
     #         print("length of RP = ", i)

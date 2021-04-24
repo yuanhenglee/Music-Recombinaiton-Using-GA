@@ -1,6 +1,7 @@
 from Preprocess import ProcessedMIDI
 from ILBDM import ILBDM
 from RepeatingPattern import findRepeatingPattern
+from SimilarityMatrix import similarityMatrix
 
 from pathlib import Path
 from mido import MidiFile
@@ -24,3 +25,5 @@ if __name__ == "__main__":
     ILBDM(period)
 
     findRepeatingPattern(period)
+
+    similarityMatrix(period)

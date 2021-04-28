@@ -13,7 +13,32 @@ pd.set_option('display.width', 2000)
 pd.set_option('display.float_format', '{:8,.2f}'.format)
 
 
-def pitch_func(x, y):
+def noveltyApproach( DF_similarityMatrix, threshold, coreMatrixSize ):
+    matrix = DF_similarityMatrix.to_numpy()
+    height = matrix.shape[0]
+    width = matrix.shape[1]
+    for i in range( height ):
+        for j in range( width ):
+            
+            # construct core matrix
+            # i,j           i,j+CMS-1       i,j+2CMS-1
+            # i+CMS-1,j     i+CMS-1,j+CMS-1 i+CMS-1,j+2CMS-1
+            # i+2CMS-1,j 
+            if (i+2*coreMatrixSize-1)>=height or (j+2*coreMatrixSize-1)>=width: continue
+            topLeft = matrix[i:i+coreMatrixSize, j:j+coreMatrixSize]
+            topRight = matrix[i:i+coreMatrixSize, j+coreMatrixSize:j+2*coreMatrixSize]
+            botLeft = matrix[i+coreMatrixSize:i+2*coreMatrixSize, j:j+coreMatrixSize]
+            botRight = matrix[i+coreMatrixSize:i+2*coreMatrixSize, j+coreMatrixSize:j+2*coreMatrixSize]
+            
+            score = (topLeft.mean()+botRight.mean()-topRight.mean()-botLeft.mean())/2
+
+            if score > threshold:
+                print(i+coreMatrixSize," ",j+coreMatrixSize)
+                print( score)
+                print( matrix[i:i+2*coreMatrixSize, j:j+2*coreMatrixSize])
+
+
+def pitchSimilarityDistance(x, y):
     x = np.asarray(x)
     m = x.shape[0]
     y = np.asarray(y)
@@ -45,15 +70,17 @@ def similarityMatrix(target):
     DF_Interval = pd.DataFrame(1/(1+distance_matrix(Interval_var, Interval_var)),
                                columns=Interval_var.index, index=Interval_var.index)
 
-    DF_Pitch = pd.DataFrame(pitch_func(Pitch_var, Pitch_var),
+    DF_Pitch = pd.DataFrame(pitchSimilarityDistance(Pitch_var, Pitch_var),
                             columns=Pitch_var.index, index=Pitch_var.index)
 
     DF_Combine = (DF_Interval + DF_Pitch) / 2
 
     print(DF_Combine)
 
+    noveltyApproach( DF_Combine, 0.5 , 2)
     # Display DF_SM as a matrix in a new figure window
     plt.matshow(DF_Combine)
     # Set the colormap to 'bone'.
     plt.bone()
     plt.show()
+

@@ -17,6 +17,7 @@ def noveltyApproach( DF_similarityMatrix, threshold, coreMatrixSize ):
     matrix = DF_similarityMatrix.to_numpy()
     height = matrix.shape[0]
     width = matrix.shape[1]
+    possibleEdges = [0 for i in range(height)]
     for i in range( height ):
         for j in range( width ):
             
@@ -32,10 +33,13 @@ def noveltyApproach( DF_similarityMatrix, threshold, coreMatrixSize ):
             
             score = (topLeft.mean()+botRight.mean()-topRight.mean()-botLeft.mean())/2
 
+
             if score > threshold:
-                print(i+coreMatrixSize," ",j+coreMatrixSize)
-                print( score)
-                print( matrix[i:i+2*coreMatrixSize, j:j+2*coreMatrixSize])
+                possibleEdges[i+coreMatrixSize] += score
+                # print(i+coreMatrixSize," ",j+coreMatrixSize)
+                # print( score)
+                # print( matrix[i:i+2*coreMatrixSize, j:j+2*coreMatrixSize])
+    return possibleEdges
 
 
 def pitchSimilarityDistance(x, y):
@@ -77,7 +81,11 @@ def similarityMatrix(target):
 
     print(DF_Combine)
 
-    noveltyApproach( DF_Combine, 0.5 , 2)
+    for size in range(1,4):
+        for i in noveltyApproach( DF_Combine, 0.5 , size):
+            print( "%2.1f " % i, end = '')
+        print()
+
     # Display DF_SM as a matrix in a new figure window
     plt.matshow(DF_Combine)
     # Set the colormap to 'bone'.

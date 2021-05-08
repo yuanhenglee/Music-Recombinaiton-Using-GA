@@ -25,14 +25,15 @@ def noveltyApproach(DF_similarityMatrix, threshold, coreMatrixSize):
             # i,j           i,j+CMS-1       i,j+2CMS-1
             # i+CMS-1,j     i+CMS-1,j+CMS-1 i+CMS-1,j+2CMS-1
             # i+2CMS-1,j
-            if (i+2*coreMatrixSize-1) >= height or (j+2*coreMatrixSize-1) >= width: continue
+            if (i+2*coreMatrixSize-1) >= height or (j+2*coreMatrixSize-1) >= width:
+                continue
             topLeft = matrix[i:i+coreMatrixSize, j:j+coreMatrixSize]
             topRight = matrix[i:i+coreMatrixSize,
-                j+coreMatrixSize:j+2*coreMatrixSize]
+                              j+coreMatrixSize:j+2*coreMatrixSize]
             botLeft = matrix[i+coreMatrixSize:i+2 *
-                coreMatrixSize, j:j+coreMatrixSize]
+                             coreMatrixSize, j:j+coreMatrixSize]
             botRight = matrix[i+coreMatrixSize:i+2 *
-                coreMatrixSize, j+coreMatrixSize:j+2*coreMatrixSize]
+                              coreMatrixSize, j+coreMatrixSize:j+2*coreMatrixSize]
 
             score = (topLeft.mean()+botRight.mean() -
                      topRight.mean()-botLeft.mean())/2
@@ -75,7 +76,7 @@ def similarityMatrix(target):
                                 for i in target.noteSeq[C.PITCHINDEX]])
 
     df = pd.DataFrame(distance_matrix(Interval_var, Interval_var),
-                               columns=Interval_var.index, index=Interval_var.index)
+                      columns=Interval_var.index, index=Interval_var.index)
     DF_Interval = pd.DataFrame(1,
                                columns=Interval_var.index, index=Interval_var.index) - (df-df.min())/(df.max()-df.min())
 
@@ -86,10 +87,10 @@ def similarityMatrix(target):
 
     print(DF_Combine)
 
-    for size in range(1,4):
+    for size in range(1, 4):
         print("size: ", size)
-        for i in noveltyApproach( DF_Combine, 0.5 , size):
-            print( "%2.1f " % i, end = '')
+        for i in noveltyApproach(DF_Combine, 0.5, size):
+            print("%2.1f " % i, end='')
         print()
 
     # Display DF_SM as a matrix in a new figure window
@@ -97,4 +98,3 @@ def similarityMatrix(target):
     # Set the colormap to 'bone'.
     plt.bone()
     plt.show()
-

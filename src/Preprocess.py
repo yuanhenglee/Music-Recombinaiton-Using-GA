@@ -3,7 +3,7 @@ from math import gcd
 import Constant as C
 import numpy as np
 
-import Utility 
+import Utility
 
 
 class ProcessedMIDI:
@@ -47,8 +47,10 @@ class ProcessedMIDI:
 
         # drop first event's delta time
         timeSet.pop(0)
-        self.lowestNote = Utility.value2Pitch( Utility.recodePitch( self.lowestNote ) )
-        self.highestNote = Utility.value2Pitch( Utility.recodePitch( self.highestNote ) )
+        self.lowestNote = Utility.value2Pitch(
+            Utility.recodePitch(self.lowestNote))
+        self.highestNote = Utility.value2Pitch(
+            Utility.recodePitch(self.highestNote))
         self.minLengthInTicks = gcd(*timeSet)
         self.numberOfMinLength = totalTime//self.minLengthInTicks
 
@@ -96,7 +98,7 @@ class ProcessedMIDI:
                                 T(n) = 7*(n//12-3) + stepDiff2Interval(n%12)
                             """
                             self.noteSeq[C.PITCHINDEX,
-                                         curNoteIndex] = Utility.recodePitch( firstEvent.note )
+                                         curNoteIndex] = Utility.recodePitch(firstEvent.note)
                             self.noteSeq[C.DURATIONINDEX,
                                          curNoteIndex] = duration
                             curNoteIndex += 1
@@ -120,6 +122,8 @@ class ProcessedMIDI:
                         = abs(nextNextPitch - curPitch)
                     self.noteSeq[C.INTERVALINDEX][i+1]\
                         = abs(nextNextPitch - curPitch)
+                elif nextPitch == 0 and i+2 == self.numberOfNotes:
+                    self.noteSeq[C.INTERVALINDEX][i] = 0
 
                 else:
                     # TODO solve same interval with different step difference
@@ -144,9 +148,9 @@ class ProcessedMIDI:
         print("lowestNote: " + str(self.lowestNote))
         print("highestNote: " + str(self.highestNote))
 
-
         print("Pitch Sequence:")
-        pitchInName = [ Utility.value2Pitch(i) for i in self.noteSeq[C.PITCHINDEX] ]
+        pitchInName = [Utility.value2Pitch(i)
+                       for i in self.noteSeq[C.PITCHINDEX]]
         Utility.formattedPrint(pitchInName)
         # Utility.formattedPrint(self.noteSeq[C.PITCHINDEX])
         print("Duration Sequence:")

@@ -34,11 +34,17 @@ def noveltyApproach(DF_similarityMatrix, threshold, coreMatrixSize):
                              coreMatrixSize, j:j+coreMatrixSize]
             botRight = matrix[i+coreMatrixSize:i+2 *
                               coreMatrixSize, j+coreMatrixSize:j+2*coreMatrixSize]
+            score = 0
+            for x in range(coreMatrixSize):
+                for y in range(coreMatrixSize):
+                    score += (1 - topLeft[x][y]) ** 2
+                    score += (topRight[x][y] - 0) ** 2
+                    score += (botLeft[x][y] - 0) ** 2
+                    score += (1 - botRight[x][y]) ** 2
 
-            score = (topLeft.mean()+botRight.mean() -
-                     topRight.mean()-botLeft.mean())/2
+            score = (score ** 0.5)/(coreMatrixSize * 2)
 
-            if score > threshold:
+            if score < threshold:
                 possibleEdges[i+coreMatrixSize] += score
                 # print(i+coreMatrixSize," ",j+coreMatrixSize)
                 # print( score)
@@ -61,13 +67,6 @@ def pitchSimilarityDistance(x, y):
 
 def similarityMatrix(target):
 
-    Interval_var = pd.DataFrame({
-        "Interval": target.noteSeq[C.INTERVALINDEX]
-    })
-
-    Interval_var.index = np.array([Utility.value2Pitch(i)
-                                   for i in target.noteSeq[C.PITCHINDEX]])
-
     Pitch_var = pd.DataFrame({
         "Pitch": target.noteSeq[C.PITCHINDEX]
     })
@@ -75,21 +74,28 @@ def similarityMatrix(target):
     Pitch_var.index = np.array([Utility.value2Pitch(i)
                                 for i in target.noteSeq[C.PITCHINDEX]])
 
-    df = pd.DataFrame(distance_matrix(Interval_var, Interval_var),
-                      columns=Interval_var.index, index=Interval_var.index)
-    DF_Interval = pd.DataFrame(1,
-                               columns=Interval_var.index, index=Interval_var.index) - (df-df.min())/(df.max()-df.min())
+    Other_var = pd.DataFrame({
+        "Interval": target.noteSeq[C.INTERVALINDEX]
+    })
+
+    Other_var.index = np.array([Utility.value2Pitch(i)
+                                for i in target.noteSeq[C.PITCHINDEX]])
 
     DF_Pitch = pd.DataFrame(pitchSimilarityDistance(Pitch_var, Pitch_var),
                             columns=Pitch_var.index, index=Pitch_var.index)
 
-    DF_Combine = (DF_Interval + DF_Pitch) / 2
+    df = pd.DataFrame(distance_matrix(Other_var, Other_var),
+                      columns=Other_var.index, index=Other_var.index)
+    DF_Other = pd.DataFrame(1,
+                            columns=Other_var.index, index=Other_var.index) - (df-df.min())/(df.max()-df.min())
+
+    DF_Combine = (DF_Other + DF_Pitch)/2
 
     print(DF_Combine)
 
     for size in range(1, 4):
         print("size: ", size)
-        for i in noveltyApproach(DF_Combine, 0.5, size):
+        for i in noveltyApproach(DF_Combine, 0.3, size):
             print("%2.1f " % i, end='')
         print()
 

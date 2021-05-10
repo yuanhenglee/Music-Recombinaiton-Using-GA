@@ -42,13 +42,17 @@ def noveltyApproach(DF_similarityMatrix, threshold, coreMatrixSize):
                     score += (botLeft[x][y] - 0) ** 2
                     score += (1 - botRight[x][y]) ** 2
 
-            score = (score ** 0.5)/(coreMatrixSize * 2)
+            score = 1 - (score ** 0.5)/(coreMatrixSize * 2)
 
-            if score < threshold:
-                possibleEdges[i+coreMatrixSize] += score
+            if score > threshold:
+                # possibleEdges[i+coreMatrixSize] = 1
+                possibleEdges[i+coreMatrixSize] = score if possibleEdges[i +
+                                                                         coreMatrixSize] < score else possibleEdges[i+coreMatrixSize]
                 # print(i+coreMatrixSize," ",j+coreMatrixSize)
                 # print( score)
                 # print( matrix[i:i+2*coreMatrixSize, j:j+2*coreMatrixSize])
+        if possibleEdges[i] > 0:
+            print(i)
     return possibleEdges
 
 
@@ -95,7 +99,7 @@ def similarityMatrix(target):
 
     for size in range(1, 4):
         print("size: ", size)
-        for i in noveltyApproach(DF_Combine, 0.3, size):
+        for i in noveltyApproach(DF_Combine, 0.625, size):
             print("%2.1f " % i, end='')
         print()
 

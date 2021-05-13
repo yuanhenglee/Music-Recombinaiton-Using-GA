@@ -13,11 +13,14 @@ pd.set_option('display.width', 2000)
 pd.set_option('display.float_format', '{:8,.2f}'.format)
 
 
-def noveltyApproach(DF_similarityMatrix, threshold, coreMatrixSize):
+def noveltyApproach(DF_similarityMatrix, percentiles, coreMatrixSize):
     matrix = DF_similarityMatrix.to_numpy()
     height = matrix.shape[0]
     width = matrix.shape[1]
-    possibleEdges = [0 for i in range(height)]
+    score_matrix = np.zeros((height,width))
+    possibleEdges = np.zeros(height)
+
+    # creating a matrix "possibleEdges" which store the score on certain point
     for i in range(height):
         for j in range(width):
 
@@ -44,16 +47,17 @@ def noveltyApproach(DF_similarityMatrix, threshold, coreMatrixSize):
 
             score = 1 - (score ** 0.5)/(coreMatrixSize * 2)
 
-            if score > threshold:
-                # possibleEdges[i+coreMatrixSize] = 1
-                possibleEdges[i+coreMatrixSize] = score if possibleEdges[i +
-                                                                         coreMatrixSize] < score else possibleEdges[i+coreMatrixSize]
-                # print(i+coreMatrixSize," ",j+coreMatrixSize)
-                # print( score)
-                # print( matrix[i:i+2*coreMatrixSize, j:j+2*coreMatrixSize])
-        if possibleEdges[i] > 0:
-            print(i)
-    return possibleEdges
+            score_matrix[i+coreMatrixSize-1][j+coreMatrixSize-1] = score 
+
+    # determine threshold based on possibleEdges
+    threshold = np.percentile(score_matrix, percentiles)
+    possibleEdges = [max( np.max(score_matrix[i]), threshold ) for i in range(height)]
+
+    # TEST
+    print( "Threshold", threshold )
+
+
+    return possibleEdges 
 
 
 def pitchSimilarityDistance(x, y):
@@ -99,7 +103,7 @@ def similarityMatrix(target):
 
     for size in range(1, 4):
         print("size: ", size)
-        for i in noveltyApproach(DF_Combine, 0.625, size):
+        for i in noveltyApproach(DF_Combine, 60, size):
             print("%2.1f " % i, end='')
         print()
 

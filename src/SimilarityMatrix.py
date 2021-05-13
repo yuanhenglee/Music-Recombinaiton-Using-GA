@@ -49,9 +49,12 @@ def noveltyApproach(DF_similarityMatrix, percentiles, coreMatrixSize):
 
             score_matrix[i+coreMatrixSize-1][j+coreMatrixSize-1] = score 
 
+    # find max score for each cutpoint
+    maxScore = np.amax(score_matrix, axis = 0)
     # determine threshold based on possibleEdges
-    threshold = np.percentile(score_matrix, percentiles)
-    possibleEdges = [max( np.max(score_matrix[i]), threshold ) for i in range(height)]
+    threshold = np.percentile(maxScore, percentiles)
+
+    possibleEdges = [maxScore[i] if maxScore[i] > threshold else 0 for i in range(height)]
 
     # TEST
     print( "Threshold", threshold )
@@ -103,7 +106,7 @@ def similarityMatrix(target):
 
     for size in range(1, 4):
         print("size: ", size)
-        for i in noveltyApproach(DF_Combine, 60, size):
+        for i in noveltyApproach(DF_Combine, 90, size):
             print("%2.1f " % i, end='')
         print()
 

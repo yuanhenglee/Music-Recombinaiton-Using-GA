@@ -117,10 +117,10 @@ def similarityMatrix(target):
 
     for size in range(1, 5):
         print("size: ", size)
-        for i in range(DF_Combine.shape[0]): print("%1d.0   " % (i%10), end = '')
-        print()
+        # for i in range(DF_Combine.shape[0]): print("%1d.0   " % (i%10), end = '')
+        # print()
         for i in noveltyApproach(DF_Combine, 90, size, 3):
-            print("%2.3f " % i, end='')
+            print("%3d" % i, end='')
         print()
 
     # Display DF_SM as a matrix in a new figure window

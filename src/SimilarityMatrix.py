@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import math
 from scipy.spatial import distance_matrix
 import matplotlib.pyplot as plt
 
@@ -13,12 +14,12 @@ pd.set_option('display.width', 2000)
 pd.set_option('display.float_format', '{:8,.2f}'.format)
 
 
-def noveltyApproach(DF_similarityMatrix, percentiles, coreMatrixSize):
+def noveltyApproach(DF_similarityMatrix, percentiles, coreMatrixSize , minDistanceBetweenCutpoint):
     matrix = DF_similarityMatrix.to_numpy()
     height = matrix.shape[0]
     width = matrix.shape[1]
     score_matrix = np.zeros((height,width))
-    possibleEdges = np.zeros(height)
+    possibleEdges = set()
 
     # creating a matrix "possibleEdges" which store the score on certain point
     for i in range(height):
@@ -50,15 +51,25 @@ def noveltyApproach(DF_similarityMatrix, percentiles, coreMatrixSize):
             score_matrix[i+coreMatrixSize-1][j+coreMatrixSize-1] = score 
 
     # find max score for each cutpoint
-    maxScore = np.amax(score_matrix, axis = 0)
+    maxScore = [(i,np.amax(score_matrix[i], axis = 0)) for i in range(height) ]
+    maxScore.sort(key = lambda x: x[1], reverse=True)
+    numberOfCutPoint = math.floor(height - height * percentiles / 100 )
+    cutPointcount = 0
+    for i in range(height):
+        tooClose = False
+        for j in range(-minDistanceBetweenCutpoint , minDistanceBetweenCutpoint+1):
+            if ( maxScore[i][0] + j ) in possibleEdges:
+                tooClose = True
+        if not tooClose :
+            possibleEdges.add(maxScore[i][0])
+            cutPointcount+=1
+        if cutPointcount >= numberOfCutPoint:
+            break
     # determine threshold based on possibleEdges
-    threshold = np.percentile(maxScore, percentiles)
 
-    possibleEdges = [maxScore[i] if maxScore[i] > threshold else 0 for i in range(height)]
+    # threshold = np.percentile(maxScore, percentiles)
 
-    # TEST
-    print( "Threshold", threshold )
-
+    # possibleEdges = [maxScore[i] if maxScore[i] > threshold else 0 for i in range(height)]
 
     return possibleEdges 
 
@@ -104,10 +115,12 @@ def similarityMatrix(target):
 
     print(DF_Combine)
 
-    for size in range(1, 4):
+    for size in range(1, 5):
         print("size: ", size)
-        for i in noveltyApproach(DF_Combine, 90, size):
-            print("%2.1f " % i, end='')
+        for i in range(DF_Combine.shape[0]): print("%1d.0   " % (i%10), end = '')
+        print()
+        for i in noveltyApproach(DF_Combine, 90, size, 3):
+            print("%2.3f " % i, end='')
         print()
 
     # Display DF_SM as a matrix in a new figure window

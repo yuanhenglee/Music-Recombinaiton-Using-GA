@@ -23,5 +23,5 @@ def musicSegmentation(target, SM, LBDM):
         preCuttingPoint = i
     checkCuttingPoint(preCuttingPoint, size_Note-1, cuttingPoint, LBDM)
 
-    print(cuttingPoint)
+    print("Cutting Point = ", cuttingPoint)
     target.noteSeq[C.SEGMENTATIONINDEX] = cuttingPoint

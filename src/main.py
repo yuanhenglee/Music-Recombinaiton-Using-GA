@@ -2,6 +2,7 @@ from Preprocess import ProcessedMIDI
 from ILBDM import ILBDM
 from RepeatingPattern import findRepeatingPattern
 from SimilarityMatrix import similarityMatrix
+from MusicSegmentation import musicSegmentation
 
 from pathlib import Path
 from mido import MidiFile
@@ -22,8 +23,8 @@ if __name__ == "__main__":
 
     period.printPeriod()
 
-    ILBDM(period)
+    result_ILBDM = ILBDM(period)
 
-    findRepeatingPattern(period)
+    result_SM = similarityMatrix(period)
 
-    similarityMatrix(period)
+    musicSegmentation(period, result_SM, result_ILBDM)

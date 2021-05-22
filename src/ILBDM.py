@@ -50,16 +50,20 @@ def ILBDM(target):
     intervalWeight = calculateWeight(C.INTERVALINDEX)
     restWeight = seqTable[C.RESTINDEX]
     accumulativeWeight = calculateWeight(C.ACCUMULATIVEINDEX)
+    totalWeight = 2*durationWeight + intervalWeight + 2*restWeight + accumulativeWeight
 
-    print("Duration Weight:")
-    formattedPrint(durationWeight)
-    print("Interval Weight:")
-    formattedPrint(intervalWeight)
-    print("Rest Weight:")
-    formattedPrint(restWeight)
-    print("Accumulative Weight:")
-    formattedPrint(accumulativeWeight)
+    # print("Duration Weight:")
+    # formattedPrint(durationWeight)
+    # print("Interval Weight:")
+    # formattedPrint(intervalWeight)
+    # print("Rest Weight:")
+    # formattedPrint(restWeight)
+    # print("Accumulative Weight:")
+    # formattedPrint(accumulativeWeight)
 
-    print("SUM OF ABOVE: ")
-    formattedPrint(2 * durationWeight + intervalWeight +
-                   2 * restWeight + accumulativeWeight)
+    # print("SUM OF ABOVE: ")
+    # formattedPrint(2 * durationWeight + intervalWeight +
+    #                2 * restWeight + accumulativeWeight)
+
+    print("ILBDM result = ", totalWeight)
+    return totalWeight

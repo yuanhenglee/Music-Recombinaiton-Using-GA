@@ -5,8 +5,9 @@ INTERVALINDEX = 2
 RESTINDEX = 3
 # accumulative beat count
 ACCUMULATIVEINDEX = 4
+SEGMENTATIONINDEX = 5
 BeatInMeasure = 16
 AccumulativeWeight = 3
 
-#RP
+# RP
 MINRPLENTH = 3

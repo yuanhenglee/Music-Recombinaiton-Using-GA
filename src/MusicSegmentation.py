@@ -3,9 +3,9 @@ import Constant as C
 
 
 def checkCuttingPoint(start, end, cuttingPoint, LBDM):
-    maxSize = (int)(LBDM.size/8) if LBDM.size/8 >= 8 else 8
+    maxSize = (int)(LBDM.size/8) if LBDM.size/8 >= 6 else 6
     if (end - start) > maxSize:
-        newCuttingPoint = start+4 + np.argmax(LBDM[start+4:end-4])
+        newCuttingPoint = start+3 + np.argmax(LBDM[start+3:end-3])
         print(newCuttingPoint)
         cuttingPoint[newCuttingPoint] = 1
         checkCuttingPoint(start, newCuttingPoint, cuttingPoint, LBDM)

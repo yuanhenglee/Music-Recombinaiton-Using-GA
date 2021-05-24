@@ -15,6 +15,8 @@ class ProcessedMIDI:
     numberOfNotes = 0
     lowestNote = 109
     highestNote = 20
+    totalDuration = 0
+    minSegment = 0
 
     def __init__(self, mid, preprocess=True):
         self.OG_Mido = mid
@@ -140,6 +142,10 @@ class ProcessedMIDI:
                             if self.noteSeq[C.PITCHINDEX][i-1] != 0 or preDuration <= 4:
                                 self.noteSeq[C.ACCUMULATIVEINDEX][i] += self.noteSeq[C.ACCUMULATIVEINDEX][i-1]
         self.noteSeq = self.noteSeq.astype(int)
+
+        for i in range(self.numberOfNotes):
+            self.totalDuration += self.noteSeq[C.DURATIONINDEX][i]
+        self.minSegment = (int)(self.totalDuration / 16)
 
     def printPeriod(self):
 

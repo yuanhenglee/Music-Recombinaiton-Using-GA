@@ -128,7 +128,6 @@ class ProcessedMIDI:
                     self.noteSeq[C.INTERVALINDEX][i] = 0
 
                 else:
-                    # TODO solve same interval with different step difference
                     self.noteSeq[C.INTERVALINDEX][i] = abs(
                         nextPitch - curPitch)
 
@@ -147,7 +146,7 @@ class ProcessedMIDI:
             self.totalDuration += self.noteSeq[C.DURATIONINDEX][i]
         self.minSegment = (int)(self.totalDuration / 16)
 
-    def printPeriod(self):
+    def printMIDI(self):
 
         print("minLengthInTicks: " + str(self.minLengthInTicks))
         print("numberOfMinLength: " + str(self.numberOfMinLength))

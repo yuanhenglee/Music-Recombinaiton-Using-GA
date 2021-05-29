@@ -49,7 +49,7 @@ def findMaximalRP(CorrMatrix):
                 possibleRepeatingPatterns.append( set( [RP1, RP2] ) )
                 # possibleRepeatingPatterns[len(RP)].add(RP)
 
-    print([i for i in possibleRepeatingPatterns])
+    # print([i for i in possibleRepeatingPatterns])
     for i in range( len(possibleRepeatingPatterns) - 1 ):
         for j in range( i+1,len(possibleRepeatingPatterns) ):
             #TODO if intersection of RPSet1 & 2 is not empty

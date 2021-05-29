@@ -86,6 +86,38 @@ def pitchSimilarityDistance(x, y):
             result[i][j] = 1 if x[i] == y[j] else 0
     return result
 
+def diagonalMean( matrix, intervalA, intervalB ):
+    if (intervalA[1] - intervalA[0]) > (intervalB[1]-intervalB[0]): intervalA, intervalB = intervalB, intervalA
+    diff = (intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0])
+    cells = [] 
+    for i in range(intervalA[0],intervalA[1]):
+        j = intervalB[0] + i - intervalA[0]
+        for k in range(diff+1):
+            cells.append(matrix[i][j+k])
+    return np.array(cells).mean()
+
+
+
+def elementsClustering( target, cuttingInterval, threshold ):
+    matrix = similarityMatrix( target )
+    elementGroups = []
+    for i in range( len(cuttingInterval)-1 ):
+        for j in range( i+1 , len(cuttingInterval) ):
+            if diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j]) >= threshold :
+                elementGroups.append({i,j})
+            # print(cuttingInterval[i],",",cuttingInterval[j])
+            # print( diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j] ) )
+    
+    for i in range( len(elementGroups) - 1 ):
+        for j in range( i+1,len(elementGroups) ):
+            #TODO if intersection of RPSet1 & 2 is not empty
+            if not elementGroups[i].isdisjoint(elementGroups[j]):
+                # print("MERGE: ", possibleRepeatingPatterns[i], possibleRepeatingPatterns[j])
+                elementGroups[i] = elementGroups[i].union(elementGroups[j])
+                elementGroups[j] = set() 
+        
+    elementGroups = [ i for i in elementGroups if i != set()]
+    return elementGroups
 
 def similarityMatrix(target):
 
@@ -113,23 +145,26 @@ def similarityMatrix(target):
 
     DF_Combine = (DF_Other + DF_Pitch)/2
 
+    return DF_Combine.to_numpy()
+
+    # ! rearrange SSM function: only return matrix now
     # # Display DF_SM as a matrix in a new figure window
     # plt.matshow(DF_Combine)
     # # Set the colormap to 'bone'.
     # plt.bone()
     # plt.show()
 
-    percentage = 90
-    coreMatrixSize = 3
-    resultSize = (int)(target.numberOfNotes * (1-percentage/100))
-    result = np.zeros(resultSize, dtype=int)
+    # percentage = 90
+    # coreMatrixSize = 3
+    # resultSize = (int)(target.numberOfNotes * (1-percentage/100))
+    # result = np.zeros(resultSize, dtype=int)
 
-    index = 0
-    for i in noveltyApproach(DF_Combine, percentage, coreMatrixSize, 3):
-        result[index] = i
-        index += 1
+    # index = 0
+    # for i in noveltyApproach(DF_Combine, percentage, coreMatrixSize, 3):
+    #     result[index] = i
+    #     index += 1
 
-    result = np.sort(result)
-    print("Similarity Matrix result = ", result)
+    # result = np.sort(result)
+    # print("Similarity Matrix result = ", result)
 
-    return result
+    # return result

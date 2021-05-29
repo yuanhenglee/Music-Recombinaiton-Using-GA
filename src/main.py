@@ -1,9 +1,11 @@
 from Preprocess import ProcessedMIDI
-from ILBDM import ILBDM
-from RepeatingPattern import findRepeatingPattern
-from SimilarityMatrix import similarityMatrix
-from MusicSegmentation import musicSegmentation
-from MusicSegmentation_2 import musicSegmentation2
+from Individual import Individual
+import MusicSegmentation_2 
+# from ILBDM import ILBDM
+# from RepeatingPattern import findRepeatingPattern
+# from SimilarityMatrix import similarityMatrix
+# from MusicSegmentation import musicSegmentation
+# from MusicSegmentation_2 import musicSegmentation2
 
 from pathlib import Path
 from mido import MidiFile
@@ -20,13 +22,17 @@ if __name__ == "__main__":
 
     mid = MidiFile(path)
 
-    period = ProcessedMIDI(mid)
+    parsedMIDI = ProcessedMIDI(mid)
 
-    period.printPeriod()
+    signaturePossibilities =  MusicSegmentation_2.extractSignatures( parsedMIDI )
 
-    result_ILBDM = ILBDM(period)
+    newIndividual = Individual(parsedMIDI, parsedMIDI, signaturePossibilities)
 
-    result_SM = similarityMatrix(period)
+    newIndividual.printIndividual()
 
-    musicSegmentation(period, result_SM, result_ILBDM)
-    musicSegmentation2(period, result_ILBDM)
+    # result_ILBDM = ILBDM(parsedMIDI)
+
+    # result_SM = similarityMatrix(parsedMIDI)
+
+    # musicSegmentation(parsedMIDI, result_SM, result_ILBDM)
+    # musicSegmentation2(parsedMIDI, result_ILBDM)

@@ -6,11 +6,15 @@ class Individual:
 		self._ancestorMIDI = ancestorMIDI
 		self._signature = signature
 
+		# ! TEST
+		self.printIndividual()
+
 
 
 	def printIndividual( self ):
 		# OG MIDI
 		self._parsedMIDI.printMIDI()
+		print("Signature: \n", self._signature)
 		# segmentation info
 
 

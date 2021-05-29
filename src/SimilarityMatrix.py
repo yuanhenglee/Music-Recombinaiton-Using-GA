@@ -104,15 +104,13 @@ def elementsClustering( target, cuttingInterval, threshold ):
     for i in range( len(cuttingInterval)-1 ):
         for j in range( i+1 , len(cuttingInterval) ):
             if diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j]) >= threshold :
-                elementGroups.append({i,j})
+                elementGroups.append({cuttingInterval[i],cuttingInterval[j]})
             # print(cuttingInterval[i],",",cuttingInterval[j])
             # print( diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j] ) )
     
     for i in range( len(elementGroups) - 1 ):
         for j in range( i+1,len(elementGroups) ):
-            #TODO if intersection of RPSet1 & 2 is not empty
             if not elementGroups[i].isdisjoint(elementGroups[j]):
-                # print("MERGE: ", possibleRepeatingPatterns[i], possibleRepeatingPatterns[j])
                 elementGroups[i] = elementGroups[i].union(elementGroups[j])
                 elementGroups[j] = set() 
         

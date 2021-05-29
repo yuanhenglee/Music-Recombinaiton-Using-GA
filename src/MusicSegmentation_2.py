@@ -9,8 +9,7 @@ def extractSignatures( target ):
     cuttingPoint =[-1] + cuttingPoint + [target.numberOfNotes-1] # make sure first & last interval in list
     cuttingInterval = [(cuttingPoint[i]+1, cuttingPoint[i+1]+1) for i in range(len(cuttingPoint)-1)]
     print(cuttingInterval)
-    elementGroups = elementsClustering( target, cuttingInterval, 0.5)
-    print(elementGroups)
+    return elementsClustering( target, cuttingInterval, 0.5)
 
 
 

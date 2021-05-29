@@ -26,9 +26,8 @@ if __name__ == "__main__":
 
     signaturePossibilities =  MusicSegmentation_2.extractSignatures( parsedMIDI )
 
-    newIndividual = Individual(parsedMIDI, parsedMIDI, signaturePossibilities)
+    newIndividuals = [Individual(parsedMIDI, parsedMIDI, signature ) for signature in signaturePossibilities ]
 
-    newIndividual.printIndividual()
 
     # result_ILBDM = ILBDM(parsedMIDI)
 

@@ -103,7 +103,8 @@ def elementsClustering( target, cuttingInterval, threshold ):
     elementGroups = []
     for i in range( len(cuttingInterval)-1 ):
         for j in range( i+1 , len(cuttingInterval) ):
-            if diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j]) >= threshold :
+            similarity = diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j])
+            if similarity >= threshold :
                 elementGroups.append({cuttingInterval[i],cuttingInterval[j]})
             # print(cuttingInterval[i],",",cuttingInterval[j])
             # print( diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j] ) )

@@ -86,28 +86,37 @@ def pitchSimilarityDistance(x, y):
             result[i][j] = 1 if x[i] == y[j] else 0
     return result
 
-def diagonalMean( matrix, intervalA, intervalB ):
+def converter(interval, noteIndexToTimeIndex ):
+    return noteIndexToTimeIndex[interval[0]], noteIndexToTimeIndex[interval[1]] 
+
+def diagonalMean( matrix, intervalA, intervalB, noteIndexToTimeIndex ):
+    notesDiff = abs((intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0]))
+    intervalA, intervalB = converter(intervalA, noteIndexToTimeIndex), converter(intervalB, noteIndexToTimeIndex)
     if (intervalA[1] - intervalA[0]) > (intervalB[1]-intervalB[0]): intervalA, intervalB = intervalB, intervalA
-    diff = (intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0])
+    durationDiff = (intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0])
+    # if durationDiff > 3 or notesDiff > 3: return 0
     cells = [] 
     for i in range(intervalA[0],intervalA[1]):
         j = intervalB[0] + i - intervalA[0]
-        for k in range(diff+1):
-            cells.append(matrix[i][j+k])
-    return np.array(cells).mean()
+        cells.append(matrix[i][j])
+        # for k in range(durationDiff+1):
+            # cells.append(matrix[i][j+k])
+    if cells != []:
+        return np.array(cells).mean()
+    return 0
 
 
 
 def elementsClustering( target, cuttingInterval, threshold ):
-    matrix = similarityMatrix( target )
+    matrix, noteIndexToTimeIndex = similarityMatrix( target )
     elementGroups = []
     for i in range( len(cuttingInterval)-1 ):
         for j in range( i+1 , len(cuttingInterval) ):
-            similarity = diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j])
+            similarity = diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j], noteIndexToTimeIndex)
             if similarity >= threshold :
                 elementGroups.append({cuttingInterval[i],cuttingInterval[j]})
-            # print(cuttingInterval[i],",",cuttingInterval[j])
-            # print( diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j] ) )
+            # print((cuttingInterval[i]),",", (cuttingInterval[j]))
+            # print(similarity)
     
     for i in range( len(elementGroups) - 1 ):
         for j in range( i+1,len(elementGroups) ):
@@ -120,38 +129,59 @@ def elementsClustering( target, cuttingInterval, threshold ):
 
 def similarityMatrix(target):
 
-    Pitch_var = pd.DataFrame({
-        "Pitch": target.noteSeq[C.PITCHINDEX]
-    })
+    expandedPitchSeq = np.empty(target.totalDuration)
+    expandedIntervalSeq = np.empty(target.totalDuration)
+    noteIndexToTimeIndex = np.empty(target.numberOfNotes+1, dtype=int)
+    accumulativeTimeIndex = 0
+    index = 0
+    for i in range( target.numberOfNotes ):
+        noteIndexToTimeIndex[i] = accumulativeTimeIndex
+        accumulativeTimeIndex += int(target.noteSeq[C.DURATIONINDEX][i])
+        for j in range( target.noteSeq[C.DURATIONINDEX][i] ):
+            expandedPitchSeq[index] = target.noteSeq[C.PITCHINDEX][i]
+            expandedIntervalSeq[index] = target.noteSeq[C.INTERVALINDEX][i]
+            index+=1
+    noteIndexToTimeIndex[target.numberOfNotes] = accumulativeTimeIndex
 
-    Pitch_var.index = np.array([Utility.value2Pitch(i)
-                                for i in target.noteSeq[C.PITCHINDEX]])
+    expandedIntervalSeq = pd.DataFrame(expandedIntervalSeq )
 
-    Other_var = pd.DataFrame({
-        "Interval": target.noteSeq[C.INTERVALINDEX]
-    })
+    SMM_Pitch = pitchSimilarityDistance(expandedPitchSeq, expandedPitchSeq)
+    SMM_Interval = distance_matrix(expandedIntervalSeq, expandedIntervalSeq)
+    SMM_Interval = 1-(SMM_Interval - SMM_Interval.min())/(SMM_Interval.max()-SMM_Interval.min())
+    SMM_Combined = SMM_Pitch #+ SMM_Interval /2
 
-    Other_var.index = np.array([Utility.value2Pitch(i)
-                                for i in target.noteSeq[C.PITCHINDEX]])
-
-    DF_Pitch = pd.DataFrame(pitchSimilarityDistance(Pitch_var, Pitch_var),
-                            columns=Pitch_var.index, index=Pitch_var.index)
-
-    df = pd.DataFrame(distance_matrix(Other_var, Other_var),
-                      columns=Other_var.index, index=Other_var.index)
-    DF_Other = pd.DataFrame(1,
-                            columns=Other_var.index, index=Other_var.index) - (df-df.min())/(df.max()-df.min())
-
-    DF_Combine = (DF_Other + DF_Pitch)/2
-
-    return DF_Combine.to_numpy()
-
-    # ! rearrange SSM function: only return matrix now
-    # # Display DF_SM as a matrix in a new figure window
-    # plt.matshow(DF_Combine)
-    # # Set the colormap to 'bone'.
-    # plt.bone()
+    # plt.imshow(SMM_Combined, plt.cm.bone)
     # plt.show()
+
+    return SMM_Combined, noteIndexToTimeIndex
+    
+    # ! rewrite SSM function: only return matrix based on time seq now
+    # Pitch_var = pd.DataFrame({
+    #     "Pitch": target.noteSeq[C.PITCHINDEX]
+    # })
+
+    # Pitch_var.index = np.array([Utility.value2Pitch(i)
+    #                             for i in target.noteSeq[C.PITCHINDEX]])
+
+    # Other_var = pd.DataFrame({
+    #     "Interval": target.noteSeq[C.INTERVALINDEX]
+    # })
+
+    # Other_var.index = np.array([Utility.value2Pitch(i)
+    #                             for i in target.noteSeq[C.PITCHINDEX]])
+
+    # DF_Pitch = pd.DataFrame(pitchSimilarityDistance(Pitch_var, Pitch_var),
+    #                         columns=Pitch_var.index, index=Pitch_var.index)
+
+    # df = pd.DataFrame(distance_matrix(Other_var, Other_var),
+    #                   columns=Other_var.index, index=Other_var.index)
+    # DF_Other = pd.DataFrame(1,
+    #                         columns=Other_var.index, index=Other_var.index) - (df-df.min())/(df.max()-df.min())
+
+    # DF_Combine = (DF_Other + DF_Pitch)/2
+
+    # return DF_Combine.to_numpy()
+
 
     # percentage = 90
     # coreMatrixSize = 3

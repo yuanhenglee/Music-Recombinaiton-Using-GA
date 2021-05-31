@@ -150,6 +150,8 @@ class ProcessedMIDI:
 
         print("minLengthInTicks: " + str(self.minLengthInTicks))
         print("numberOfMinLength: " + str(self.numberOfMinLength))
+        print("numberOfNotes: " + str(self.numberOfNotes))
+        print("totalDuration: " + str(self.totalDuration))
         print("lowestNote: " + str(self.lowestNote))
         print("highestNote: " + str(self.highestNote))
 

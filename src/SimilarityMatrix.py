@@ -90,15 +90,21 @@ def converter(interval, noteIndexToTimeIndex ):
     return noteIndexToTimeIndex[interval[0]], noteIndexToTimeIndex[interval[1]] 
 
 def diagonalMean( matrix, intervalA, intervalB, noteIndexToTimeIndex ):
-    notesDiff = abs((intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0]))
+    # notesDiff = abs((intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0]))
+    print(intervalA, " to ",end = '')
     intervalA, intervalB = converter(intervalA, noteIndexToTimeIndex), converter(intervalB, noteIndexToTimeIndex)
+    print(intervalA)
     if (intervalA[1] - intervalA[0]) > (intervalB[1]-intervalB[0]): intervalA, intervalB = intervalB, intervalA
-    durationDiff = (intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0])
+    # durationDiff = (intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0])
     # if durationDiff > 3 or notesDiff > 3: return 0
     cells = [] 
     for i in range(intervalA[0],intervalA[1]):
         j = intervalB[0] + i - intervalA[0]
         cells.append(matrix[i][j])
+
+        if( intervalA == (18,32) and intervalB == (41,64)):
+            print( i, ",", j )
+            print(matrix[i][j])
         # for k in range(durationDiff+1):
             # cells.append(matrix[i][j+k])
     if cells != []:
@@ -150,8 +156,8 @@ def similarityMatrix(target):
     SMM_Interval = 1-(SMM_Interval - SMM_Interval.min())/(SMM_Interval.max()-SMM_Interval.min())
     SMM_Combined = SMM_Pitch #+ SMM_Interval /2
 
-    # plt.imshow(SMM_Combined, plt.cm.bone)
-    # plt.show()
+    plt.imshow(SMM_Combined, plt.cm.bone)
+    plt.show()
 
     return SMM_Combined, noteIndexToTimeIndex
     

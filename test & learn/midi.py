@@ -24,7 +24,7 @@ class notesPeriod:
         self.OG_Mido = mid
         if preprocess:
             self.exploreMIDI()
-            self.parseMIDI()
+            # self.parseMIDI()
 
     def exploreMIDI(self):
 
@@ -41,8 +41,8 @@ class notesPeriod:
                     timeSet.append(event.time)
                     totalTime += event.time
 
-                    self.lowest = event.note if event.note < self.lowest else self.lowest
-                    self.highest = event.note if event.note > self.highest else self.highest
+                    # self.lowest = event.note if event.note < self.lowest else self.lowest
+                    # self.highest = event.note if event.note > self.highest else self.highest
 
         # drop first event's delta time
         timeSet.pop(0)
@@ -109,7 +109,7 @@ class notesPeriod:
 
 
 if __name__ == "__main__":
-    mid = MidiFile("../midi_file/test1.mid")
+    mid = MidiFile("./midi_file/刻在我心底的名字.mid")
 
     period = notesPeriod(mid)
 

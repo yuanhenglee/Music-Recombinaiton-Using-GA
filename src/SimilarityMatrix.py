@@ -143,7 +143,7 @@ def similarityMatrix(target):
     for i in range( target.numberOfNotes ):
         noteIndexToTimeIndex[i] = accumulativeTimeIndex
         accumulativeTimeIndex += int(target.noteSeq[C.DURATIONINDEX][i])
-        for j in range( target.noteSeq[C.DURATIONINDEX][i] ):
+        for j in range( int(target.noteSeq[C.DURATIONINDEX][i] ) ):
             expandedPitchSeq[index] = target.noteSeq[C.PITCHINDEX][i]
             expandedIntervalSeq[index] = target.noteSeq[C.INTERVALINDEX][i]
             index+=1

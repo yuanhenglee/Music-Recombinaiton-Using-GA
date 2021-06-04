@@ -140,10 +140,10 @@ class ProcessedMIDI:
                         if preDuration < 8:
                             if self.noteSeq[C.PITCHINDEX][i-1] != 0 or preDuration <= 4:
                                 self.noteSeq[C.ACCUMULATIVEINDEX][i] += self.noteSeq[C.ACCUMULATIVEINDEX][i-1]
-        self.noteSeq = self.noteSeq.astype(int)
+        self.noteSeq[C.DURATIONINDEX] = [ int(i) for i in self.noteSeq[C.DURATIONINDEX] ]
 
         for i in range(self.numberOfNotes):
-            self.totalDuration += self.noteSeq[C.DURATIONINDEX][i]
+            self.totalDuration += int(self.noteSeq[C.DURATIONINDEX][i])
         self.minSegment = (int)(self.totalDuration / 16)
 
     def printMIDI(self):
@@ -161,10 +161,10 @@ class ProcessedMIDI:
         Utility.formattedPrint(pitchInName)
         # Utility.formattedPrint(self.noteSeq[C.PITCHINDEX])
         print("Duration Sequence:")
-        Utility.formattedPrint(self.noteSeq[C.DURATIONINDEX])
+        Utility.formattedPrint(self.noteSeq[C.DURATIONINDEX].astype(int))
         print("Interval Sequence:")
         Utility.formattedPrint(self.noteSeq[C.INTERVALINDEX])
         print("Rest Sequence:")
-        Utility.formattedPrint(self.noteSeq[C.RESTINDEX])
+        Utility.formattedPrint(self.noteSeq[C.RESTINDEX].astype(int))
         print("Accumulative Beat Sequence:")
-        Utility.formattedPrint(self.noteSeq[C.ACCUMULATIVEINDEX])
+        Utility.formattedPrint(self.noteSeq[C.ACCUMULATIVEINDEX].astype(int))

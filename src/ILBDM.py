@@ -65,5 +65,5 @@ def ILBDM(target):
     # formattedPrint(2 * durationWeight + intervalWeight +
     #                2 * restWeight + accumulativeWeight)
 
-    print("ILBDM result = ", totalWeight)
+    # print("ILBDM result = ", totalWeight)
     return totalWeight

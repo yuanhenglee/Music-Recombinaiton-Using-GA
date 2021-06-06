@@ -1,6 +1,6 @@
 from Preprocess import ProcessedMIDI
 from Individual import Individual
-import MusicSegmentation_2 
+import MusicSegmentation_2
 # from ILBDM import ILBDM
 # from RepeatingPattern import findRepeatingPattern
 # from SimilarityMatrix import similarityMatrix
@@ -24,10 +24,10 @@ if __name__ == "__main__":
 
     parsedMIDI = ProcessedMIDI(mid)
 
-    signaturePossibilities =  MusicSegmentation_2.extractSignatures( parsedMIDI )
+    signaturePossibilities = MusicSegmentation_2.extractSignatures(parsedMIDI)
 
-    newIndividuals = [Individual(parsedMIDI, parsedMIDI, signature ) for signature in signaturePossibilities ]
-
+    newIndividuals = [Individual(parsedMIDI, parsedMIDI, signature)
+                      for signature in signaturePossibilities]
 
     # result_ILBDM = ILBDM(parsedMIDI)
 

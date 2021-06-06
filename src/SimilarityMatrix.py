@@ -86,52 +86,54 @@ def pitchSimilarityDistance(x, y):
             result[i][j] = 1 if x[i] == y[j] else 0
     return result
 
-def converter(interval, noteIndexToTimeIndex ):
-    return noteIndexToTimeIndex[interval[0]], noteIndexToTimeIndex[interval[1]] 
 
-def diagonalMean( matrix, intervalA, intervalB, noteIndexToTimeIndex ):
+def converter(interval, noteIndexToTimeIndex):
+    return noteIndexToTimeIndex[interval[0]], noteIndexToTimeIndex[interval[1]]
+
+
+def diagonalMean(matrix, intervalA, intervalB, noteIndexToTimeIndex):
     # notesDiff = abs((intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0]))
-    print(intervalA, " to ",end = '')
-    intervalA, intervalB = converter(intervalA, noteIndexToTimeIndex), converter(intervalB, noteIndexToTimeIndex)
-    print(intervalA)
-    if (intervalA[1] - intervalA[0]) > (intervalB[1]-intervalB[0]): intervalA, intervalB = intervalB, intervalA
+    # print(intervalA, " to ",end = '')
+    intervalA, intervalB = converter(intervalA, noteIndexToTimeIndex), converter(
+        intervalB, noteIndexToTimeIndex)
+    # print(intervalA)
+    if (intervalA[1] - intervalA[0]) > (intervalB[1]-intervalB[0]):
+        intervalA, intervalB = intervalB, intervalA
     # durationDiff = (intervalB[1]-intervalB[0]) - (intervalA[1] - intervalA[0])
     # if durationDiff > 3 or notesDiff > 3: return 0
-    cells = [] 
-    for i in range(intervalA[0],intervalA[1]):
+    cells = []
+    for i in range(intervalA[0], intervalA[1]):
         j = intervalB[0] + i - intervalA[0]
         cells.append(matrix[i][j])
 
-        if( intervalA == (18,32) and intervalB == (41,64)):
-            print( i, ",", j )
-            print(matrix[i][j])
         # for k in range(durationDiff+1):
-            # cells.append(matrix[i][j+k])
+        # cells.append(matrix[i][j+k])
     if cells != []:
         return np.array(cells).mean()
     return 0
 
 
-
-def elementsClustering( target, cuttingInterval, threshold ):
-    matrix, noteIndexToTimeIndex = similarityMatrix( target )
+def elementsClustering(target, cuttingInterval, threshold):
+    matrix, noteIndexToTimeIndex = similarityMatrix(target)
     elementGroups = []
-    for i in range( len(cuttingInterval)-1 ):
-        for j in range( i+1 , len(cuttingInterval) ):
-            similarity = diagonalMean( matrix, cuttingInterval[i], cuttingInterval[j], noteIndexToTimeIndex)
-            if similarity >= threshold :
-                elementGroups.append({cuttingInterval[i],cuttingInterval[j]})
+    for i in range(len(cuttingInterval)-1):
+        for j in range(i+1, len(cuttingInterval)):
+            similarity = diagonalMean(
+                matrix, cuttingInterval[i], cuttingInterval[j], noteIndexToTimeIndex)
+            if similarity >= threshold:
+                elementGroups.append({cuttingInterval[i], cuttingInterval[j]})
             # print((cuttingInterval[i]),",", (cuttingInterval[j]))
             # print(similarity)
-    
-    for i in range( len(elementGroups) - 1 ):
-        for j in range( i+1,len(elementGroups) ):
+
+    for i in range(len(elementGroups) - 1):
+        for j in range(i+1, len(elementGroups)):
             if not elementGroups[i].isdisjoint(elementGroups[j]):
                 elementGroups[i] = elementGroups[i].union(elementGroups[j])
-                elementGroups[j] = set() 
-        
-    elementGroups = [ i for i in elementGroups if i != set()]
+                elementGroups[j] = set()
+
+    elementGroups = [i for i in elementGroups if i != set()]
     return elementGroups
+
 
 def similarityMatrix(target):
 
@@ -140,27 +142,28 @@ def similarityMatrix(target):
     noteIndexToTimeIndex = np.empty(target.numberOfNotes+1, dtype=int)
     accumulativeTimeIndex = 0
     index = 0
-    for i in range( target.numberOfNotes ):
+    for i in range(target.numberOfNotes):
         noteIndexToTimeIndex[i] = accumulativeTimeIndex
         accumulativeTimeIndex += int(target.noteSeq[C.DURATIONINDEX][i])
-        for j in range( int(target.noteSeq[C.DURATIONINDEX][i] ) ):
+        for j in range(int(target.noteSeq[C.DURATIONINDEX][i])):
             expandedPitchSeq[index] = target.noteSeq[C.PITCHINDEX][i]
             expandedIntervalSeq[index] = target.noteSeq[C.INTERVALINDEX][i]
-            index+=1
+            index += 1
     noteIndexToTimeIndex[target.numberOfNotes] = accumulativeTimeIndex
 
-    expandedIntervalSeq = pd.DataFrame(expandedIntervalSeq )
+    expandedIntervalSeq = pd.DataFrame(expandedIntervalSeq)
 
     SMM_Pitch = pitchSimilarityDistance(expandedPitchSeq, expandedPitchSeq)
     SMM_Interval = distance_matrix(expandedIntervalSeq, expandedIntervalSeq)
-    SMM_Interval = 1-(SMM_Interval - SMM_Interval.min())/(SMM_Interval.max()-SMM_Interval.min())
-    SMM_Combined = SMM_Pitch #+ SMM_Interval /2
+    SMM_Interval = 1-(SMM_Interval - SMM_Interval.min()) / \
+        (SMM_Interval.max()-SMM_Interval.min())
+    SMM_Combined = SMM_Pitch  # + SMM_Interval /2
 
-    plt.imshow(SMM_Combined, plt.cm.bone)
-    plt.show()
+    # plt.imshow(SMM_Combined, plt.cm.bone)
+    # plt.show()
 
     return SMM_Combined, noteIndexToTimeIndex
-    
+
     # ! rewrite SSM function: only return matrix based on time seq now
     # Pitch_var = pd.DataFrame({
     #     "Pitch": target.noteSeq[C.PITCHINDEX]
@@ -187,7 +190,6 @@ def similarityMatrix(target):
     # DF_Combine = (DF_Other + DF_Pitch)/2
 
     # return DF_Combine.to_numpy()
-
 
     # percentage = 90
     # coreMatrixSize = 3

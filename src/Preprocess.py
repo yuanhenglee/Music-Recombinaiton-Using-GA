@@ -49,9 +49,9 @@ class ProcessedMIDI:
 
         # drop first event's delta time
         timeSet.pop(0)
-        self.lowestNote = Utility.value2Pitch(
+        self.lowestNote_value = Utility.value2Pitch(
             Utility.recodePitch(self.lowestNote))
-        self.highestNote = Utility.value2Pitch(
+        self.highestNote_value = Utility.value2Pitch(
             Utility.recodePitch(self.highestNote))
         self.minLengthInTicks = gcd(*timeSet)
         self.numberOfMinLength = totalTime//self.minLengthInTicks
@@ -140,7 +140,8 @@ class ProcessedMIDI:
                         if preDuration < 8:
                             if self.noteSeq[C.PITCHINDEX][i-1] != 0 or preDuration <= 4:
                                 self.noteSeq[C.ACCUMULATIVEINDEX][i] += self.noteSeq[C.ACCUMULATIVEINDEX][i-1]
-        self.noteSeq[C.DURATIONINDEX] = [ int(i) for i in self.noteSeq[C.DURATIONINDEX] ]
+        self.noteSeq[C.DURATIONINDEX] = [
+            int(i) for i in self.noteSeq[C.DURATIONINDEX]]
 
         for i in range(self.numberOfNotes):
             self.totalDuration += int(self.noteSeq[C.DURATIONINDEX][i])

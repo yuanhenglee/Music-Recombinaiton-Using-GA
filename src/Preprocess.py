@@ -1,5 +1,4 @@
 from mido import MidiFile
-from math import gcd
 import Constant as C
 import numpy as np
 
@@ -53,7 +52,7 @@ class ProcessedMIDI:
             Utility.recodePitch(self.lowestNote))
         self.highestNote_value = Utility.value2Pitch(
             Utility.recodePitch(self.highestNote))
-        self.minLengthInTicks = gcd(*timeSet)
+        self.minLengthInTicks = np.gcd.reduce(timeSet)
         self.numberOfMinLength = totalTime//self.minLengthInTicks
 
     def parseMIDI(self):

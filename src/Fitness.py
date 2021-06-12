@@ -1,13 +1,10 @@
 
 def calculateFitness(lower, upper, value):
     score = 0
-    mid = (lower+upper)/2
     if value >= lower and value <= upper:
         score += 1
-    elif value < lower:
-        score += 1 - (mid - value)/mid
     else:
-        score += 1 - (value - mid)/mid
+        score += 0
     return score
 
 

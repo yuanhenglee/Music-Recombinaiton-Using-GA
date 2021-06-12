@@ -14,7 +14,8 @@ class Individual:
                 totalRestDuration += self.parsedMIDI.noteSeq[C.DURATIONINDEX][i]
         self.restRate = totalRestDuration / self.parsedMIDI.totalDuration
         # calculate density of note
-        self.noteDensity = self.parsedMIDI.numberOfNotes / self.parsedMIDI.totalDuration
+        self.noteDensity = self.parsedMIDI.numberOfNotes / \
+            (self.parsedMIDI.totalDuration * self.parsedMIDI.minLengthInTicks)
         # calculate range of pitch
         self.pitchRange = self.parsedMIDI.highestNote - self.parsedMIDI.lowestNote
 

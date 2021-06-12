@@ -21,10 +21,10 @@ class Individual:
 
         # fitness function
         self.fitness = 0
-        Fitness.updatefitness(self)
+        # Fitness.updateFitness(self)
 
         # ! TEST
-        self.printIndividual()
+        # self.printIndividual()
 
     def printIndividual(self):
         # OG MIDI

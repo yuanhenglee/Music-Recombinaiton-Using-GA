@@ -17,7 +17,7 @@ def startGA(num_generations, num_parents_mating, population):
         # Generating next generation using crossover.
         offspring_crossover = crossover(parents, offspring_size=(len(population)-num_parents_mating) )
 
-        # Adding some variations to the offsrping using mutation.
+        # Adding some variations to the offspring using mutation.
         offspring_mutation = mutation(offspring_crossover)
 
         # Creating the new population based on the parents and offspring.

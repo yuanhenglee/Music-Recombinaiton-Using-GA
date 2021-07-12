@@ -1,3 +1,4 @@
+from hashlib import new
 import sys
 from mido import MidiFile
 from Preprocess import ProcessedMIDI
@@ -11,24 +12,29 @@ import numpy as np
 import random
 
 
-def startGA(num_generations, num_parents_mating, population):
+def startGA(num_generations, num_parents_mating, population, max_population):
     for generation in range(num_generations):
         # Measuring the fitness of each chromosome in the population.
         for individual in population:
             updateFitness(individual)
+        population.sort(key=lambda x: x.fitness)
+        population = population[0:max_population]
+        print("\n", population[0].parsedMIDI.noteSeq[C.PITCHINDEX])
+
+        # terminate
+
         # Selecting the best parents in the population for mating.
         parents = select_mating_pool(population, num_parents_mating)
 
         # Generating next generation using crossover.
         offspring_crossover = crossover(
-            parents, offspring_size=(len(population)-num_parents_mating))
+            parents, offspring_size=(max_population-num_parents_mating))
 
         # Adding some variations to the offspring using mutation.
         offspring_mutation = mutation(offspring_crossover)
 
         # Creating the new population based on the parents and offspring.
-        population[0:len(parents)] = parents
-        population[len(parents):] = offspring_mutation
+        population[len(population):] = offspring_mutation
     return population
 
 
@@ -50,9 +56,9 @@ def crossover(parents, offspring_size):
             offspring_parsedMIDI = main_parent.parsedMIDI
             offspring_ancestorMIDI = main_parent.parsedMIDI
             # change OG_mido to null
-            offspring_parsedMIDI.OG_Mido = MidiFile()
+            offspring_parsedMIDI.OG_Mido = None
             # update min length in ticks
-            offspring_parsedMIDI.minLengthInTicks = np.lcm(
+            offspring_parsedMIDI.minLengthInTicks = np.gcd(
                 main_parent.parsedMIDI.minLengthInTicks, sub_parent.parsedMIDI.minLengthInTicks)
             ####Crossover####
             # mask of main parent
@@ -70,7 +76,7 @@ def crossover(parents, offspring_size):
             # crossover
             # TODO
             ####change to individual####
-            # find cutting Point #Warning
+            # find cutting Point
             offspring_LBDM = ILBDM(offspring_parsedMIDI)
             offspring_cuttingPoint = MusicSegmentation_2.musicSegmentation2(
                 offspring_parsedMIDI, offspring_LBDM)
@@ -96,10 +102,16 @@ def mutation(offspring_crossover):
 
 
 def changeMelody(start, end, target):
-    move = random.randint(-5, 5)
+    move = random.randint(-7, 7)
+    newPitch = []
     for i in range(start, end+1):
         if target.noteSeq[C.PITCHINDEX][i] != 0:
-            target.noteSeq[C.PITCHINDEX][i] += move
+            if target.noteSeq[C.PITCHINDEX][i] + move <= 0:
+                return
+            newPitch.append(target.noteSeq[C.PITCHINDEX][i] + move)
+        else:
+            newPitch.append(0)
+    target.noteSeq[C.PITCHINDEX][start:end+1] = newPitch
 
 
 if __name__ == "__main__":
@@ -127,7 +139,7 @@ if __name__ == "__main__":
     # for individual in population:
     #     individual.printIndividual()
 
-    new_population = startGA(1, 3, population)
+    new_population = startGA(10, 5, population, 10)
 
     # print("AFTER:")
     # for individual in new_population:

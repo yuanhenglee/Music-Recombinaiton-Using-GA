@@ -21,7 +21,7 @@ class Individual:
         self.pitchRange = self.parsedMIDI.highestNote - self.parsedMIDI.lowestNote
 
         # fitness function
-        self.fitness = 0
+        self.fitness = -1
         # Fitness.updateFitness(self)
 
         # ! TEST
@@ -30,7 +30,7 @@ class Individual:
     def printIndividual(self):
         # OG MIDI
         # self.parsedMIDI.printMIDI()
-        print("Signature: \n", self.signature)
+        print("\nSignature: \n", self.signature)
         print("Rate of Rest: \n", '%.4f' % self.restRate)
         print("Density of Note: \n", '%.4f' % self.noteDensity)
         print("Range of Pitch: \n", self.pitchRange)

@@ -5,6 +5,7 @@ import MusicSegmentation_2
 from Individual import Individual
 from Fitness import updateFitness
 from ILBDM import ILBDM
+import Constant as C
 
 import numpy as np
 import random
@@ -68,7 +69,8 @@ def crossover(parents, offspring_size):
                     mask[i] = random.randint(0, 1)
             # crossover
             # TODO
-            # change to individual
+            ####change to individual####
+            # find cutting Point #Warning
             offspring_LBDM = ILBDM(offspring_parsedMIDI)
             offspring_cuttingPoint = MusicSegmentation_2.musicSegmentation2(
                 offspring_parsedMIDI, offspring_LBDM)
@@ -79,7 +81,25 @@ def crossover(parents, offspring_size):
 
 
 def mutation(offspring_crossover):
+    for offspring in offspring_crossover:
+        # selected element can not be signature
+        start = 0
+        end = 0
+        while (start, end+1) in offspring.signature or (start == 0 and end == 0):
+            selected_elementIndex = random.randint(
+                0, len(offspring.cuttingPoint)-1)
+            start = 0 if selected_elementIndex == 0 else offspring.cuttingPoint[
+                selected_elementIndex-1]+1
+            end = offspring.cuttingPoint[selected_elementIndex]
+        changeMelody(start, end, offspring.parsedMIDI)
     return offspring_crossover
+
+
+def changeMelody(start, end, target):
+    move = random.randint(-5, 5)
+    for i in range(start, end+1):
+        if target.noteSeq[C.PITCHINDEX][i] != 0:
+            target.noteSeq[C.PITCHINDEX][i] += move
 
 
 if __name__ == "__main__":

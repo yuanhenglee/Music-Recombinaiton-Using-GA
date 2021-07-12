@@ -3,10 +3,11 @@ import Fitness as Fitness
 
 
 class Individual:
-    def __init__(self, _parsedMIDI, _ancestorMIDI, _signature):
+    def __init__(self, _parsedMIDI, _ancestorMIDI, _cuttingPoint, _signature):
         self.parsedMIDI = _parsedMIDI
         self.ancestorMIDI = _ancestorMIDI
         self.signature = _signature
+        self.cuttingPoint = _cuttingPoint
         # calculate rate of rest
         totalRestDuration = 0
         for i in range(self.parsedMIDI.numberOfNotes):

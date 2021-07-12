@@ -23,11 +23,12 @@ if __name__ == "__main__":
     mid = MidiFile(path)
 
     parsedMIDI = ProcessedMIDI(mid)
+    parsedMIDI.printMIDI()
 
-    signaturePossibilities = MusicSegmentation_2.extractSignatures(parsedMIDI)
+    # signaturePossibilities = MusicSegmentation_2.extractSignatures(parsedMIDI)
 
-    newIndividuals = [Individual(parsedMIDI, parsedMIDI, signature)
-                      for signature in signaturePossibilities]
+    # newIndividuals = [Individual(parsedMIDI, parsedMIDI, signature)
+    #                   for signature in signaturePossibilities]
 
     # result_ILBDM = ILBDM(parsedMIDI)
 

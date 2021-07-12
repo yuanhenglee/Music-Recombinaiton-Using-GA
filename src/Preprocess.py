@@ -10,7 +10,7 @@ class ProcessedMIDI:
     noteSeq = np.array([])
     tempo = 500000  # Default value
     minLengthInTicks = 0
-    numberOfMinLength = 0
+    # numberOfMinLength = 0
     numberOfNotes = 0
     lowestNote = 109
     highestNote = 20
@@ -48,12 +48,12 @@ class ProcessedMIDI:
 
         # drop first event's delta time
         timeSet.pop(0)
-        self.lowestNote_value = Utility.value2Pitch(
-            Utility.recodePitch(self.lowestNote))
-        self.highestNote_value = Utility.value2Pitch(
-            Utility.recodePitch(self.highestNote))
+        # self.lowestNote_value = Utility.value2Pitch(
+        #     Utility.recodePitch(self.lowestNote))
+        # self.highestNote_value = Utility.value2Pitch(
+        #     Utility.recodePitch(self.highestNote))
         self.minLengthInTicks = np.gcd.reduce(timeSet)
-        self.numberOfMinLength = totalTime//self.minLengthInTicks
+        # self.numberOfMinLength = totalTime//self.minLengthInTicks
 
     def parseMIDI(self):
 

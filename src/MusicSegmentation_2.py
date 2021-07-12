@@ -32,7 +32,7 @@ def checkCuttingPoint(index, LBDM, cuttingPoint, target):
 def musicSegmentation2(target, LBDM):
     size_Note = LBDM.size
     # cuttingPoint = np.zeros(size_Note, dtype=int)
-    cuttingPoint = []
+    cuttingPoint = [target.numberOfNotes-1]
 
     i = 0
     while i < size_Note-1:

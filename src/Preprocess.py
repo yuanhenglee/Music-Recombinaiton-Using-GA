@@ -6,6 +6,7 @@ import Utility
 
 
 class ProcessedMIDI:
+    # only ancestors get this, set to None for offsprings
     OG_Mido = MidiFile()
     noteSeq = np.array([])
     tempo = 500000  # Default value
@@ -14,16 +15,26 @@ class ProcessedMIDI:
     numberOfNotes = 0
     lowestNote = 109
     highestNote = 20
-    totalDuration = 0
+    totalDuration = 0 # aka numberOfMinLength
     minSegment = 0
 
-    def __init__(self, mid, preprocess=True):
-        self.OG_Mido = mid
-        # self.checkMIDIValidity()
-
-        if preprocess:
+    # two type
+    # __init__( mid, None )
+    # __init__( None, inputNoteSeq )
+    def __init__(self, mid , inputProcessedMIDI):
+        # construct with a real midi file, for ancestors only
+        if inputProcessedMIDI == None:
+            self.OG_Mido = mid
             self.exploreMIDI()
             self.parseMIDI()
+        # constructor for offspring, will construct based on note seq
+        else:
+            self.OG_Mido = mid 
+            self.noteSeq = inputProcessedMIDI
+            # TODO rebuild exploreMIDI or make another for updating field..QQ
+
+
+
 
     def exploreMIDI(self):
         timeSet = []  # store possible periods

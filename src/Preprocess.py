@@ -11,17 +11,16 @@ class ProcessedMIDI:
     noteSeq = np.array([])
     tempo = 500000  # Default value
     minLengthInTicks = 0
-    # numberOfMinLength = 0
     numberOfNotes = 0
-    lowestNote = 109
-    highestNote = 20
+    lowestNote = 1
+    highestNote = 29
     totalDuration = 0 # aka numberOfMinLength
     minSegment = 0
 
     # two type
     # __init__( mid, None )
     # __init__( None, inputNoteSeq )
-    def __init__(self, mid , inputProcessedMIDI):
+    def __init__(self, mid , inputProcessedMIDI = None):
         # construct with a real midi file, for ancestors only
         if inputProcessedMIDI == None:
             self.OG_Mido = mid
@@ -29,11 +28,23 @@ class ProcessedMIDI:
             self.parseMIDI()
         # constructor for offspring, will construct based on note seq
         else:
-            self.OG_Mido = mid 
-            self.noteSeq = inputProcessedMIDI
+            self.OG_Mido = None
             # TODO rebuild exploreMIDI or make another for updating field..QQ
+            self.updateFieldVariable( inputProcessedMIDI )
 
 
+    def updateFieldVariable(self, inputProcessedMIDI):
+        self.noteSeq = inputProcessedMIDI.noteSeq
+        self.tempo = inputProcessedMIDI.tempo
+        self.minLengthInTicks = inputProcessedMIDI.minLengthInTicks
+        self.numberOfNotes = inputProcessedMIDI.noteSeq[C.PITCHINDEX].shape[0]
+        self.lowestNote = np.min(inputProcessedMIDI.noteSeq[C.PITCHINDEX])
+        self.highestNote = np.max(inputProcessedMIDI.noteSeq[C.PITCHINDEX])
+        self.totalDuration = np.sum(inputProcessedMIDI.noteSeq[C.DURATIONINDEX])
+        self.minSegment = int(self.totalDuration / 16)
+
+
+        
 
 
     def exploreMIDI(self):
@@ -102,13 +113,6 @@ class ProcessedMIDI:
                             # duration
                             duration = int(deltaTime/self.minLengthInTicks)
                             # ! ATTEMPTS : convert pitch in other rule
-                            """                           
-                               range: c2 to c6
-                               c2 in midi: 36 -> 1
-                               c6 in midi: 84 -> 29
-                               formula: 
-                                T(n) = 7*(n//12-3) + stepDiff2Interval(n%12)
-                            """
                             self.noteSeq[C.PITCHINDEX,
                                          curNoteIndex] = Utility.recodePitch(firstEvent.note)
                             self.noteSeq[C.DURATIONINDEX,
@@ -160,7 +164,7 @@ class ProcessedMIDI:
     def printMIDI(self):
 
         print("minLengthInTicks: " + str(self.minLengthInTicks))
-        print("numberOfMinLength: " + str(self.numberOfMinLength))
+        # print("numberOfMinLength: " + str(self.numberOfMinLength))
         print("numberOfNotes: " + str(self.numberOfNotes))
         print("totalDuration: " + str(self.totalDuration))
         print("lowestNote: " + str(self.lowestNote))

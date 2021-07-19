@@ -19,7 +19,8 @@ def startGA(num_generations, num_parents_mating, population, max_population):
             updateFitness(individual)
         population.sort(key=lambda x: x.fitness)
         population = population[0:max_population]
-        print("\n", population[0].parsedMIDI.noteSeq[C.PITCHINDEX])
+        print("\n", population[0].parsedMIDI.noteSeq[C.INTERVALINDEX])
+        print( population[0].intervalRatios )
 
         # terminate
 
@@ -53,13 +54,17 @@ def crossover(parents, offspring_size):
         for sub_parent in parents:
             if main_parent == sub_parent:
                 continue
-            offspring_parsedMIDI = main_parent.parsedMIDI
-            offspring_ancestorMIDI = main_parent.parsedMIDI
+
+
+            """         
+            move this part to preprocess
             # change OG_mido to null
             offspring_parsedMIDI.OG_Mido = None
             # update min length in ticks
             offspring_parsedMIDI.minLengthInTicks = np.gcd(
-                main_parent.parsedMIDI.minLengthInTicks, sub_parent.parsedMIDI.minLengthInTicks)
+                main_parent.parsedMIDI.minLengthInTicks, sub_parent.parsedMIDI.minLengthInTicks) 
+            """
+
             ####Crossover####
             # mask of main parent
             mask = np.zeros(len(main_parent.cuttingPoint))
@@ -75,6 +80,10 @@ def crossover(parents, offspring_size):
                     mask[i] = random.randint(0, 1)
             # crossover
             # TODO
+
+            offspring_parsedMIDI = ProcessedMIDI( None, main_parent.parsedMIDI )
+            offspring_ancestorMIDI = main_parent.parsedMIDI
+
             ####change to individual####
             # find cutting Point
             offspring_LBDM = ILBDM(offspring_parsedMIDI)

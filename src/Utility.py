@@ -1,9 +1,17 @@
+
 def formattedPrint(target):
     for i in range(len(target)):
         print("%4s" % (target[i]), end='')
     print()
 
 def recodePitch( n ):
+    """                           
+        range: c2 to c6
+        c2 in midi: 36 -> 1
+        c6 in midi: 84 -> 29
+        formula: 
+        T(n) = 7*(n//12-3) + stepDiff2Interval(n%12)
+    """
     stepDiff2Interval = {0:1, 1:1.5 , 2:2, 3:2.5, 4:3, 5:4, 6:4.5, 7:5, 8:5.5, 9:6, 10:6.5, 11:7}
     if n%12 in stepDiff2Interval:
         return 7*(n//12-3) + stepDiff2Interval[n%12]

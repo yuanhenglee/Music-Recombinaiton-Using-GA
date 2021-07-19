@@ -31,6 +31,7 @@ def startGA(num_generations, num_parents_mating, population, max_population):
         offspring_crossover = crossover(
             parents, offspring_size=(max_population-num_parents_mating))
 
+        # TODO control how many individuals will be mutated.
         # Adding some variations to the offspring using mutation.
         offspring_mutation = mutation(offspring_crossover)
 
@@ -94,7 +95,7 @@ def crossover(parents, offspring_size):
 
     return offspring[0:offspring_size]
 
-
+# TODO preserve the original individual
 def mutation(offspring_crossover):
     for offspring in offspring_crossover:
         # selected element can not be signature
@@ -106,11 +107,16 @@ def mutation(offspring_crossover):
             start = 0 if selected_elementIndex == 0 else offspring.cuttingPoint[
                 selected_elementIndex-1]+1
             end = offspring.cuttingPoint[selected_elementIndex]
-        changeMelody(start, end, offspring.parsedMIDI)
+        pitchShifting(start, end, offspring.parsedMIDI)
+        pitchOrderReverse(start, end, offspring.parsedMIDI)
     return offspring_crossover
 
+def pitchOrderReverse( start, end, target ): 
+    targetSegment = target.noteSeq[C.PITCHINDEX][start:end+1]
+    target.noteSeq[C.PITCHINDEX][start:end+1] = targetSegment[::-1]
+    print( "reversed:",start, end)
 
-def changeMelody(start, end, target):
+def pitchShifting(start, end, target):
     move = random.randint(-7, 7)
     newPitch = []
     for i in range(start, end+1):

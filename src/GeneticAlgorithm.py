@@ -19,8 +19,8 @@ def startGA(num_generations, num_parents_mating, population, max_population):
             updateFitness(individual)
         population.sort(key=lambda x: x.fitness)
         population = population[0:max_population]
-        print("\n", population[0].parsedMIDI.noteSeq[C.INTERVALINDEX])
-        print( population[0].intervalRatios )
+        # print("\n", population[0].parsedMIDI.noteSeq[C.INTERVALINDEX])
+        # print( population[0].intervalRatios )
 
         # terminate
 
@@ -108,12 +108,37 @@ def mutation(offspring_crossover):
                 selected_elementIndex-1]+1
             end = offspring.cuttingPoint[selected_elementIndex]
         pitchShifting(start, end, offspring.parsedMIDI)
+        offspring.parsedMIDI.printMIDI()
         pitchOrderReverse(start, end, offspring.parsedMIDI)
+        offspring.parsedMIDI.printMIDI()
+
     return offspring_crossover
 
 def pitchOrderReverse( start, end, target ): 
-    targetSegment = target.noteSeq[C.PITCHINDEX][start:end+1]
-    target.noteSeq[C.PITCHINDEX][start:end+1] = targetSegment[::-1]
+    # Pitch
+    target.noteSeq[C.PITCHINDEX][start:end+1] = np.flipud( target.noteSeq[C.PITCHINDEX][start:end+1] )
+    # Duration
+    target.noteSeq[C.DURATIONINDEX][start:end+1] = np.flipud( target.noteSeq[C.DURATIONINDEX][start:end+1] )
+    # Rest
+    target.noteSeq[C.RESTINDEX][start:end+1] = np.flipud( target.noteSeq[C.RESTINDEX][start:end+1] )
+    # Interval
+    def calculateInterval(i):
+        if i < 0 or i >= target.numberOfNotes-1: return
+        if target.noteSeq[C.PITCHINDEX][i+1] == 0:
+            if i + 2 < target.numberOfNotes:
+                nextNextPitch = target.noteSeq[C.PITCHINDEX][i+2]
+                target.noteSeq[C.INTERVALINDEX][i]\
+                    = abs(nextNextPitch - target.noteSeq[C.PITCHINDEX][i])
+                target.noteSeq[C.INTERVALINDEX][i+1]\
+                    = abs(nextNextPitch - target.noteSeq[C.PITCHINDEX][i])
+            else:
+                target.noteSeq[C.INTERVALINDEX][i] = 0
+        else:
+            target.noteSeq[C.INTERVALINDEX][i]\
+                = abs(target.noteSeq[C.PITCHINDEX][i+1]- target.noteSeq[C.PITCHINDEX][i])
+    for i in range( start-2, end + 2):
+        calculateInterval(i) 
+
     print( "reversed:",start, end)
 
 def pitchShifting(start, end, target):
@@ -141,6 +166,7 @@ if __name__ == "__main__":
     for path in paths:
         mid = MidiFile(path)
         parsedMIDI = ProcessedMIDI(mid)
+        parsedMIDI.printMIDI()
         LBDM_result = ILBDM(parsedMIDI)
         cuttingPoint = MusicSegmentation_2.musicSegmentation2(
             parsedMIDI, LBDM_result)

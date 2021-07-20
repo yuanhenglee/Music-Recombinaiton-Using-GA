@@ -139,8 +139,6 @@ def pitchOrderReverse( start, end, target ):
     for i in range( start-2, end + 2):
         calculateInterval(i) 
 
-    print( "reversed:",start, end)
-
 def pitchShifting(start, end, target):
     move = random.randint(-7, 7)
     newPitch = []

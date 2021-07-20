@@ -138,6 +138,8 @@ def pitchOrderReverse( start, end, target ):
                 = abs(target.noteSeq[C.PITCHINDEX][i+1]- target.noteSeq[C.PITCHINDEX][i])
     for i in range( start-2, end + 2):
         calculateInterval(i) 
+    
+    # TODO reconstruct accumulative beat sequence( merge into segmentation? )
 
 def pitchShifting(start, end, target):
     move = random.randint(-7, 7)

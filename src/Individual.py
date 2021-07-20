@@ -8,6 +8,9 @@ class Individual:
         self.ancestorMIDI = _ancestorMIDI
         self.signature = _signature
         self.cuttingPoint = _cuttingPoint
+
+        # TODO move all melody related var into parsedMIDI ? 
+
         # calculate rate of rest
         totalRestDuration = 0
         for i in range(self.parsedMIDI.numberOfNotes):

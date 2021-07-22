@@ -36,7 +36,21 @@ class Individual:
 
     def calPitchRatio(self):
         intervalCount = { 0:0, 0.5:0 , 1:0, 1.5:0, 2:0, 3:0, 3.5:0, 4:0, 4.5:0, 5:0, 5.5:0, 6:0, 7:0 }
-        interval2Name = { 0:"unison", 0.5:"m2" , 1:"M2", 1.5:"m3", 2:"M3", 3:"P4", 3.5:"dim5", 4:"P5", 4.5:"m6", 5:"M6", 5.5:"m7", 6:"M7", 7:"octave" }
+        interval2Name = {   
+                            0:"unison",
+                            0.5:"m2",
+                            1:"M2",
+                            1.5:"m3",
+                            2:"M3",
+                            3:"P4",
+                            3.5:"dim5",
+                            4:"P5",
+                            4.5:"m6",
+                            5:"M6",
+                            5.5:"m7",
+                            6:"M7",
+                            7:"octave"
+                        }
         # sort intervals into 13 categories
         # unison    m2  M2  m3  M3  P4  dim5    P5  m6  M6  m7  M7  octave
         # 0         0.5 1   1.5 2   3   3.5     4   4.5 5   5.5 6   7

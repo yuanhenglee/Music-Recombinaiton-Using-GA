@@ -20,7 +20,7 @@ def startGA(num_generations, num_parents_mating, population, max_population):
         population.sort(key=lambda x: x.fitness)
         population = population[0:max_population]
         # print("\n", population[0].parsedMIDI.noteSeq[C.INTERVALINDEX])
-        # print( population[0].intervalRatios )
+        print( population[0].intervalRatios )
 
         # terminate
 
@@ -108,9 +108,9 @@ def mutation(offspring_crossover):
                 selected_elementIndex-1]+1
             end = offspring.cuttingPoint[selected_elementIndex]
         pitchShifting(start, end, offspring.parsedMIDI)
-        offspring.parsedMIDI.printMIDI()
+        # offspring.parsedMIDI.printMIDI()
         pitchOrderReverse(start, end, offspring.parsedMIDI)
-        offspring.parsedMIDI.printMIDI()
+        # offspring.parsedMIDI.printMIDI()
 
     return offspring_crossover
 

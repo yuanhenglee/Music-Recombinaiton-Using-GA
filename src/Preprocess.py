@@ -29,7 +29,6 @@ class ProcessedMIDI:
         # constructor for offspring, will construct based on note seq
         else:
             self.OG_Mido = None
-            # TODO rebuild exploreMIDI or make another for updating field..QQ
             self.updateFieldVariable( inputProcessedMIDI )
 
 

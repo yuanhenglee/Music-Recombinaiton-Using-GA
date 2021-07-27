@@ -19,7 +19,8 @@ def startGA(num_generations, num_parents_mating, population, max_population):
             updateFitness(individual)
         population.sort(key=lambda x: x.fitness)
         population = population[0:max_population]
-        print("\n", population[0].parsedMIDI.noteSeq[C.PITCHINDEX])
+        # print("\n", population[0].parsedMIDI.noteSeq[C.INTERVALINDEX])
+        print( population[0].intervalRatios )
 
         # terminate
 
@@ -30,6 +31,7 @@ def startGA(num_generations, num_parents_mating, population, max_population):
         offspring_crossover = crossover(
             parents, offspring_size=(max_population-num_parents_mating))
 
+        # TODO control how many individuals will be mutated.
         # Adding some variations to the offspring using mutation.
         offspring_mutation = mutation(offspring_crossover)
 
@@ -53,13 +55,17 @@ def crossover(parents, offspring_size):
         for sub_parent in parents:
             if main_parent == sub_parent:
                 continue
-            offspring_parsedMIDI = main_parent.parsedMIDI
-            offspring_ancestorMIDI = main_parent.parsedMIDI
+
+
+            """         
+            move this part to preprocess
             # change OG_mido to null
             offspring_parsedMIDI.OG_Mido = None
             # update min length in ticks
             offspring_parsedMIDI.minLengthInTicks = np.gcd(
-                main_parent.parsedMIDI.minLengthInTicks, sub_parent.parsedMIDI.minLengthInTicks)
+                main_parent.parsedMIDI.minLengthInTicks, sub_parent.parsedMIDI.minLengthInTicks) 
+            """
+
             ####Crossover####
             # mask of main parent
             mask = np.zeros(len(main_parent.cuttingPoint))
@@ -75,6 +81,10 @@ def crossover(parents, offspring_size):
                     mask[i] = random.randint(0, 1)
             # crossover
             # TODO
+
+            offspring_parsedMIDI = ProcessedMIDI( None, main_parent.parsedMIDI )
+            offspring_ancestorMIDI = main_parent.parsedMIDI
+
             ####change to individual####
             # find cutting Point
             offspring_LBDM = ILBDM(offspring_parsedMIDI)
@@ -85,7 +95,7 @@ def crossover(parents, offspring_size):
 
     return offspring[0:offspring_size]
 
-
+# TODO preserve the original individual
 def mutation(offspring_crossover):
     for offspring in offspring_crossover:
         # selected element can not be signature
@@ -97,11 +107,41 @@ def mutation(offspring_crossover):
             start = 0 if selected_elementIndex == 0 else offspring.cuttingPoint[
                 selected_elementIndex-1]+1
             end = offspring.cuttingPoint[selected_elementIndex]
-        changeMelody(start, end, offspring.parsedMIDI)
+        pitchShifting(start, end, offspring.parsedMIDI)
+        # offspring.parsedMIDI.printMIDI()
+        pitchOrderReverse(start, end, offspring.parsedMIDI)
+        # offspring.parsedMIDI.printMIDI()
+
     return offspring_crossover
 
+def pitchOrderReverse( start, end, target ): 
+    # Pitch
+    target.noteSeq[C.PITCHINDEX][start:end+1] = np.flipud( target.noteSeq[C.PITCHINDEX][start:end+1] )
+    # Duration
+    target.noteSeq[C.DURATIONINDEX][start:end+1] = np.flipud( target.noteSeq[C.DURATIONINDEX][start:end+1] )
+    # Rest
+    target.noteSeq[C.RESTINDEX][start:end+1] = np.flipud( target.noteSeq[C.RESTINDEX][start:end+1] )
+    # Interval
+    def calculateInterval(i):
+        if i < 0 or i >= target.numberOfNotes-1: return
+        if target.noteSeq[C.PITCHINDEX][i+1] == 0:
+            if i + 2 < target.numberOfNotes:
+                nextNextPitch = target.noteSeq[C.PITCHINDEX][i+2]
+                target.noteSeq[C.INTERVALINDEX][i]\
+                    = abs(nextNextPitch - target.noteSeq[C.PITCHINDEX][i])
+                target.noteSeq[C.INTERVALINDEX][i+1]\
+                    = abs(nextNextPitch - target.noteSeq[C.PITCHINDEX][i])
+            else:
+                target.noteSeq[C.INTERVALINDEX][i] = 0
+        else:
+            target.noteSeq[C.INTERVALINDEX][i]\
+                = abs(target.noteSeq[C.PITCHINDEX][i+1]- target.noteSeq[C.PITCHINDEX][i])
+    for i in range( start-2, end + 2):
+        calculateInterval(i) 
+    
+    # TODO reconstruct accumulative beat sequence( merge into segmentation? )
 
-def changeMelody(start, end, target):
+def pitchShifting(start, end, target):
     move = random.randint(-7, 7)
     newPitch = []
     for i in range(start, end+1):
@@ -126,6 +166,7 @@ if __name__ == "__main__":
     for path in paths:
         mid = MidiFile(path)
         parsedMIDI = ProcessedMIDI(mid)
+        parsedMIDI.printMIDI()
         LBDM_result = ILBDM(parsedMIDI)
         cuttingPoint = MusicSegmentation_2.musicSegmentation2(
             parsedMIDI, LBDM_result)

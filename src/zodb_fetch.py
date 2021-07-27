@@ -1,7 +1,7 @@
-from zodb import MyZODB
+from zodb import ZODB
 import Constant as C
 
-db = MyZODB('./Music/句號.fs')
+db = ZODB('./Music/刻在我心底的名字.fs')
 dbroot = db.dbroot
 for key in dbroot.keys():
     print(key + ':', dbroot[key])

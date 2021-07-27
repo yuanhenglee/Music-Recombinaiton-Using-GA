@@ -2,7 +2,7 @@ from ZODB import FileStorage, DB
 import transaction
 
 
-class MyZODB(object):
+class ZODB(object):
     def __init__(self, path):
         self.storage = FileStorage.FileStorage(path)
         self.db = DB(self.storage)

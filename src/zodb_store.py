@@ -1,8 +1,22 @@
-from zodb import MyZODB, transaction
+from zodb import ZODB, transaction
 from music import Music
 
-db = MyZODB('./Music/刻在我心底的名字.fs')
-dbroot = db.dbroot
-dbroot['刻在我心底的名字'] = Music('../midi_file/刻在我心底的名字.mid', '刻在我心底的名字')
-transaction.commit()
-db.close()
+import os
+
+
+def storeIntoDB(name):
+    dbpath = './Music/'+name+'.fs'
+    midipath = '../midi_file/'+name+'.mid'
+    db = ZODB(dbpath)
+    dbroot = db.dbroot
+    dbroot[name] = Music(midipath, name)
+    transaction.commit()
+    db.close()
+
+
+directory = '../midi_file'
+for filename in os.listdir(directory):
+    if filename.endswith(".mid"):
+        storeIntoDB(filename[:-4])
+    else:
+        continue

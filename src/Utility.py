@@ -1,4 +1,6 @@
 
+import numpy as np
+
 def formattedPrint(target):
     for i in range(len(target)):
         print("%4s" % (target[i]), end='')
@@ -28,3 +30,15 @@ def value2Pitch( value ):
     octave = value//7 + 2
     notationNameTable = {1:'C', 2:'D', 3:'E', 4:'F', 5:'G', 6:'A', 0:'B'}
     return sharp + notationNameTable[value%7] + str(octave)
+
+def countTonicDominant( pitchSeq ):
+    tonicCount = np.count_nonzero( pitchSeq % 7 == 1 )
+    DominantCount = np.count_nonzero( pitchSeq % 7 == 5 )
+    return tonicCount+DominantCount
+
+def countNonScaleNote( pitchSeq ):
+    NonScaleCount = 0
+    for i in pitchSeq:
+        if not i.is_integer():
+            NonScaleCount+=1
+    return NonScaleCount 

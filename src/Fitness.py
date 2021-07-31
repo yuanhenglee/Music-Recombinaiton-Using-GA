@@ -31,4 +31,3 @@ def updateFitness(individual):
                                             pitchRange_UpperBound, individual.pitchRange)
 
     
-

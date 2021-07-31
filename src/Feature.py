@@ -92,7 +92,7 @@ def NonScaleNotes( parsedMIDI ):
 def dissonantIntervals( parsedMIDI ):
     sumOfDissonantRating = 0
     print( parsedMIDI.noteSeq[C.INTERVALINDEX] )
-    
+
     for i in parsedMIDI.noteSeq[C.INTERVALINDEX]:
         if i == 6 or i == 11 or i >=13 or not i.is_integer():
             sumOfDissonantRating += 1
@@ -100,4 +100,13 @@ def dissonantIntervals( parsedMIDI ):
             sumOfDissonantRating += 0.5
     return sumOfDissonantRating/parsedMIDI.numberOfNotes
 
-calculateFeature(dissonantIntervals)
+# Contour features
+def contourDirection( parsedMIDI ):
+    risingInterval = 0
+    pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
+    for note, nextNote in zip(pitchSeq, pitchSeq[1:]):
+        if note != 0 and nextNote > note:
+            risingInterval += (nextNote - note)
+    return risingInterval/np.sum( parsedMIDI.noteSeq[C.INTERVALINDEX] )
+
+calculateFeature(contourDirection)

@@ -109,4 +109,44 @@ def contourDirection( parsedMIDI ):
             risingInterval += (nextNote - note)
     return risingInterval/np.sum( parsedMIDI.noteSeq[C.INTERVALINDEX] )
 
-calculateFeature(contourDirection)
+def contourStability( parsedMIDI ):
+    consecutiveIntervals = 0
+    pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
+    for i in range(len(pitchSeq)-2):
+        firstInterval = pitchSeq[i+1] - pitchSeq[i]
+        secondInterval = pitchSeq[i+2] - pitchSeq[i+1]
+        if firstInterval>0 and secondInterval>0: consecutiveIntervals+=1
+        elif firstInterval==0 and secondInterval==0: consecutiveIntervals+=1
+        elif firstInterval<0 and secondInterval<0: consecutiveIntervals+=1
+    return consecutiveIntervals/parsedMIDI.numberOfNotes
+    
+def movementByStep( parsedMIDI ):
+    intervalSeq = parsedMIDI.noteSeq[C.INTERVALINDEX]
+    diatonicSteps = intervalSeq[(intervalSeq < 2) & (intervalSeq > 0)] 
+    return diatonicSteps.size/parsedMIDI.numberOfNotes
+
+def leapReturns( parsedMIDI ):
+    largeLeap = 0
+    leapWithoutReturn = 0
+    pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
+    for i in range(len(pitchSeq)-2):
+        firstInterval = pitchSeq[i+1] - pitchSeq[i]
+        secondInterval = pitchSeq[i+2] - pitchSeq[i+1]
+        if firstInterval>4: 
+            largeLeap += 1
+            if firstInterval * secondInterval > 0: # no return interval
+                leapWithoutReturn += 1
+    return leapWithoutReturn/largeLeap
+    
+def climaxStrength( parsedMIDI ):
+    pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
+    climaxOccur = np.count_nonzero( pitchSeq == parsedMIDI.highestNote )
+    if climaxOccur == 0:
+        print("highestNote value ERROR") 
+        return 1
+    return 1/climaxOccur
+    
+# Rhythmic features
+
+
+calculateFeature(climaxStrength)

@@ -64,8 +64,6 @@ class ProcessedMIDI:
                     timeSet.append(event.time)
                     totalTime += event.time
 
-                    self.lowestNote = event.note if event.note < self.lowestNote else self.lowestNote
-                    self.highestNote = event.note if event.note > self.highestNote else self.highestNote
 
         # drop first event's delta time
         timeSet.pop(0)
@@ -159,6 +157,8 @@ class ProcessedMIDI:
         for i in range(self.numberOfNotes):
             self.totalDuration += int(self.noteSeq[C.DURATIONINDEX][i])
         self.minSegment = (int)(self.totalDuration / 16)
+        self.lowestNote = np.min(self.noteSeq[C.PITCHINDEX])
+        self.highestNote = np.max(self.noteSeq[C.PITCHINDEX])
 
     def printMIDI(self):
 

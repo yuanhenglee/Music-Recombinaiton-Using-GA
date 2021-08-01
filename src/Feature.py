@@ -147,6 +147,25 @@ def climaxStrength( parsedMIDI ):
     return 1/climaxOccur
     
 # Rhythmic features
+# temporary multiplier due to big value in minLengthInTicks
+def noteDensity( parsedMIDI ):
+    return 100*np.count_nonzero( parsedMIDI.noteSeq[C.PITCHINDEX] != 0 )/ \
+        (parsedMIDI.totalDuration * parsedMIDI.minLengthInTicks)
+
+def restDensity( parsedMIDI ):
+    return 100*np.count_nonzero( parsedMIDI.noteSeq[C.PITCHINDEX] == 0 )/ \
+        (parsedMIDI.totalDuration * parsedMIDI.minLengthInTicks)
+
+def rhythmicVariety( parsedMIDI ):
+    return len( np.unique( parsedMIDI.noteSeq[C.DURATIONINDEX] ) ) / 16
+
+# ? normalize fail on 16
+def rhythmicRange( parsedMIDI ):
+    durationSeq = parsedMIDI.noteSeq[C.DURATIONINDEX] 
+    maxDuration = np.max( durationSeq )
+    minDuration = np.min( durationSeq[durationSeq!=0] )
+    return maxDuration/(minDuration*16)
 
 
-calculateFeature(climaxStrength)
+
+calculateFeature(rhythmicRange)

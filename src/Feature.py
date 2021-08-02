@@ -5,6 +5,7 @@ import os
 import Constant as C
 from zodb import ZODB
 import matplotlib
+import pandas as pd
 matplotlib.use('Agg')
 
 
@@ -85,13 +86,12 @@ def keyCentered( parsedMIDI ):
     primaryPitch = Utility.countTonicDominant( parsedMIDI.noteSeq[C.PITCHINDEX] )
     return primaryPitch/parsedMIDI.numberOfNotes
 
-def NonScaleNotes( parsedMIDI ):
+def nonScaleNotes( parsedMIDI ):
     nonScaleNotes =Utility.countNonScaleNote( parsedMIDI.noteSeq[C.PITCHINDEX] )
     return nonScaleNotes/parsedMIDI.numberOfNotes
 
 def dissonantIntervals( parsedMIDI ):
     sumOfDissonantRating = 0
-    print( parsedMIDI.noteSeq[C.INTERVALINDEX] )
 
     for i in parsedMIDI.noteSeq[C.INTERVALINDEX]:
         if i == 6 or i == 11 or i >=13 or not i.is_integer():
@@ -166,6 +166,104 @@ def rhythmicRange( parsedMIDI ):
     minDuration = np.min( durationSeq[durationSeq!=0] )
     return maxDuration/(minDuration*16)
 
+# Pattern features
+def repeatedPitchPattern( parsedMIDI ):
+    repeatTimes = { 2:0, 3:0, 4:0 }
+    pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
+    for i in range(len(pitchSeq)-3):
+        if pitchSeq[i] == pitchSeq[i+1]:
+            repeatTimes[2]+=1
+            if pitchSeq[i+1] == pitchSeq[i+2]:
+                repeatTimes[3]+=1
+                if pitchSeq[i+2] == pitchSeq[i+3]:
+                    repeatTimes[4]+=1
+    
+    return \
+        repeatTimes[2]/(parsedMIDI.numberOfNotes-1),\
+        repeatTimes[3]/(parsedMIDI.numberOfNotes-2),\
+        repeatTimes[4]/(parsedMIDI.numberOfNotes-3)
+
+def repeatedRhythmPattern( parsedMIDI ):
+    repeatTimes = { 2:0, 3:0, 4:0 }
+    durationSeq = parsedMIDI.noteSeq[C.DURATIONINDEX]
+    for i in range(len(durationSeq)-3):
+        if durationSeq[i] == durationSeq[i+1]:
+            repeatTimes[2]+=1
+            if durationSeq[i+1] == durationSeq[i+2]:
+                repeatTimes[3]+=1
+                if durationSeq[i+2] == durationSeq[i+3]:
+                    repeatTimes[4]+=1
+    
+    return \
+        repeatTimes[2]/(parsedMIDI.numberOfNotes-1),\
+        repeatTimes[3]/(parsedMIDI.numberOfNotes-2),\
+        repeatTimes[4]/(parsedMIDI.numberOfNotes-3)
+
+def main():
+
+    # get data from DB
+    directory = "../midi_file"
+    names = []
+    parsedMIDIs = []
+    for filename in os.listdir(directory):
+        if filename.endswith(".mid"):
+            name = filename[:-4]
+            DBpath = './Music/'+name+'.fs'
+            db = ZODB(DBpath)
+            parsedMIDI = db.dbroot[name].parsedMIDI
+            names.append(name)
+            parsedMIDIs.append(parsedMIDI)
+
+    # construct features df
+    f_repeatedPitch_2 = [repeatedPitchPattern(i)[0] for i in parsedMIDIs]
+    f_repeatedRhythmic_2 = [repeatedPitchPattern(i)[0] for i in parsedMIDIs]
+    f_repeatedPitch_3 = [repeatedPitchPattern(i)[1] for i in parsedMIDIs]
+    f_repeatedRhythmic_3 = [repeatedPitchPattern(i)[1] for i in parsedMIDIs]
+    f_repeatedPitch_4 = [repeatedPitchPattern(i)[2] for i in parsedMIDIs]
+    f_repeatedRhythmic_4 = [repeatedPitchPattern(i)[2] for i in parsedMIDIs]
+
+    df_songFeatures = pd.DataFrame( {
+        "name"                  :   names,
+        "Pitch Variety"         :   [pitchVariety(i) for i in parsedMIDIs],
+        "Pitch Range"           :   [pitchRange(i) for i in parsedMIDIs],
+        "Key Centered"          :   [keyCentered(i) for i in parsedMIDIs],
+        "Non-scale Notes"       :   [nonScaleNotes(i) for i in parsedMIDIs],
+        "Dissonant Intervals"   :   [dissonantIntervals(i) for i in parsedMIDIs],
+        "Contour Direction"     :   [contourDirection(i) for i in parsedMIDIs],
+        "Contour Stability"     :   [contourStability(i) for i in parsedMIDIs],
+        "Movement by Step"      :   [movementByStep(i) for i in parsedMIDIs],
+        "Leap Returns"          :   [leapReturns(i) for i in parsedMIDIs],
+        "Climax Strength"       :   [climaxStrength(i) for i in parsedMIDIs],
+        "Note Density"          :   [noteDensity(i) for i in parsedMIDIs],
+        "Rest Density"          :   [restDensity(i) for i in parsedMIDIs],
+        "Rhythmic Variety"      :   [rhythmicVariety(i) for i in parsedMIDIs],
+        "Rhythmic Range"        :   [rhythmicRange(i) for i in parsedMIDIs],
+        "Reapted Pitch_2"       :   f_repeatedPitch_2,
+        "Reapted Rhythm_2"      :   f_repeatedRhythmic_2,
+        "Reapted Pitch_3"       :   f_repeatedPitch_3,
+        "Reapted Rhythm_3"      :   f_repeatedRhythmic_3,
+        "Reapted Pitch_4"       :   f_repeatedPitch_4,
+        "Reapted Rhythm_4"      :   f_repeatedRhythmic_4,
+    })
+    
+    # save features in csv
+    df_songFeatures.to_csv("songFeatures.csv")
+
+    # numeric features only
+    df = df_songFeatures.drop(columns = 'name')
+
+    print( "MEAN" )
+    print(df.mean())
+    print( "STD" )
+    print(df.std())
 
 
-calculateFeature(rhythmicRange)
+if __name__ == '__main__':
+    import cProfile
+    import pstats
+    with cProfile.Profile() as pr:
+        main()
+    
+    stats = pstats.Stats(pr)
+    stats.sort_stats(pstats.SortKey.TIME)
+    stats.print_stats()

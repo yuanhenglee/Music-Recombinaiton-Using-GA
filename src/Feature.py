@@ -6,7 +6,9 @@ import Constant as C
 from zodb import ZODB
 import matplotlib
 import pandas as pd
-matplotlib.use('Agg')
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler 
+import seaborn as sns
 
 
 def calculateFeature(func):
@@ -247,18 +249,34 @@ def main():
     })
     
     # save features in csv
-    df_songFeatures.to_csv("songFeatures.csv")
+    df_songFeatures.to_csv("../test & learn/EDA Result/songFeatures.csv")
 
     # numeric features only
-    df = df_songFeatures.drop(columns = 'name')
+    df_numeric = df_songFeatures.drop(columns = 'name')
 
-    df = pd.DataFrame({
-        "mean"  :   df.mean(numeric_only=True),
-        "std"   :   df.std(numeric_only=True)
+    df_MeanSTD = pd.DataFrame({
+        "mean"  :   df_numeric.mean(numeric_only=True),
+        "std"   :   df_numeric.std(numeric_only=True)
     })
     #df.sort_values(by=[''])
-    df = df.sort_values(by=['std'])
-    print(df)
+    df_MeanSTD = df_MeanSTD.sort_values(by=['std'])
+    df_MeanSTD.to_csv("../test & learn/EDA Result/songFeatures.csv")
+
+    # corr
+    sns.heatmap(df_numeric.corr(), annot=True)
+
+    # PCA
+    from pca import pca
+    df_st = pd.DataFrame( StandardScaler().fit_transform(df_numeric) )
+    model = pca(n_components=2)
+
+    # Fit transform
+    results = model.fit_transform(df_numeric)
+
+    # Make biplot with the number of features
+    fig, ax = model.biplot(n_feat=10)
+
+
 
 
 if __name__ == '__main__':

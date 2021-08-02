@@ -252,10 +252,13 @@ def main():
     # numeric features only
     df = df_songFeatures.drop(columns = 'name')
 
-    print( "MEAN" )
-    print(df.mean())
-    print( "STD" )
-    print(df.std())
+    df = pd.DataFrame({
+        "mean"  :   df.mean(numeric_only=True),
+        "std"   :   df.std(numeric_only=True)
+    })
+    #df.sort_values(by=[''])
+    df = df.sort_values(by=['std'])
+    print(df)
 
 
 if __name__ == '__main__':
@@ -266,4 +269,4 @@ if __name__ == '__main__':
     
     stats = pstats.Stats(pr)
     stats.sort_stats(pstats.SortKey.TIME)
-    stats.print_stats()
+    #stats.print_stats()

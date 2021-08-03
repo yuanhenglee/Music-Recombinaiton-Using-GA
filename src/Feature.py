@@ -260,7 +260,7 @@ def main():
     })
     #df.sort_values(by=[''])
     df_MeanSTD = df_MeanSTD.sort_values(by=['std'])
-    df_MeanSTD.to_csv("../test & learn/EDA Result/songFeatures.csv")
+    df_MeanSTD.to_csv("../test & learn/EDA Result/songMeanSTD.csv")
 
     # corr
     sns.heatmap(df_numeric.corr(), annot=True)

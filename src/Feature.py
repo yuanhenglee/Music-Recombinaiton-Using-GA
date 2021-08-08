@@ -156,7 +156,11 @@ def leapReturns(parsedMIDI):
             largeLeap += 1
             if firstInterval * secondInterval > 0:  # no return interval
                 leapWithoutReturn += 1
-    return leapWithoutReturn/largeLeap
+    if largeLeap > 0:
+        return leapWithoutReturn/largeLeap
+    else:
+        return 1
+
 
 
 def climaxStrength(parsedMIDI):

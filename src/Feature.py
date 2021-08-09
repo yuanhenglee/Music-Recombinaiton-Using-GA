@@ -296,7 +296,8 @@ def main():
     df_MeanSTD.to_csv("../test & learn/EDA Result/songMeanSTD.csv")
 
     # corr
-    sns.heatmap(df_numeric.corr(), annot=True)
+    sns_plot = sns.heatmap(df_numeric.corr(), annot=True)
+    sns_plot.figure.savefig("../test & learn/EDA Result/corrHeatmap.pdf")
 
     # PCA
     from pca import pca
@@ -308,6 +309,7 @@ def main():
 
     # Make biplot with the number of features
     fig, ax = model.biplot(n_feat=10)
+    fig.savefig("../test & learn/EDA Result/PCA.pdf")
 
 
 if __name__ == '__main__':

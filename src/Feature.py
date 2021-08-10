@@ -162,7 +162,6 @@ def leapReturns(parsedMIDI):
         return 1
 
 
-
 def climaxStrength(parsedMIDI):
     pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
     climaxOccur = np.count_nonzero(pitchSeq == parsedMIDI.highestNote)
@@ -288,12 +287,16 @@ def main():
     df_numeric = df_songFeatures.drop(columns='name')
 
     df_MeanSTD = pd.DataFrame({
-        "mean":   df_numeric.mean(numeric_only=True),
-        "std":   df_numeric.std(numeric_only=True)
+        "mean": df_numeric.mean(numeric_only=True),
+        "std": df_numeric.std(numeric_only=True),
+        "min": df_numeric.min(numeric_only=True),
+        "max": df_numeric.max(numeric_only=True)
     })
+
     # df.sort_values(by=[''])
-    df_MeanSTD = df_MeanSTD.sort_values(by=['std'])
     df_MeanSTD.to_csv("../test & learn/EDA Result/songMeanSTD.csv")
+    df_MeanSTD = df_MeanSTD.sort_values(by=['std'])
+    df_MeanSTD.to_csv("../test & learn/EDA Result/songMeanSTD_ordered.csv")
 
     # corr
     sns_plot = sns.heatmap(df_numeric.corr(), annot=True)
@@ -313,11 +316,11 @@ def main():
 
 
 if __name__ == '__main__':
-    import cProfile
-    import pstats
-    with cProfile.Profile() as pr:
-        main()
+    # import cProfile
+    # import pstats
+    # with cProfile.Profile() as pr:
+    main()
 
-    stats = pstats.Stats(pr)
-    stats.sort_stats(pstats.SortKey.TIME)
-    # stats.print_stats()
+    # stats = pstats.Stats(pr)
+    # stats.sort_stats(pstats.SortKey.TIME)
+    # # stats.print_stats()

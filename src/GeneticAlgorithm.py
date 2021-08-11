@@ -1,6 +1,7 @@
 from hashlib import new
 import sys
 from mido import MidiFile
+from Feature import main
 from Preprocess import ProcessedMIDI
 import MusicSegmentation_2
 from Individual import Individual
@@ -10,6 +11,8 @@ import Constant as C
 
 import numpy as np
 import random
+from zodb import ZODB, transaction
+import copy
 
 
 def startGA(num_generations, num_parents_mating, population, max_population):
@@ -17,14 +20,14 @@ def startGA(num_generations, num_parents_mating, population, max_population):
         # Measuring the fitness of each chromosome in the population.
         for individual in population:
             updateFitness(individual)
-        population.sort(key=lambda x: x.fitness)
+        population.sort(key=lambda x: x.fitness, reverse=True)
         population = population[0:max_population]
-        for i in range(len(population)):
-            if population[i].isAncestor:
+        print("==================\ngeneration: \n", generation)
+        for individual in population:
+            if individual.isAncestor:
                 continue
             else:
-                population[i].printIndividual()
-                break
+                print(round(individual.fitness, 6))
         # print("\n", population[0].parsedMIDI.noteSeq[C.INTERVALINDEX])
 
         # terminate
@@ -33,21 +36,23 @@ def startGA(num_generations, num_parents_mating, population, max_population):
         parents = select_mating_pool(population, num_parents_mating)
 
         # Generating next generation using crossover.
-        offspring_crossover = crossover(
-            parents, offspring_size=(max_population-num_parents_mating))
+        offspring_crossover = population + crossover(
+            parents, max_population-num_parents_mating)
+        # offspring_crossover = crossover(parents)
 
         # TODO control how many individuals will be mutated.
         # Adding some variations to the offspring using mutation.
+        offspring_crossover.sort(key=lambda x: x.fitness, reverse=True)
         offspring_mutation = mutation(offspring_crossover)
 
         # Creating the new population based on the parents and offspring.
-        population[len(population):] = offspring_mutation
+        population = offspring_mutation
     return population
 
 
 def select_mating_pool(population, num_parents_mating):
     # Selecting the best individuals in the current generation as parents for producing the offspring of the next generation.
-    population.sort(key=lambda x: x.fitness)
+    population.sort(key=lambda x: x.fitness, reverse=True)
 
     parents = population[0:num_parents_mating]
 
@@ -72,7 +77,7 @@ def crossover(parents, offspring_size):
 
             ####Crossover####
             # mask of main parent
-            mask = np.zeros(len(main_parent.cuttingPoint))
+            mask = np.zeros(len(main_parent.cuttingPoint)-1)
             # signature is 1
             tmp_signature = set() | main_parent.signature
             while len(tmp_signature) != 0:
@@ -85,38 +90,62 @@ def crossover(parents, offspring_size):
                     mask[i] = random.randint(0, 1)
             # crossover
             # TODO
+            # TEST (random)
+            temp = ProcessedMIDI(None, main_parent.parsedMIDI)
+            for i in range(len(mask)):
+                if(mask[i] == 1):
+                    start = main_parent.cuttingPoint[i]
+                    end = main_parent.cuttingPoint[i+1]-1
+                    for i in range(start, end+1):
+                        move = random.randint(-4, 4)
+                        if temp.noteSeq[C.PITCHINDEX][i] != 0:
+                            if temp.noteSeq[C.PITCHINDEX][i] + move <= 0:
+                                break
+                            temp.noteSeq[C.PITCHINDEX][i] = temp.noteSeq[C.PITCHINDEX][i] + move
 
-            offspring_parsedMIDI = ProcessedMIDI(None, main_parent.parsedMIDI)
+            ####
+            # offspring_parsedMIDI = ProcessedMIDI(None, main_parent.parsedMIDI)
+            offspring_parsedMIDI = ProcessedMIDI(None, temp)
             offspring_ancestor = main_parent.ancestor
 
             ####change to individual####
             # TODO: update cutting Point
             offspring.append(Individual(offspring_parsedMIDI,
                                         main_parent.cuttingPoint, main_parent.signature, False, offspring_ancestor))
-
+    offspring.sort(key=lambda x: x.fitness, reverse=True)
     return offspring[0:offspring_size]
 
 # TODO preserve the original individual
 
 
 def mutation(offspring_crossover):
+    newPopulation = []
+    mutation_size = int(len(offspring_crossover)*0.3)
+    count = 0
     for offspring in offspring_crossover:
+        if count == mutation_size:
+            break
+        count = count+1
+        new_parsedMIDI = ProcessedMIDI(None, offspring.parsedMIDI)
+        newOffspring = Individual(new_parsedMIDI, offspring.cuttingPoint,
+                                  offspring.signature, False, offspring.ancestor)
         # selected element can not be signature
         start = 0
         end = 0
-        while (start, end+1) in offspring.signature or (start == 0 and end == 0):
+        while (start, end+1) in newOffspring.signature or (start == 0 and end == 0):
             selected_elementIndex = random.randint(
-                0, len(offspring.cuttingPoint)-1)
-            start = 0 if selected_elementIndex == 0 else offspring.cuttingPoint[
+                0, len(newOffspring.cuttingPoint)-1)
+            start = 0 if selected_elementIndex == 0 else newOffspring.cuttingPoint[
                 selected_elementIndex-1]+1
-            end = offspring.cuttingPoint[selected_elementIndex]
-        pitchShifting(start, end, offspring.parsedMIDI)
+            end = newOffspring.cuttingPoint[selected_elementIndex]
+        pitchShifting(start, end, newOffspring.parsedMIDI)
         # offspring.parsedMIDI.printMIDI()
-        pitchOrderReverse(start, end, offspring.parsedMIDI)
-        offspring.parsedMIDI.updateFieldVariable(offspring.parsedMIDI)
-        offspring.calculateAllFeatures()
+        pitchOrderReverse(start, end, newOffspring.parsedMIDI)
+        newOffspring.parsedMIDI.updateFieldVariable(newOffspring.parsedMIDI)
+        newOffspring.calculateAllFeatures()
+        newPopulation.append(newOffspring)
 
-    return offspring_crossover
+    return offspring_crossover + newPopulation
 
 
 def pitchOrderReverse(start, end, target):
@@ -183,16 +212,10 @@ if __name__ == "__main__":
             parsedMIDI, LBDM_result)
         signaturePossibilities = MusicSegmentation_2.extractSignatures(
             parsedMIDI)
+        print(signaturePossibilities)
         for signature in signaturePossibilities:
             population.append(Individual(
                 parsedMIDI, cuttingPoint, signature, True))
 
-    # print("BEFORE:")
-    # for individual in population:
-    #     individual.printIndividual()
-
-    new_population = startGA(10, 5, population, 10)
-
-    # print("AFTER:")
-    # for individual in new_population:
-    #     individual.printIndividual()
+    new_population = startGA(20, 5, population, 20)
+    new_population.sort(key=lambda x: x.fitness, reverse=True)

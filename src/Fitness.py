@@ -2,9 +2,6 @@ import numpy as np
 import pandas as pd
 import math
 
-path_orderedData = "../test & learn/EDA Result/songMeanSTD_ordered.csv"
-path_Data = "../test & learn/EDA Result/songMeanSTD.csv"
-
 
 def calculateSimilarity(value, ancestors_value):
     return 1-abs(ancestors_value-value)
@@ -12,10 +9,9 @@ def calculateSimilarity(value, ancestors_value):
 
 def calculateConsensus(mean, std, value):
     distance = math.floor(abs(mean - value)/std)
-    if distance < 1:
-        return 1
-    if distance < 2:
-        return 0.5
+    score = (2-distance)/2
+    if score > 0:
+        return score
     else:
         return 0
 
@@ -42,11 +38,13 @@ def updateFitness(individual):
         similarity_score[i] = calculateSimilarity(
             individual.features[i], ancestor.features[i])
 
-    similarity += (similarity_score.sum()/len(similarity_score))*50
+    similarity += (similarity_score.mean())*50
 
     # consensus
     consensus_score = np.zeros(10)
 
+    path_orderedData = "../test & learn/EDA Result/songMeanSTD_ordered.csv"
+    path_Data = "../test & learn/EDA Result/songMeanSTD.csv"
     data = pd.read_csv(path_Data)
     orderedData = pd.read_csv(path_orderedData)
     data.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
@@ -58,7 +56,7 @@ def updateFitness(individual):
         consensus_score[i] = calculateConsensus(
             data["mean"][index], data["std"][index], individual.features[index])
 
-    consensus += (consensus_score.sum()/len(consensus_score))*25
+    consensus += (consensus_score.mean())*25
 
     # inRange
     inRange_score = np.zeros(20)
@@ -67,6 +65,6 @@ def updateFitness(individual):
         inRange_score[i] = calculateInRange(
             data["max"][i], data["min"][i], individual.features[i])
 
-    inRange += (inRange_score.sum()/len(inRange_score))*25
+    inRange += (inRange_score.mean())*25
 
     individual.fitness += similarity + consensus + inRange

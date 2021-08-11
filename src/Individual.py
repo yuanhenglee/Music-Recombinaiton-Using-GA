@@ -15,7 +15,7 @@ class Individual:
         self.features = np.zeros(20)
 
         """ 
-        self.pitchVariety = 0
+        pitchVariety = 0
         pitchRange = 1
         keyCentered = 2
         nonScaleNotes = 3
@@ -33,8 +33,8 @@ class Individual:
         repeatedRhythmPattern[0] = 15
         repeatedPitchPattern[1] = 16
         repeatedRhythmPattern[1] = 17
-        repeatedPitchPattern[1] = 18
-        repeatedRhythmPattern[1] = 19
+        repeatedPitchPattern[2] = 18
+        repeatedRhythmPattern[2] = 19
         """
 
         # TODO move all melody related var into parsedMIDI ?

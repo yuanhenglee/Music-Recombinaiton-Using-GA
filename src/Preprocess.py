@@ -177,7 +177,7 @@ class ProcessedMIDI:
         pitchInName = [Utility.value2Pitch(i)
                        for i in self.noteSeq[C.PITCHINDEX]]
         Utility.formattedPrint(pitchInName)
-        Utility.formattedPrint(self.noteSeq[C.PITCHINDEX])
+        # Utility.formattedPrint(self.noteSeq[C.PITCHINDEX])
         print("Duration Sequence:")
         Utility.formattedPrint(self.noteSeq[C.DURATIONINDEX].astype(int))
         print("Interval Sequence:")

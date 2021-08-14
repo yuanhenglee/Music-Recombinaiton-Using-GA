@@ -331,9 +331,10 @@ def main():
     pca_scores = PCA().fit_transform(df_st)
 
     # get 2D biplot
+    import plotly
     import plotly.express as px
     fig = px.scatter(pca_scores, x=0, y=1, color=df_songFeatures['name'])
-    fig.show()
+    plotly.offline.plot(fig, filename='../test & learn/EDA Result/PCA.html')
     # fig.savefig("../test & learn/EDA Result/PCA.pdf")
 
 

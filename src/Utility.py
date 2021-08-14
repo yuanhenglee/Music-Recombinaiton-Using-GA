@@ -15,8 +15,8 @@ def pitch2MIDIPitch( pitch ):
     else: raise ValueError("MIDIPitch out of range")
 
 def isValidPitch( pitch ):
-    if pitch <= 8: return False
-    elif pitch >= 24: return False
+    if pitch <= 0: return False
+    elif pitch >= 36: return False
     elif pitch%7 not in {1, 1.5, 2, 2.5, 3, 4, 4.5, 5, 5.5, 6, 6.5, 0}: return False
     return True
 

@@ -24,8 +24,7 @@ def parsed2MIDI( parsedMIDI ):
             deltaTime = int(durationSeq[i] * minLengthInTicks)
 
     mid.tracks.append( track )
-    mid.save('new_song.mid')
-
+    return mid
 
 if __name__ == '__main__':
     import sys
@@ -33,5 +32,5 @@ if __name__ == '__main__':
     path = sys.argv[1]
     mid = MidiFile(path)
     parsedMIDI = ProcessedMIDI(mid)
-    print( parsedMIDI.tempo)
-    parsed2MIDI( parsedMIDI )
+    mid_regenerate = parsed2MIDI( parsedMIDI )
+    

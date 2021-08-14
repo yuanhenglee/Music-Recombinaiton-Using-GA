@@ -6,6 +6,13 @@ def formattedPrint(target):
         print("%4s" % (target[i]), end='')
     print()
 
+# as a inverse func of recodePitch
+def pitch2MIDIPitch( pitch ):
+    interval2stepdiff = {0:11, 1:0, 1.5:1 , 2:2, 2.5:3, 3:4, 4:5, 4.5:6, 5:7, 5.5:8, 6:9, 6.5:10, 7:11}
+    return ((pitch-1)//7+3)*12 + interval2stepdiff[pitch%7]
+
+    
+
 def recodePitch( n ):
     """                           
         range: c2 to c6
@@ -42,3 +49,9 @@ def countNonScaleNote( pitchSeq ):
         if not i.is_integer():
             NonScaleCount+=1
     return NonScaleCount 
+
+# if __name__ == '__main__':
+#     arr = np.random.randint( low=36, high=85, size=10000 )
+#     arr1 = [pitch2MIDIPitch(recodePitch(i)) for i in arr]
+#     for i, j in zip( arr, arr1 ):
+#         print( i,j )

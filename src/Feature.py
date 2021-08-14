@@ -232,6 +232,19 @@ def repeatedRhythmPattern(parsedMIDI):
         repeatTimes[3]/(parsedMIDI.numberOfNotes-2),\
         repeatTimes[4]/(parsedMIDI.numberOfNotes-3)
 
+# Other Features
+def leapDensity( parsedMIDI ):
+    largeLeap = 0
+    pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
+    for i in range(len(pitchSeq)-1):
+        interval = pitchSeq[i+1] - pitchSeq[i]
+        if interval > 4:
+            largeLeap += 1
+    return largeLeap/(parsedMIDI.numberOfNotes-1)
+
+def sumOfSquareOfInterval( parsedMIDI ):
+    return sum(i*i for i in parsedMIDI.noteSeq[C.INTERVALINDEX])
+
 
 def main():
 
@@ -278,7 +291,10 @@ def main():
         "Reapted Rhythm_3":   f_repeatedRhythmic_3,
         "Reapted Pitch_4":   f_repeatedPitch_4,
         "Reapted Rhythm_4":   f_repeatedRhythmic_4,
+        "LeapDensity":      [restDensity(i) for i in parsedMIDIs],
+        "SumOfSquareOfInterval": [sumOfSquareOfInterval(i) for i in parsedMIDIs]
     })
+
 
     # save features in csv
     df_songFeatures.to_csv("../test & learn/EDA Result/songFeatures.csv")
@@ -289,6 +305,11 @@ def main():
     df_MeanSTD = pd.DataFrame({
         "mean": df_numeric.mean(numeric_only=True),
         "std": df_numeric.std(numeric_only=True),
+        "CV": df_numeric.std(numeric_only=True)/df_numeric.mean(numeric_only=True),
+        "P25": df_numeric.quantile(0.25, numeric_only=True),
+        "P50": df_numeric.quantile(0.5, numeric_only=True),
+        "P75": df_numeric.quantile(0.75, numeric_only=True),
+        "IQR": df_numeric.quantile(0.75, numeric_only=True)-df_numeric.quantile(0.25, numeric_only=True),
         "min": df_numeric.min(numeric_only=True),
         "max": df_numeric.max(numeric_only=True)
     })
@@ -303,16 +324,17 @@ def main():
     sns_plot.figure.savefig("../test & learn/EDA Result/corrHeatmap.pdf")
 
     # PCA
-    from pca import pca
     df_st = pd.DataFrame(StandardScaler().fit_transform(df_numeric))
-    model = pca(n_components=2)
-
-    # Fit transform
-    results = model.fit_transform(df_numeric)
 
     # Make biplot with the number of features
-    fig, ax = model.biplot(n_feat=10)
-    fig.savefig("../test & learn/EDA Result/PCA.pdf")
+    # get PC scores
+    pca_scores = PCA().fit_transform(df_st)
+
+    # get 2D biplot
+    import plotly.express as px
+    fig = px.scatter(pca_scores, x=0, y=1, color=df_songFeatures['name'])
+    fig.show()
+    # fig.savefig("../test & learn/EDA Result/PCA.pdf")
 
 
 if __name__ == '__main__':

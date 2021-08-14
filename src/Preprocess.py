@@ -35,6 +35,7 @@ class ProcessedMIDI:
     def updateFieldVariable(self, inputProcessedMIDI):
         self.noteSeq = inputProcessedMIDI.noteSeq
         self.tempo = inputProcessedMIDI.tempo
+        self.ticks_per_beat = inputProcessedMIDI.ticks_per_beat
         self.minLengthInTicks = inputProcessedMIDI.minLengthInTicks
         self.numberOfNotes = inputProcessedMIDI.noteSeq[C.PITCHINDEX].shape[0]
         self.lowestNote = np.min(inputProcessedMIDI.noteSeq[C.PITCHINDEX])
@@ -72,6 +73,7 @@ class ProcessedMIDI:
         # self.highestNote_value = Utility.value2Pitch(
         #     Utility.recodePitch(self.highestNote))
         self.minLengthInTicks = np.gcd.reduce(timeSet)
+        self.ticks_per_beat = self.OG_Mido.ticks_per_beat
         # self.numberOfMinLength = totalTime//self.minLengthInTicks
 
     def parseMIDI(self):
@@ -169,6 +171,7 @@ class ProcessedMIDI:
         print("totalDuration: " + str(self.totalDuration))
         print("lowestNote: " + str(self.lowestNote))
         print("highestNote: " + str(self.highestNote))
+        print("tempo: " + str(self.tempo))
 
         print("Pitch Sequence:")
         pitchInName = [Utility.value2Pitch(i)

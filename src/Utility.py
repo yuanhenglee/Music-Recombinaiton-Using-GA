@@ -9,7 +9,7 @@ def formattedPrint(target):
 # as a inverse func of recodePitch
 def pitch2MIDIPitch( pitch ):
     interval2stepdiff = {0:11, 1:0, 1.5:1 , 2:2, 2.5:3, 3:4, 4:5, 4.5:6, 5:7, 5.5:8, 6:9, 6.5:10, 7:11}
-    return ((pitch-1)//7+3)*12 + interval2stepdiff[pitch%7]
+    return int( ((pitch-1)//7+3)*12 + interval2stepdiff[pitch%7] )
 
     
 

@@ -14,13 +14,13 @@ class ProcessedMIDI:
     numberOfNotes = 0
     lowestNote = 1
     highestNote = 29
-    totalDuration = 0 # aka numberOfMinLength
+    totalDuration = 0  # aka numberOfMinLength
     minSegment = 0
 
     # two type
     # __init__( mid, None )
     # __init__( None, inputNoteSeq )
-    def __init__(self, mid , inputProcessedMIDI = None):
+    def __init__(self, mid, inputProcessedMIDI=None):
         # construct with a real midi file, for ancestors only
         if inputProcessedMIDI == None:
             self.OG_Mido = mid
@@ -29,8 +29,7 @@ class ProcessedMIDI:
         # constructor for offspring, will construct based on note seq
         else:
             self.OG_Mido = None
-            self.updateFieldVariable( inputProcessedMIDI )
-
+            self.updateFieldVariable(inputProcessedMIDI)
 
     def updateFieldVariable(self, inputProcessedMIDI):
         self.noteSeq = inputProcessedMIDI.noteSeq
@@ -38,14 +37,12 @@ class ProcessedMIDI:
         self.ticks_per_beat = inputProcessedMIDI.ticks_per_beat
         self.minLengthInTicks = inputProcessedMIDI.minLengthInTicks
         self.numberOfNotes = inputProcessedMIDI.noteSeq[C.PITCHINDEX].shape[0]
-        self.lowestNote = np.min(inputProcessedMIDI.noteSeq[C.PITCHINDEX])
+        self.lowestNote = inputProcessedMIDI.noteSeq[C.PITCHINDEX][inputProcessedMIDI.noteSeq[C.PITCHINDEX] > 0].min(
+        )
         self.highestNote = np.max(inputProcessedMIDI.noteSeq[C.PITCHINDEX])
-        self.totalDuration = np.sum(inputProcessedMIDI.noteSeq[C.DURATIONINDEX])
+        self.totalDuration = np.sum(
+            inputProcessedMIDI.noteSeq[C.DURATIONINDEX])
         self.minSegment = int(self.totalDuration / 16)
-
-
-        
-
 
     def exploreMIDI(self):
         timeSet = []  # store possible periods
@@ -64,7 +61,6 @@ class ProcessedMIDI:
                 if event.time > 0:
                     timeSet.append(event.time)
                     totalTime += event.time
-
 
         # drop first event's delta time
         timeSet.pop(0)
@@ -160,7 +156,8 @@ class ProcessedMIDI:
             self.totalDuration += int(self.noteSeq[C.DURATIONINDEX][i])
         self.minSegment = (int)(self.totalDuration / 16)
         # TODO rest note
-        self.lowestNote = np.min(self.noteSeq[C.PITCHINDEX])
+        self.lowestNote = self.noteSeq[C.PITCHINDEX][self.noteSeq[C.PITCHINDEX] > 0].min(
+        )
         self.highestNote = np.max(self.noteSeq[C.PITCHINDEX])
 
     def printMIDI(self):

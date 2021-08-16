@@ -12,7 +12,8 @@ class Individual:
         self.isAncestor = _isAncestor
         self.ancestor = self if _isAncestor else _ancestorIndividual
 
-        self.features = np.zeros(20)
+        #...
+        self.features = np.zeros(22)
 
         """ 
         pitchVariety = 0
@@ -71,6 +72,8 @@ class Individual:
         self.features[17] = repeatedRhythmPattern[1]
         self.features[18] = repeatedPitchPattern[2]
         self.features[19] = repeatedRhythmPattern[2]
+        self.features[20] = Feature.leapDensity(self.parsedMIDI)
+        self.features[21] = Feature.sumOfSquareOfInterval(self.parsedMIDI)
 
     def printIndividual(self):
         # OG MIDI

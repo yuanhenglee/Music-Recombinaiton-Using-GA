@@ -228,7 +228,7 @@ if __name__ == "__main__":
             population.append(Individual(
                 parsedMIDI, cuttingPoint, signature, True))
 
-    new_population = startGA(1, 5, population, 5)
+    new_population = startGA(50, 5, population, 100)
     bestOffspring = findBestOffspring( new_population )
     if bestOffspring != None:
         bestOffspring.parsedMIDI.printMIDI()

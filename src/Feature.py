@@ -316,7 +316,7 @@ def main():
 
     # df.sort_values(by=[''])
     df_MeanSTD.to_csv("../test & learn/EDA Result/songMeanSTD.csv")
-    df_MeanSTD = df_MeanSTD.sort_values(by=['std'])
+    df_MeanSTD = df_MeanSTD.sort_values(by=['CV'])
     df_MeanSTD.to_csv("../test & learn/EDA Result/songMeanSTD_ordered.csv")
 
     # corr

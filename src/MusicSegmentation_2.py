@@ -14,7 +14,7 @@ def extractSignatures(target):
     # print(cuttingInterval)
     possibleSignatures = elementsClustering(target, cuttingInterval, 0.8)
     if possibleSignatures == []:
-        return [{(i,j)} for i, j in cuttingInterval]
+        return [{(i, j)} for i, j in cuttingInterval]
     else:
         return possibleSignatures
 
@@ -47,6 +47,11 @@ def musicSegmentation2(target, LBDM):
     return cuttingPoint
     # target.noteSeq[C.SEGMENTATIONINDEX] = cuttingPoint
 
+
+def musicTree(target, LBDM):
+    i = 0
+
+
 if __name__ == "__main__":
 
     import sys
@@ -61,6 +66,6 @@ if __name__ == "__main__":
         parsedMIDI, LBDM_result)
     signaturePossibilities = extractSignatures(
         parsedMIDI)
-    print( LBDM_result )
-    print( cuttingPoint )
-    print( signaturePossibilities )
+    print(LBDM_result)
+    print(cuttingPoint)
+    print(signaturePossibilities)

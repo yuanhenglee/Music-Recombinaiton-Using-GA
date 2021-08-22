@@ -2,44 +2,21 @@ import Constant as C
 import Fitness as Fitness
 import Feature as Feature
 import numpy as np
+import pandas as pd
 
 
 class Individual:
-    def __init__(self, _parsedMIDI, _cuttingPoint, _signature, _isAncestor, _ancestorIndividual=None):
+    def __init__(self, _parsedMIDI, _cuttingPoint, _signature, _musicTree, _isAncestor=True, _ancestorIndividual=None):
         self.parsedMIDI = _parsedMIDI
         self.signature = _signature
         self.cuttingPoint = _cuttingPoint
+        self.musicTree = _musicTree
         self.isAncestor = _isAncestor
         self.ancestor = self if _isAncestor else _ancestorIndividual
-
-        #...
-        self.features = np.zeros(22)
-
-        """ 
-        pitchVariety = 0
-        pitchRange = 1
-        keyCentered = 2
-        nonScaleNotes = 3
-        dissonantIntervals = 4
-        contourDirection = 5
-        contourStability = 6
-        movementByStep = 7
-        leapReturns = 8
-        climaxStrength = 9
-        noteDensity = 10
-        restDensity = 11
-        rhythmicVariety = 12
-        rhythmicRange = 13
-        repeatedPitchPattern[0] = 14
-        repeatedRhythmPattern[0] = 15
-        repeatedPitchPattern[1] = 16
-        repeatedRhythmPattern[1] = 17
-        repeatedPitchPattern[2] = 18
-        repeatedRhythmPattern[2] = 19
-        """
-
         # TODO move all melody related var into parsedMIDI ?
 
+        # features
+        self.df_features = pd.DataFrame()
         self.calculateAllFeatures()
 
         # fitness function
@@ -47,33 +24,37 @@ class Individual:
         Fitness.updateFitness(self)
 
         # ! TEST
-        # self.printIndividual()
+        self.printIndividual()
 
     def calculateAllFeatures(self):
-        self.features[0] = Feature.pitchVariety(self.parsedMIDI)
-        self.features[1] = Feature.pitchRange(self.parsedMIDI)
-        self.features[2] = Feature.keyCentered(self.parsedMIDI)
-        self.features[3] = Feature.nonScaleNotes(self.parsedMIDI)
-        self.features[4] = Feature.dissonantIntervals(self.parsedMIDI)
-        self.features[5] = Feature.contourDirection(self.parsedMIDI)
-        self.features[6] = Feature.contourStability(self.parsedMIDI)
-        self.features[7] = Feature.movementByStep(self.parsedMIDI)
-        self.features[8] = Feature.leapReturns(self.parsedMIDI)
-        self.features[9] = Feature.climaxStrength(self.parsedMIDI)
-        self.features[10] = Feature.noteDensity(self.parsedMIDI)
-        self.features[11] = Feature.restDensity(self.parsedMIDI)
-        self.features[12] = Feature.rhythmicVariety(self.parsedMIDI)
-        self.features[13] = Feature.rhythmicRange(self.parsedMIDI)
         repeatedPitchPattern = Feature.repeatedPitchPattern(self.parsedMIDI)
         repeatedRhythmPattern = Feature.repeatedRhythmPattern(self.parsedMIDI)
-        self.features[14] = repeatedPitchPattern[0]
-        self.features[15] = repeatedRhythmPattern[0]
-        self.features[16] = repeatedPitchPattern[1]
-        self.features[17] = repeatedRhythmPattern[1]
-        self.features[18] = repeatedPitchPattern[2]
-        self.features[19] = repeatedRhythmPattern[2]
-        self.features[20] = Feature.leapDensity(self.parsedMIDI)
-        self.features[21] = Feature.sumOfSquareOfInterval(self.parsedMIDI)
+        features = {
+            "pitchVariety": [Feature.pitchVariety(self.parsedMIDI)],
+            "pitchRange": [Feature.pitchRange(self.parsedMIDI)],
+            "keyCentered": [Feature.keyCentered(self.parsedMIDI)],
+            "nonScaleNotes": [Feature.nonScaleNotes(self.parsedMIDI)],
+            "dissonantIntervals": [Feature.dissonantIntervals(self.parsedMIDI)],
+            "contourDirection": [Feature.contourDirection(self.parsedMIDI)],
+            "contourStability": [Feature.contourStability(self.parsedMIDI)],
+            "movementByStep": [Feature.movementByStep(self.parsedMIDI)],
+            "leapReturns": [Feature.leapReturns(self.parsedMIDI)],
+            "climaxStrength": [Feature.climaxStrength(self.parsedMIDI)],
+            "noteDensity": [Feature.noteDensity(self.parsedMIDI)],
+            "restDensity": [Feature.restDensity(self.parsedMIDI)],
+            "rhythmicVariety": [Feature.rhythmicVariety(self.parsedMIDI)],
+            "rhythmicRange": [Feature.rhythmicRange(self.parsedMIDI)],
+            "repeatedPitchPattern2": [repeatedPitchPattern[0]],
+            "repeatedRhythmPattern2": [repeatedRhythmPattern[0]],
+            "repeatedPitchPattern3": [repeatedPitchPattern[1]],
+            "repeatedRhythmPattern3": [repeatedRhythmPattern[1]],
+            "repeatedPitchPattern4": [repeatedPitchPattern[2]],
+            "repeatedRhythmPattern4": [repeatedRhythmPattern[2]],
+            "leapDensity": [Feature.leapDensity(self.parsedMIDI)],
+            "sumOfSquareOfInterval": [Feature.sumOfSquareOfInterval(self.parsedMIDI)]
+        }
+        self.df_features = pd.DataFrame(features)
+        print(self.df_features)
 
     def printIndividual(self):
         # OG MIDI

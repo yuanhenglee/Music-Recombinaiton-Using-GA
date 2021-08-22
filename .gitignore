@@ -1,6 +1,8 @@
 # user modified
 practice_Project/*
 output
+.DS_Store
+Music/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

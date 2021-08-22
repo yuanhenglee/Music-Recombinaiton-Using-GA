@@ -233,7 +233,9 @@ def repeatedRhythmPattern(parsedMIDI):
         repeatTimes[4]/(parsedMIDI.numberOfNotes-3)
 
 # Other Features
-def leapDensity( parsedMIDI ):
+
+
+def leapDensity(parsedMIDI):
     largeLeap = 0
     pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
     for i in range(len(pitchSeq)-1):
@@ -242,7 +244,8 @@ def leapDensity( parsedMIDI ):
             largeLeap += 1
     return largeLeap/(parsedMIDI.numberOfNotes-1)
 
-def sumOfSquareOfInterval( parsedMIDI ):
+
+def sumOfSquareOfInterval(parsedMIDI):
     return sum(i*i for i in parsedMIDI.noteSeq[C.INTERVALINDEX])
 
 
@@ -257,7 +260,7 @@ def main():
             name = filename[:-4]
             DBpath = './Music/'+name+'.fs'
             db = ZODB(DBpath)
-            parsedMIDI = db.dbroot[name].parsedMIDI
+            parsedMIDI = db.dbroot[0].parsedMIDI
             names.append(name)
             parsedMIDIs.append(parsedMIDI)
 
@@ -294,7 +297,6 @@ def main():
         "LeapDensity":      [restDensity(i) for i in parsedMIDIs],
         "SumOfSquareOfInterval": [sumOfSquareOfInterval(i) for i in parsedMIDIs]
     })
-
 
     # save features in csv
     df_songFeatures.to_csv("../test & learn/EDA Result/songFeatures.csv")

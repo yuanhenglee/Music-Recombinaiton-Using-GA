@@ -36,7 +36,7 @@ def updateFitness(individual):
 
     for i in range(len(similarity_score)):
         similarity_score[i] = calculateSimilarity(
-            individual.features[i], ancestor.features[i])
+            individual.df_features.iloc[0, i], ancestor.df_features.iloc[0, i])
 
     similarity += (similarity_score.mean())*50
 
@@ -54,7 +54,7 @@ def updateFitness(individual):
         featureName = orderedData["feature"][i]
         index = data[data["feature"] == featureName].index.values[0]
         consensus_score[i] = calculateConsensus(
-            data["mean"][index], data["std"][index], individual.features[index])
+            data["mean"][index], data["std"][index], individual.df_features.iloc[0, index])
 
     consensus += (consensus_score.mean())*25
 
@@ -63,7 +63,7 @@ def updateFitness(individual):
 
     for i in range(len(inRange_score)):
         inRange_score[i] = calculateInRange(
-            data["max"][i], data["min"][i], individual.features[i])
+            data["max"][i], data["min"][i], individual.df_features.iloc[0, i])
 
     inRange += (inRange_score.mean())*25
 

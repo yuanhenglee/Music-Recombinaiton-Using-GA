@@ -2,7 +2,7 @@
 practice_Project/*
 output
 .DS_Store
-Music/*
+src/Music/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

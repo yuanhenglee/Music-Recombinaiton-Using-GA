@@ -6,6 +6,6 @@ dbroot = db.dbroot
 print(dbroot.keys())
 for key in dbroot.keys():
     print(key)
-    print("Signature: ", dbroot[key].signature)
+    print(dbroot[key])
 
 db.close()

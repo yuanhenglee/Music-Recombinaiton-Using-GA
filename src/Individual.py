@@ -6,9 +6,10 @@ import pandas as pd
 
 
 class Individual:
-    def __init__(self, _parsedMIDI, _cuttingPoint, _signature, _musicTree, _isAncestor=True, _ancestorIndividual=None):
+    def __init__(self, _parsedMIDI, _cuttingPoint, _allSignature, _signature, _musicTree, _isAncestor=True, _ancestorIndividual=None):
         self.parsedMIDI = _parsedMIDI
         self.signature = _signature
+        self.allSignature = _allSignature
         self.cuttingPoint = _cuttingPoint
         self.musicTree = _musicTree
         self.isAncestor = _isAncestor
@@ -24,7 +25,7 @@ class Individual:
         Fitness.updateFitness(self)
 
         # ! TEST
-        self.printIndividual()
+        # self.printIndividual()
 
     def calculateAllFeatures(self):
         repeatedPitchPattern = Feature.repeatedPitchPattern(self.parsedMIDI)
@@ -54,7 +55,7 @@ class Individual:
             "sumOfSquareOfInterval": [Feature.sumOfSquareOfInterval(self.parsedMIDI)]
         }
         self.df_features = pd.DataFrame(features)
-        print(self.df_features)
+        # print(self.df_features)
 
     def printIndividual(self):
         # OG MIDI

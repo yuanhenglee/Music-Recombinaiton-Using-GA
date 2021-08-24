@@ -18,7 +18,7 @@ def storeIntoDB(name):
     parsedMIDI = ProcessedMIDI(mid)
     result_ILBDM = ILBDM(parsedMIDI)
     musicTree = treeNode(
-        parsedMIDI.noteSeq[C.PITCHINDEX], parsedMIDI.noteSeq[C.DURATIONINDEX], result_ILBDM)
+        0, parsedMIDI.noteSeq[C.PITCHINDEX], parsedMIDI.noteSeq[C.DURATIONINDEX], result_ILBDM)
     cuttingPoint = MusicSegmentation.musicSegmentation2(
         parsedMIDI, result_ILBDM)
     signaturePossibilities = MusicSegmentation.extractSignatures(parsedMIDI)
@@ -26,7 +26,8 @@ def storeIntoDB(name):
     dbroot = db.dbroot
 
     for i, signature in enumerate(signaturePossibilities):
-        dbroot[i] = Individual(parsedMIDI, cuttingPoint, signature, musicTree)
+        dbroot[i] = Individual(parsedMIDI, cuttingPoint,
+                               signaturePossibilities, signature, [musicTree])
     transaction.commit()
     db.close()
 

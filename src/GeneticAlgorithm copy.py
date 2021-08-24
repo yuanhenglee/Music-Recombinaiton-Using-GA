@@ -70,15 +70,6 @@ def crossover(parents):
             if main_parent == sub_parent:
                 continue
 
-            """         
-            move this part to preprocess
-            # change OG_mido to null
-            offspring_parsedMIDI.OG_Mido = None
-            # update min length in ticks
-            offspring_parsedMIDI.minLengthInTicks = np.gcd(
-                main_parent.parsedMIDI.minLengthInTicks, sub_parent.parsedMIDI.minLengthInTicks) 
-            """
-
             ''' Crossover '''
             # crossover
             temp_parsedMIDI = ProcessedMIDI(None, main_parent.parsedMIDI)

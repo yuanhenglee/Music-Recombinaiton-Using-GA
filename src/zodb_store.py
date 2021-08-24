@@ -42,6 +42,7 @@ if __name__ == "__main__":
     if name == "all":
         directory = '../midi_file'
         for filename in os.listdir(directory):
+            print("|", end="")
             if filename.endswith(".mid"):
                 storeIntoDB(filename[:-4])
             else:

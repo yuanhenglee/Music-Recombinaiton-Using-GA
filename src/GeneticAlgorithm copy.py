@@ -223,14 +223,14 @@ def findBestOffspring(population):
 if __name__ == "__main__":
 
     try:
-        names = sys.argv[1:]
+        paths = sys.argv[1:]
     except:
         print("Missing input MIDI file!")
 
     population = []
 
-    for name in names:
-        db = ZODB('./Music/' + name + '.fs')
+    for path in paths:
+        db = ZODB(path)
         dbroot = db.dbroot
         print(dbroot.keys())
         for key in dbroot.keys():

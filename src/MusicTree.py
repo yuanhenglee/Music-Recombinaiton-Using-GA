@@ -11,7 +11,7 @@ class treeNode:
             self.durationSeq = _durationSeq
             self.startIndex = _startIndex
             self.LBDM = _LBDM
-            self.length = len(_pitchSeq)
+            self.length = sum(_durationSeq)
             self.left = None
             self.right = None
             self.hashTable = {}
@@ -75,6 +75,6 @@ if __name__ == "__main__":
     test2 = treeNode(0, [], [])
     test2.copyNode(test)
     ''' test hashTable '''
-    # print(103 in test.hashTable)
+    print(test.hashTable)
     # test2.hashTable.pop(103, None)
     # print(103 in test.hashTable)

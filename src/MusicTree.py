@@ -76,5 +76,5 @@ if __name__ == "__main__":
     test2.copyNode(test)
     ''' test hashTable '''
     print(test.hashTable)
-    # test2.hashTable.pop(103, None)
-    # print(103 in test.hashTable)
+    test2.hashTable.pop(103, None)
+    print(103 in test.hashTable)

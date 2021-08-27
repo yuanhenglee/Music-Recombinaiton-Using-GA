@@ -2,6 +2,37 @@ import numpy as np
 from ILBDM import ILBDM
 import Constant as C
 import copy
+import random
+
+# find a combination of one or more tree, which add up same length as blank_length
+def findSolutionForBlank( blank_length, musicTrees ):
+    # store all possible subsequence ( length < blank_length )
+    possible_trees = {}
+    for tree in musicTrees:
+        for length in range( blank_length+1 ):
+            if length in tree.hashTable:
+                if length in possible_trees:
+                    possible_trees[length] = possible_trees[length].union( tree.hashTable[length] )
+                else:
+                    possible_trees[length] =  tree.hashTable[length]
+    # print( possible_trees )
+
+    # randomly select 10 times
+    for i in range(10):
+        key1 = random.choice( list(possible_trees.keys() ) )
+        key2 = blank_length-key1
+        # case1: exactly fit in
+        if key1 == blank_length:
+            print(i)
+            return random.sample( possible_trees[key1], 1 )
+        elif key2 in possible_trees:
+            print(i)
+            return random.sample( possible_trees[key1], 1 ) + random.sample( possible_trees[key2], 1 )
+        else:
+            del possible_trees[key1]
+
+    raise "no suitable combination. QQ~"
+
 
 
 class treeNode:
@@ -11,7 +42,7 @@ class treeNode:
             self.durationSeq = _durationSeq
             self.startIndex = _startIndex
             self.LBDM = _LBDM
-            self.length = sum(_durationSeq)
+            self.length = int( sum(_durationSeq) )
             self.left = None
             self.right = None
             self.hashTable = {}
@@ -32,6 +63,9 @@ class treeNode:
 
                 self.updateHashTable(self.left.hashTable)
                 self.updateHashTable(self.right.hashTable)
+
+    def __repr__(self):
+        return "\nlength: " + str(self.length) + str(self.pitchSeq)
 
     def copyNode(self, otherNode):
         self.pitchSeq = otherNode.pitchSeq

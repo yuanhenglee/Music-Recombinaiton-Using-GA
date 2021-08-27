@@ -6,10 +6,10 @@ import pandas as pd
 
 
 class Individual:
-    def __init__(self, _parsedMIDI, _cuttingPoint, _allSignature, _signature, _musicTree, _isAncestor=True, _ancestorIndividual=None):
+    def __init__(self, _parsedMIDI, _cuttingPoint, _allElementGroups, _signature, _musicTree, _isAncestor=True, _ancestorIndividual=None):
         self.parsedMIDI = _parsedMIDI
         self.signature = _signature
-        self.allSignature = _allSignature
+        self.allElementGroups = _allElementGroups
         self.cuttingPoint = _cuttingPoint
         self.musicTree = _musicTree
         self.isAncestor = _isAncestor

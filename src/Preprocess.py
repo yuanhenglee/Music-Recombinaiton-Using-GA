@@ -31,7 +31,8 @@ class ProcessedMIDI:
             self.OG_Mido = None
             self.updateFieldVariable(inputProcessedMIDI)
 
-    def updateFieldVariable(self, inputProcessedMIDI):
+    def updateFieldVariable(self, inputProcessedMIDI = None):
+        if inputProcessedMIDI is None: inputProcessedMIDI = self
         self.noteSeq = inputProcessedMIDI.noteSeq
         self.tempo = inputProcessedMIDI.tempo
         self.ticks_per_beat = inputProcessedMIDI.ticks_per_beat
@@ -184,12 +185,12 @@ class ProcessedMIDI:
         print("Accumulative Beat Sequence:")
         Utility.formattedPrint(self.noteSeq[C.ACCUMULATIVEINDEX].astype(int))
 
-def expandElementarySequence( pitchSeq, durationSeq ):
-    assert( len(pitchSeq) == len(durationSeq), "different length between pitchSeq & durationSeq")
-    numberOfNotes = len(durationSeq)
+def expandElementarySequence( elementarySequence ):
+    # assert( len(pitchSeq) == len(durationSeq), "different length between pitchSeq & durationSeq")
+    numberOfNotes = elementarySequence.shape[1] 
     noteSeq = np.zeros((6, numberOfNotes)) 
-    noteSeq[C.PITCHINDEX] = pitchSeq
-    noteSeq[C.DURATIONINDEX] = durationSeq
+    noteSeq[C.PITCHINDEX] = elementarySequence[0] 
+    noteSeq[C.DURATIONINDEX] = elementarySequence[1]
 
     # add pitch interval sequence & temporary rest sequence encodingVG
     # by the current encoding method, same note & (note,break) are both been consider as interval = 0

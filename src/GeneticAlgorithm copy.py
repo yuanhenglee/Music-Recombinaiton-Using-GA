@@ -20,6 +20,7 @@ import MusicTree
 
 
 def startGA(num_generations, num_parents_mating, population, max_population):
+    assert( num_generations > 0 and len(population) > 1 )
     for generation in range(num_generations):
         # Measuring the fitness of each chromosome in the population.
         for individual in population:
@@ -114,24 +115,31 @@ def crossover(parents):
 
             # filling the blank
             # 1st part merge note sequence
-            # for each gap, split original note sequence into 3 part: left + blank + right
-            for gap in point:
-                left_noteSeq_offspring = temp_parsedMIDI.noteSeq[:,:gap[0]]
-                right_noteSeq_offspring = temp_parsedMIDI.noteSeq[:,gap[1]:]
+            # make filler sequence
             if len(filler_tree) == 1:
-                filler_noteSeq = Preprocess.expandElementarySequence( filler_tree[0].pitchSeq, filler_tree[0].durationSeq ) 
+                filler_elementary_noteSeq = np.vstack( [filler_tree[0].pitchSeq, filler_tree[0].durationSeq] ) 
             elif len(filler_tree) == 2:
-                filler_noteSeq = np.concatenate([
-                    Preprocess.expandElementarySequence( filler_tree[0].pitchSeq, filler_tree[0].durationSeq ),
-                    Preprocess.expandElementarySequence( filler_tree[1].pitchSeq, filler_tree[1].durationSeq )
+                filler_elementary_noteSeq = np.concatenate([
+                    np.vstack( [filler_tree[0].pitchSeq, filler_tree[0].durationSeq] ),
+                    np.vstack( [filler_tree[1].pitchSeq, filler_tree[1].durationSeq] )
                 ], axis=1 )
             
-            print( "Father: \n",temp_parsedMIDI.noteSeq[0] )
+            # for each gap, split original note sequence into 3 part: left + blank + right
+            for gap in point:
+                    left_noteSeq_offspring = temp_parsedMIDI.noteSeq[:2,:gap[0]]
+                    right_noteSeq_offspring = temp_parsedMIDI.noteSeq[:2,gap[1]:]
+                    temp_parsedMIDI.noteSeq = np.hstack([left_noteSeq_offspring, filler_elementary_noteSeq, right_noteSeq_offspring])
+            
+            # expand elementary note sequence & update field
+            temp_parsedMIDI.noteSeq = Preprocess.expandElementarySequence( temp_parsedMIDI.noteSeq )
+            temp_parsedMIDI.updateFieldVariable()
+            print( "Father:" )
+            main_parent.parsedMIDI.printMIDI()
             print( "Son:" )
-            print( left_noteSeq_offspring[0] )
-            print( right_noteSeq_offspring[0] )
-            print( filler_noteSeq[0] )
+            temp_parsedMIDI.printMIDI()
+
             # 2nd part merge tree structure 
+            # find which tree contains blank index
 
 
             return []

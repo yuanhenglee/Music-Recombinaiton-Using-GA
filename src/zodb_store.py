@@ -40,12 +40,20 @@ if __name__ == "__main__":
 
     name = sys.argv[1]
     if name == "all":
-        directory = '../midi_file'
-        for filename in os.listdir(directory):
-            print("|", end="")
-            if filename.endswith(".mid"):
-                storeIntoDB(filename[:-4])
-            else:
-                continue
+        from progress.bar import IncrementalBar
+        path = os.path.join( os.path.dirname(__file__), '../midi_file')
+        all_midi_files = [ f[:-4] for f in os.listdir(path) if f.endswith('.mid') ]
+        n_midi_files = len(all_midi_files)
+        with IncrementalBar('store to ZODB', max=n_midi_files) as bar:
+            for i in range(n_midi_files):
+                storeIntoDB(all_midi_files[i])
+                bar.next()
+        # directory = '../midi_file'
+        # for filename in os.listdir(directory):
+        #     print("|", end="")
+        #     if filename.endswith(".mid"):
+        #         storeIntoDB(filename[:-4])
+        #     else:
+        #         continue
     else:
         storeIntoDB(name)

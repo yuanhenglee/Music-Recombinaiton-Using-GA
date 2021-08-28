@@ -3,12 +3,12 @@ import sys
 import time
 from mido import MidiFile
 from Feature import main
-from Preprocess import ProcessedMIDI
+import Preprocess
 import MusicSegmentation_2
 from Individual import Individual
 from Fitness import updateFitness
 from ILBDM import ILBDM
-from Utility import isValidPitch
+import Utility 
 import Constant as C
 
 import numpy as np
@@ -94,24 +94,45 @@ def crossover(parents):
                             for end in elements:
                                 end_index = cuttingPoint.index(end)
                                 start = 0 if end_index == 0 else cuttingPoint[end_index-1]+1
-                                point.append((start, end))
+                                point.append((int(start), int(end)))
                             break
                     if point == []:
                         end = cuttingPoint[indexOfSelectedElement]
                         start = 0 if indexOfSelectedElement == 0 else cuttingPoint[indexOfSelectedElement-1]+1
-                        point.append((start, end))
+                        point.append((int(start), int(end)))
                     break
             print("index to be crossovered: \n", point)
 
             # construct offspring based on main_parent
-            temp_parsedMIDI = ProcessedMIDI(None, main_parent.parsedMIDI)
+            temp_parsedMIDI = Preprocess.ProcessedMIDI(None, main_parent.parsedMIDI)
             
-            # find suitable sequence for filling
+            # find suitable sequence for filler
             blank_length = int( sum( main_parent.parsedMIDI.noteSeq[C.DURATIONINDEX][point[0][0]:point[0][1]] ) )
-            print(blank_length)
-            filling = MusicTree.findSolutionForBlank( blank_length, sub_parent.musicTree )
-            print(filling)
-            # sub_parent.musicTree
+            print("blank length: ", blank_length)
+            filler_tree = MusicTree.findSolutionForBlank( blank_length, sub_parent.musicTree )
+            print(filler_tree)
+
+            # filling the blank
+            # 1st part merge note sequence
+            # for each gap, split original note sequence into 3 part: left + blank + right
+            for gap in point:
+                left_noteSeq_offspring = temp_parsedMIDI.noteSeq[:,:gap[0]]
+                right_noteSeq_offspring = temp_parsedMIDI.noteSeq[:,gap[1]:]
+            if len(filler_tree) == 1:
+                filler_noteSeq = Preprocess.expandElementarySequence( filler_tree[0].pitchSeq, filler_tree[0].durationSeq ) 
+            elif len(filler_tree) == 2:
+                filler_noteSeq = np.concatenate([
+                    Preprocess.expandElementarySequence( filler_tree[0].pitchSeq, filler_tree[0].durationSeq ),
+                    Preprocess.expandElementarySequence( filler_tree[1].pitchSeq, filler_tree[1].durationSeq )
+                ], axis=1 )
+            
+            print( "Father: \n",temp_parsedMIDI.noteSeq[0] )
+            print( "Son:" )
+            print( left_noteSeq_offspring[0] )
+            print( right_noteSeq_offspring[0] )
+            print( filler_noteSeq[0] )
+            # 2nd part merge tree structure 
+
 
             return []
 
@@ -127,7 +148,7 @@ def crossover(parents):
             #                 temp.noteSeq[C.PITCHINDEX][i] = temp.noteSeq[C.PITCHINDEX][i] + move
 
             ####
-            # offspring_parsedMIDI = ProcessedMIDI(None, main_parent.parsedMIDI)
+            # offspring_parsedMIDI = Preprocess.ProcessedMIDI(None, main_parent.parsedMIDI)
             offspring_ancestor = main_parent.ancestor
 
             ####change to individual####
@@ -149,7 +170,7 @@ def mutation(offspring_crossover):
         if count == mutation_size:
             break
         count = count+1
-        new_parsedMIDI = ProcessedMIDI(None, offspring.parsedMIDI)
+        new_parsedMIDI = Preprocess.ProcessedMIDI(None, offspring.parsedMIDI)
         newOffspring = Individual(new_parsedMIDI, offspring.cuttingPoint,
                                   offspring.signature, False, offspring.ancestor)
         # selected element can not be signature
@@ -210,7 +231,7 @@ def pitchShifting(start, end, target):
     for i in range(start, end+1):
         if target.noteSeq[C.PITCHINDEX][i] != 0:
             newPitch = target.noteSeq[C.PITCHINDEX][i] + move
-            if isValidPitch(newPitch):
+            if Utility.isValidPitch(newPitch):
                 newPitchSeq.append(newPitch)
             else:
                 return

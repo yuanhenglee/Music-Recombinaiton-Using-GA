@@ -183,3 +183,43 @@ class ProcessedMIDI:
         Utility.formattedPrint(self.noteSeq[C.RESTINDEX].astype(int))
         print("Accumulative Beat Sequence:")
         Utility.formattedPrint(self.noteSeq[C.ACCUMULATIVEINDEX].astype(int))
+
+def expandElementarySequence( pitchSeq, durationSeq ):
+    assert( len(pitchSeq) == len(durationSeq), "different length between pitchSeq & durationSeq")
+    numberOfNotes = len(durationSeq)
+    noteSeq = np.zeros((6, numberOfNotes)) 
+    noteSeq[C.PITCHINDEX] = pitchSeq
+    noteSeq[C.DURATIONINDEX] = durationSeq
+
+    # add pitch interval sequence & temporary rest sequence encodingVG
+    # by the current encoding method, same note & (note,break) are both been consider as interval = 0
+    for i, curPitch in enumerate(noteSeq[C.PITCHINDEX][:-1]):
+        nextPitch = noteSeq[C.PITCHINDEX][i+1]
+        # cutpoint might appear between each break
+        if curPitch == 0:
+            noteSeq[C.RESTINDEX][i] = noteSeq[C.DURATIONINDEX][i]
+        elif nextPitch == 0 and i + 2 < numberOfNotes:
+            nextNextPitch = noteSeq[C.PITCHINDEX][i+2]
+            noteSeq[C.RESTINDEX][i] = noteSeq[C.DURATIONINDEX][i+1]
+            noteSeq[C.INTERVALINDEX][i]\
+                = abs(nextNextPitch - curPitch)
+            noteSeq[C.INTERVALINDEX][i+1]\
+                = abs(nextNextPitch - curPitch)
+        elif nextPitch == 0 and i+2 == numberOfNotes:
+            noteSeq[C.INTERVALINDEX][i] = 0
+
+        else:
+            noteSeq[C.INTERVALINDEX][i] = abs(
+                nextPitch - curPitch)
+
+    # accumulative beat sequence
+    for i, curDuration in enumerate(noteSeq[C.DURATIONINDEX][:-1]):
+        noteSeq[C.ACCUMULATIVEINDEX][i] = curDuration
+        if i != 0:
+            preDuration = noteSeq[C.DURATIONINDEX][i-1]
+            if noteSeq[C.ACCUMULATIVEINDEX][i-1] % C.BeatInMeasure != 0:
+                if preDuration < 8:
+                    if noteSeq[C.PITCHINDEX][i-1] != 0 or preDuration <= 4:
+                        noteSeq[C.ACCUMULATIVEINDEX][i] += noteSeq[C.ACCUMULATIVEINDEX][i-1]
+    
+    return noteSeq

@@ -19,14 +19,13 @@ def findSolutionForBlank( blank_length, musicTrees ):
 
     # randomly select 10 times
     for i in range(10):
+        # key1 = blank_length 
         key1 = random.choice( list(possible_trees.keys() ) )
         key2 = blank_length-key1
         # case1: exactly fit in
         if key1 == blank_length:
-            print(i)
             return random.sample( possible_trees[key1], 1 )
         elif key2 in possible_trees:
-            # print(i)
             return random.sample( possible_trees[key1], 1 ) + random.sample( possible_trees[key2], 1 )
         else:
             del possible_trees[key1]

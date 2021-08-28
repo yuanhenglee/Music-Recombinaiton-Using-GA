@@ -26,7 +26,7 @@ def findSolutionForBlank( blank_length, musicTrees ):
             print(i)
             return random.sample( possible_trees[key1], 1 )
         elif key2 in possible_trees:
-            print(i)
+            # print(i)
             return random.sample( possible_trees[key1], 1 ) + random.sample( possible_trees[key2], 1 )
         else:
             del possible_trees[key1]

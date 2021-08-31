@@ -37,6 +37,7 @@ def findSolutionForBlank( blank_length, musicTrees ):
 class treeNode:
     def __init__(self, _startIndex, _pitchSeq, _durationSeq, _LBDM=[]):
         if len(_pitchSeq) == len(_durationSeq) or len(_pitchSeq) == len(_LBDM):
+            self.elementary_noteSeq = np.vstack( [_pitchSeq, _durationSeq] )
             self.pitchSeq = _pitchSeq
             self.durationSeq = _durationSeq
             self.startIndex = _startIndex
@@ -89,6 +90,24 @@ class treeNode:
             if k not in self.hashTable:
                 self.hashTable[k] = set()
             self.hashTable[k] = set.union(self.hashTable[k], v)
+
+    def splitToThree(self, index1, index2, fill_in_None = False ):
+        assert( 0<= index1<= index2 <= len(self.pitchSeq) )
+        trees = [] #
+        gap_index_split_trees = 0
+        if index1 > 0 :
+            trees.append( treeNode(0, self.pitchSeq[:index1], self.durationSeq[:index1], self.LBDM[:index1]) )
+            gap_index_split_trees += 1
+
+        if fill_in_None:
+            trees.append( None )
+        else:
+            trees.append( treeNode(0, self.pitchSeq[index1:index2], self.durationSeq[index1:index2], self.LBDM[index1:index2]) )
+        
+        if index2 < len(self.pitchSeq) :
+            trees.append( treeNode(0, self.pitchSeq[index2:], self.durationSeq[index2:], self.LBDM[index2:]) )
+
+        return trees, gap_index_split_trees
 
 
 if __name__ == "__main__":

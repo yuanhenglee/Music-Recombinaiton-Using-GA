@@ -8,7 +8,7 @@ import MusicSegmentation_2
 from Individual import Individual
 from Fitness import updateFitness
 from ILBDM import ILBDM
-import Utility 
+import Utility
 import Constant as C
 
 import numpy as np
@@ -20,7 +20,7 @@ import MusicTree
 
 
 def startGA(num_generations, num_parents_mating, population, max_population):
-    assert( num_generations > 0 and len(population) > 1 )
+    assert(num_generations > 0 and len(population) > 1)
     for generation in range(num_generations):
         # Measuring the fitness of each chromosome in the population.
         for individual in population:
@@ -42,15 +42,12 @@ def startGA(num_generations, num_parents_mating, population, max_population):
         parents = select_mating_pool(population, num_parents_mating)
 
         ''' Generating next generation using crossover. '''
-        offspring_crossover = population + crossover(parents)
+        population += crossover(parents)
 
-        break
         # TODO control how many individuals will be mutated.
         ''' Adding some variations to the offspring using mutation. '''
         # offspring_mutation = mutation(population)
 
-        ''' Creating the new population based on the parents and offspring. '''
-        population = offspring_crossover 
     return population
 
 
@@ -72,8 +69,8 @@ def crossover(parents):
 
             ''' Crossover '''
             # crossover
-            print("cutting point: \n", main_parent.cuttingPoint)
-            print("signature: \n", main_parent.signature)
+            # print("cutting point: \n", main_parent.cuttingPoint)
+            # print("signature: \n", main_parent.signature)
             # find elements to be crossovered
             invalid_elements_start_index = []
             for signature in main_parent.signature:
@@ -84,10 +81,11 @@ def crossover(parents):
                 for element in elementGroup:
                     elements.append(element[1]-1)
                 relative_elements.append(elements)
-            print("all signature: \n", main_parent.allElementGroups)
+            # print("all signature: \n", main_parent.allElementGroups)
             while True:
                 point = []
-                indexOfSelectedElement = random.randint(0, len(main_parent.cuttingPoint)-2)
+                indexOfSelectedElement = random.randint(
+                    0, len(main_parent.cuttingPoint)-2)
                 cuttingPoint = main_parent.cuttingPoint
                 if cuttingPoint[indexOfSelectedElement] not in invalid_elements_start_index:
                     for elements in relative_elements:
@@ -99,70 +97,65 @@ def crossover(parents):
                             break
                     if point == []:
                         end = cuttingPoint[indexOfSelectedElement]
-                        start = 0 if indexOfSelectedElement == 0 else cuttingPoint[indexOfSelectedElement-1]+1
+                        start = 0 if indexOfSelectedElement == 0 else cuttingPoint[
+                            indexOfSelectedElement-1]+1
                         point.append((int(start), int(end)))
                     break
-            print("index to be crossovered: \n", point)
+            point.sort(key=lambda x: x[0])
+            # print("index to be crossovered: \n", point)
 
             # construct offspring based on main_parent
-            temp_parsedMIDI = Preprocess.ProcessedMIDI(None, main_parent.parsedMIDI)
-            
+            child = copy.deepcopy(main_parent)
+            child.isAncestor = False
+            child.ancestor = main_parent.ancestor
+
             # find suitable sequence for filler
-            blank_length = int( sum( main_parent.parsedMIDI.noteSeq[C.DURATIONINDEX][point[0][0]:point[0][1]] ) )
-            print("blank length: ", blank_length)
-            filler_tree = MusicTree.findSolutionForBlank( blank_length, sub_parent.musicTree )
-            print(filler_tree)
+            blank_length = int(
+                sum(main_parent.parsedMIDI.noteSeq[C.DURATIONINDEX][point[0][0]:point[0][1]]))
+            # print("blank length: ", blank_length)
+            filler_trees = MusicTree.findSolutionForBlank(
+                blank_length, sub_parent.tree_list)
+            # print(f"{filler_trees=}")
 
             # filling the blank
-            # 1st part merge note sequence
-            # make filler sequence
-            if len(filler_tree) == 1:
-                filler_elementary_noteSeq = np.vstack( [filler_tree[0].pitchSeq, filler_tree[0].durationSeq] ) 
-            elif len(filler_tree) == 2:
-                filler_elementary_noteSeq = np.concatenate([
-                    np.vstack( [filler_tree[0].pitchSeq, filler_tree[0].durationSeq] ),
-                    np.vstack( [filler_tree[1].pitchSeq, filler_tree[1].durationSeq] )
-                ], axis=1 )
-            
-            # for each gap, split original note sequence into 3 part: left + blank + right
+
+            # for each tree containing a gap, split it into subtrees where the gap been a independent tree
+            gaps_in_tree_index = []
             for gap in point:
-                    left_noteSeq_offspring = temp_parsedMIDI.noteSeq[:2,:gap[0]]
-                    right_noteSeq_offspring = temp_parsedMIDI.noteSeq[:2,gap[1]:]
-                    temp_parsedMIDI.noteSeq = np.hstack([left_noteSeq_offspring, filler_elementary_noteSeq, right_noteSeq_offspring])
-            
-            # expand elementary note sequence & update field
-            temp_parsedMIDI.noteSeq = Preprocess.expandElementarySequence( temp_parsedMIDI.noteSeq )
-            temp_parsedMIDI.updateFieldVariable()
-            print( "Father:" )
-            main_parent.parsedMIDI.printMIDI()
-            print( "Son:" )
-            temp_parsedMIDI.printMIDI()
+                acc_tree_index = 0
+                for i, tree in enumerate(child.tree_list):
+                    if acc_tree_index <= gap[0] and gap[1] <= acc_tree_index + len( tree.pitchSeq):
+                        split_trees, gap_index_split_trees = tree.splitToThree(gap[0]-acc_tree_index,gap[1]-acc_tree_index)
+                        if i+1 < len(child.tree_list):
+                            child.tree_list = child.tree_list[:i] + split_trees + child.tree_list[i+1:]
+                        else:
+                            child.tree_list = child.tree_list[:i] + split_trees
+                        gaps_in_tree_index.append(i+gap_index_split_trees)
+                    acc_tree_index += len( tree.pitchSeq)
+                    
+            # replace each gap tree
+            tmp_tree_list = []
+            for t in range(len(child.tree_list)):
+                if t in gaps_in_tree_index:
+                    tmp_tree_list += filler_trees
+                else:
+                    tmp_tree_list.append(child.tree_list[t])
+            child.tree_list = tmp_tree_list 
 
-            # 2nd part merge tree structure 
-            # find which tree contains blank index
+            # print(child.tree_list)
 
+            # construct noteSeq for child
+            tmp_elementary_noteSeq = np.array([[],[]])
+            for tree in child.tree_list:
+                tmp_elementary_noteSeq = np.hstack( [tmp_elementary_noteSeq, tree.elementary_noteSeq] )
+            child.parsedMIDI.noteSeq = Preprocess.expandElementarySequence( tmp_elementary_noteSeq )
+            child.parsedMIDI.updateFieldVariable()
+            child.calculateAllFeatures()
 
-            return []
+            # main_parent.details() 
+            # child.details() 
 
-            # for i in range(len(mask)):
-            #     if(mask[i] == 1):
-            #         start = main_parent.cuttingPoint[i]
-            #         end = main_parent.cuttingPoint[i+1]-1
-            #         for i in range(start, end+1):
-            #             move = random.randint(-4, 4)
-            #             if temp.noteSeq[C.PITCHINDEX][i] != 0:
-            #                 if temp.noteSeq[C.PITCHINDEX][i] + move <= 0:
-            #                     break
-            #                 temp.noteSeq[C.PITCHINDEX][i] = temp.noteSeq[C.PITCHINDEX][i] + move
-
-            ####
-            # offspring_parsedMIDI = Preprocess.ProcessedMIDI(None, main_parent.parsedMIDI)
-            offspring_ancestor = main_parent.ancestor
-
-            ####change to individual####
-            # TODO: update cutting Point
-            offspring.append(Individual(offspring_parsedMIDI,
-                                        main_parent.cuttingPoint, main_parent.signature, False, offspring_ancestor))
+            offspring.append(child)
     offspring.sort(key=lambda x: x.fitness, reverse=True)
     return offspring
 
@@ -273,7 +266,8 @@ if __name__ == "__main__":
             population.append(dbroot[key])
         db.close()
 
-    new_population = startGA(50, 5, population, 100)
+
+    new_population = startGA(num_generations = 3, num_parents_mating = 5, population = population, max_population = 10)
     bestOffspring = findBestOffspring(new_population)
     if bestOffspring != None:
         bestOffspring.parsedMIDI.printMIDI()

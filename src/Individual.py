@@ -11,7 +11,7 @@ class Individual:
         self.signature = _signature
         self.allElementGroups = _allElementGroups
         self.cuttingPoint = _cuttingPoint
-        self.musicTree = _musicTree
+        self.tree_list = _musicTree
         self.isAncestor = _isAncestor
         self.ancestor = self if _isAncestor else _ancestorIndividual
         # TODO move all melody related var into parsedMIDI ?
@@ -57,11 +57,12 @@ class Individual:
         self.df_features = pd.DataFrame(features)
         # print(self.df_features)
 
-    def printIndividual(self):
-        # OG MIDI
-        # self.parsedMIDI.printMIDI()
-        print("\nSignature: \n", self.signature)
-        print("\nCuttingPoint: \n", self.cuttingPoint)
-
-        print("\nFitness: \n", self.fitness)
-        # segmentation info
+    def details(self):
+        print("-"*30)
+        if self.isAncestor:
+            print( "Ancestor" )
+        else:
+            print( "Offspring" )
+        print( f"{self.tree_list=}" )
+        print( f"{self.fitness=}" )
+        # self.parsedMIDI.printMIDI() 

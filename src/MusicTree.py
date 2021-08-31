@@ -17,8 +17,8 @@ def findSolutionForBlank( blank_length, musicTrees ):
                     possible_trees[length] =  tree.hashTable[length]
     # print( possible_trees )
 
-    # randomly select 10 times
-    for i in range(10):
+    # randomly select till find solution 
+    while possible_trees != {}:
         # key1 = blank_length 
         key1 = random.choice( list(possible_trees.keys() ) )
         key2 = blank_length-key1
@@ -30,7 +30,7 @@ def findSolutionForBlank( blank_length, musicTrees ):
         else:
             del possible_trees[key1]
 
-    raise "no suitable combination. QQ~"
+    return None
 
 
 

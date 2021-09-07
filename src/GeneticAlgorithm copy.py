@@ -19,7 +19,7 @@ import Demo
 import MusicTree
 
 
-def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3, max_generation=1000, max_population=1000, n_generation_terminate=100):
+def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3, max_generation=1000, max_population=1000, n_generation_terminate=100, generation_to_kill=10):
     best_score = 0
     generation_best_score_was_born = 1
     for generation in range(1, max_generation+1):
@@ -29,9 +29,21 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
 
         population = natural_selection(population, max_population)
 
-        if population[0].fitness > best_score:
-            best_score = population[0].fitness
-            generation_best_score_was_born = generation
+        if generation % generation_to_kill == 0 and len(population) > max_population and generation != 0:
+            tmp_population = []
+            key_fitness = 0
+            for individual in population:
+                if individual.fitness != key_fitness:
+                    key_fitness = individual.fitness
+                    tmp_population.append(individual)
+            population = tmp_population
+
+        for i in population:
+            if i.isAncestor != True:
+                if i.fitness > best_score:
+                    best_score = i.fitness
+                    generation_best_score_was_born = generation
+                break
 
         # ! TEST ONLY
         print("==================\ngeneration: \n", generation)
@@ -192,7 +204,7 @@ def mutation(offspring_crossover):
             break
         count = count+1
         new_parsedMIDI = Preprocess.ProcessedMIDI(None, offspring.parsedMIDI)
-        newOffspring = Individual(new_parsedMIDI, offspring.cuttingPoint,
+        newOffspring = Individual(new_parsedMIDI, offspring.cuttingPoint, offspring.allElementGroups,
                                   offspring.signature, False, offspring.ancestor)
         # selected element can not be signature
         start = 0
@@ -247,7 +259,10 @@ def pitchOrderReverse(start, end, target):
 
 
 def pitchShifting(start, end, target):
-    move = random.randint(-7, 7)
+    move = random.randint(1, 7)
+    negative = random.randint(0, 1)
+    if negative == 1:
+        move = move * -1
     newPitchSeq = []
     for i in range(start, end+1):
         if target.noteSeq[C.PITCHINDEX][i] != 0:
@@ -288,7 +303,7 @@ if __name__ == "__main__":
         db.close()
 
     new_population = startGA(initialAncestors, population,
-                             max_population=30, max_generation=50)
+                             max_population=30, max_generation=1000)
     bestOffspring = findBestOffspring(new_population)
     if bestOffspring != None:
         bestOffspring.parsedMIDI.printMIDI()

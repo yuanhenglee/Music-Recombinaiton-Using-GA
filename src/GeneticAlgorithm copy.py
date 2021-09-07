@@ -27,9 +27,8 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
         for individual in population:
             updateFitness(individual)
 
-        population = natural_selection(population, max_population)
-
-        if generation % generation_to_kill == 0 and len(population) > max_population and generation != 0:
+        if generation >= generation_to_kill and len(population) > max_population:
+            population.sort(key=lambda x: x.fitness, reverse=True)
             tmp_population = []
             key_fitness = 0
             for individual in population:
@@ -37,6 +36,8 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
                     key_fitness = individual.fitness
                     tmp_population.append(individual)
             population = tmp_population
+
+        population = natural_selection(population, max_population)
 
         for i in population:
             if i.isAncestor != True:

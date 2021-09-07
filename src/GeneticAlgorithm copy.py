@@ -19,7 +19,7 @@ import Demo
 import MusicTree
 
 
-def startGA( population, mutation_rate = 0.3, crossover_rate = 0.3, max_generation = 1000, max_population = 1000, n_generation_terminate = 100):
+def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3, max_generation=1000, max_population=1000, n_generation_terminate=100):
     best_score = 0
     generation_best_score_was_born = 1
     for generation in range(1, max_generation+1):
@@ -27,7 +27,7 @@ def startGA( population, mutation_rate = 0.3, crossover_rate = 0.3, max_generati
         for individual in population:
             updateFitness(individual)
 
-        population = natural_selection( population, max_population)
+        population = natural_selection(population, max_population)
 
         if population[0].fitness > best_score:
             best_score = population[0].fitness
@@ -47,11 +47,12 @@ def startGA( population, mutation_rate = 0.3, crossover_rate = 0.3, max_generati
 
         ''' terminate '''
         if population[0] == 100 or generation - generation_best_score_was_born >= n_generation_terminate:
-            print( "GA Terminate")
+            print("GA Terminate")
             break
 
         ''' Generating next generation using crossover. '''
-        population += crossover(population, n_offspring = crossover_rate * max_population)
+        population += crossover(population,
+                                n_offspring=crossover_rate * max_population)
 
         # TODO control how many individuals will be mutated.
         ''' Adding some variations to the offspring using mutation. '''
@@ -74,8 +75,8 @@ def crossover(parents, n_offspring):
     n_times_trying = 0
     # stop when offspring size satisfies the criteria or either the n_times_trying exceed
     while len(offspring) < n_offspring and n_times_trying < 100:
-        main_parent, sub_parent = random.choices( parents, k = 2 )
-        n_times_trying+=1
+        main_parent, sub_parent = random.choices(parents, k=2)
+        n_times_trying += 1
         if main_parent == sub_parent:
             continue
 
@@ -119,7 +120,7 @@ def crossover(parents, n_offspring):
         # construct offspring based on main_parent
         child = copy.deepcopy(main_parent)
         child.isAncestor = False
-        child.ancestor = main_parent.ancestor
+        child.ancestor = initialAncestors
 
         # find suitable sequence for filler
         blank_length = int(
@@ -139,15 +140,17 @@ def crossover(parents, n_offspring):
         for gap in point:
             acc_tree_index = 0
             for i, tree in enumerate(child.tree_list):
-                if acc_tree_index <= gap[0] and gap[1] <= acc_tree_index + len( tree.pitchSeq):
-                    split_trees, gap_index_split_trees = tree.splitToThree(gap[0]-acc_tree_index,gap[1]-acc_tree_index)
+                if acc_tree_index <= gap[0] and gap[1] <= acc_tree_index + len(tree.pitchSeq):
+                    split_trees, gap_index_split_trees = tree.splitToThree(
+                        gap[0]-acc_tree_index, gap[1]-acc_tree_index)
                     if i+1 < len(child.tree_list):
-                        child.tree_list = child.tree_list[:i] + split_trees + child.tree_list[i+1:]
+                        child.tree_list = child.tree_list[:i] + \
+                            split_trees + child.tree_list[i+1:]
                     else:
                         child.tree_list = child.tree_list[:i] + split_trees
                     gaps_in_tree_index.append(i+gap_index_split_trees)
-                acc_tree_index += len( tree.pitchSeq)
-                
+                acc_tree_index += len(tree.pitchSeq)
+
         # replace each gap tree
         tmp_tree_list = []
         for t in range(len(child.tree_list)):
@@ -155,20 +158,22 @@ def crossover(parents, n_offspring):
                 tmp_tree_list += filler_trees
             else:
                 tmp_tree_list.append(child.tree_list[t])
-        child.tree_list = tmp_tree_list 
+        child.tree_list = tmp_tree_list
 
         # print(child.tree_list)
 
         # construct noteSeq for child
-        tmp_elementary_noteSeq = np.array([[],[]])
+        tmp_elementary_noteSeq = np.array([[], []])
         for tree in child.tree_list:
-            tmp_elementary_noteSeq = np.hstack( [tmp_elementary_noteSeq, tree.elementary_noteSeq] )
-        child.parsedMIDI.noteSeq = Preprocess.expandElementarySequence( tmp_elementary_noteSeq )
+            tmp_elementary_noteSeq = np.hstack(
+                [tmp_elementary_noteSeq, tree.elementary_noteSeq])
+        child.parsedMIDI.noteSeq = Preprocess.expandElementarySequence(
+            tmp_elementary_noteSeq)
         child.parsedMIDI.updateFieldVariable()
         child.calculateAllFeatures()
 
-        # main_parent.details() 
-        # child.details() 
+        # main_parent.details()
+        # child.details()
 
         offspring.append(child)
     offspring.sort(key=lambda x: x.fitness, reverse=True)
@@ -272,17 +277,18 @@ if __name__ == "__main__":
         print("Missing input MIDI file!")
 
     population = []
+    initialAncestors = []
 
     for path in paths:
         db = ZODB(path)
         dbroot = db.dbroot
-        # print(dbroot.keys())
+        initialAncestors.append(dbroot[0])
         for key in dbroot.keys():
             population.append(dbroot[key])
         db.close()
 
-
-    new_population = startGA( population, max_population = 30, max_generation = 50 )
+    new_population = startGA(initialAncestors, population,
+                             max_population=30, max_generation=50)
     bestOffspring = findBestOffspring(new_population)
     if bestOffspring != None:
         bestOffspring.parsedMIDI.printMIDI()

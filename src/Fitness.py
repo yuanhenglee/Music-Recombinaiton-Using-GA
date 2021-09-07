@@ -3,8 +3,9 @@ import pandas as pd
 import math
 
 
-def calculateSimilarity(value, ancestors_value):
-    return 1-abs(ancestors_value-value)
+def calculateSimilarity(_min, _max, value, ancestors_value):
+    maxDistance = max([_max-value, value-_min])
+    return 1-abs(ancestors_value-value)/maxDistance
 
 
 def calculateConsensus(mean, std, value):
@@ -23,7 +24,7 @@ def calculateInRange(max, min, value):
 
 
 def updateFitness(individual):
-    ancestor = individual.ancestor
+    ancestors = individual.ancestor
     individual.fitness = 0
 
     # fitness score initialize
@@ -31,24 +32,25 @@ def updateFitness(individual):
     consensus = 0
     inRange = 0
 
-    # similarity
-    similarity_score = np.zeros(20)
-
-    for i in range(len(similarity_score)):
-        similarity_score[i] = calculateSimilarity(
-            individual.df_features.iloc[0, i], ancestor.df_features.iloc[0, i])
-
-    similarity += (similarity_score.mean())*50
-
-    # consensus
-    consensus_score = np.zeros(10)
-
     path_orderedData = "../test & learn/EDA Result/songMeanSTD_ordered.csv"
     path_Data = "../test & learn/EDA Result/songMeanSTD.csv"
     data = pd.read_csv(path_Data)
     orderedData = pd.read_csv(path_orderedData)
     data.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
     orderedData.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
+
+    # similarity
+    similarity_score = np.zeros(22)
+
+    for ancestor in ancestors:
+        for i in range(len(similarity_score)):
+            similarity_score[i] = calculateSimilarity(data["min"][i], data["max"][i],
+                                                      individual.df_features.iloc[0, i], ancestor.df_features.iloc[0, i])
+        similarity += similarity_score.mean()
+    similarity = similarity/len(ancestors)*50
+
+    # consensus
+    consensus_score = np.zeros(10)
 
     for i in range(len(consensus_score)):
         featureName = orderedData["feature"][i]
@@ -59,7 +61,7 @@ def updateFitness(individual):
     consensus += (consensus_score.mean())*25
 
     # inRange
-    inRange_score = np.zeros(20)
+    inRange_score = np.zeros(22)
 
     for i in range(len(inRange_score)):
         inRange_score[i] = calculateInRange(

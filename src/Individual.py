@@ -13,7 +13,7 @@ class Individual:
         self.cuttingPoint = _cuttingPoint
         self.tree_list = _musicTree
         self.isAncestor = _isAncestor
-        self.ancestor = self if _isAncestor else _ancestorIndividual
+        self.ancestor = [self] if _isAncestor else _ancestorIndividual
         # TODO move all melody related var into parsedMIDI ?
 
         # features
@@ -60,9 +60,9 @@ class Individual:
     def details(self):
         print("-"*30)
         if self.isAncestor:
-            print( "Ancestor" )
+            print("Ancestor")
         else:
-            print( "Offspring" )
-        print( f"{self.tree_list=}" )
-        print( f"{self.fitness=}" )
-        # self.parsedMIDI.printMIDI() 
+            print("Offspring")
+        print(f"{self.tree_list}")
+        print(f"{self.fitness}")
+        # self.parsedMIDI.printMIDI()

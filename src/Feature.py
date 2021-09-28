@@ -254,15 +254,30 @@ def musicCounter(tree_list):
     return len(ids)
 
 
-def getScaler():
-    path_Data = "../test & learn/EDA Result/songFeatures.csv"
-    data = pd.read_csv(path_Data)
-    data.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
-    df_numeric = data.drop(columns=["name", "feature"])
-    # PCA
-    scaler = MinMaxScaler()
-    scaler.fit(df_numeric)
-    return scaler
+def Normalization(features_list, std_max, std_min):
+    db = ZODB("./Transformer/StandardScaler.fs")
+    std_scal = db.dbroot[0]
+
+    features_2dlist = np.reshape(features_list, (-1, 1))
+    features_2dlist = np.insert(features_2dlist, [1], [
+                                0]*(C.NUMBER_SONGS-1), axis=1)
+
+    standardize = std_scal.transform(features_2dlist.T).T
+    standardize = [standardize[i][0] for i in range(standardize.shape[0])]
+
+    std_range = [(std_max[i] - std_min[i]) for i in range(len(std_max))]
+
+    normalize = []
+    for i in range(len(standardize)):
+        if standardize[i] <= std_min[i]:
+            normalize.append(0)
+        elif standardize[i] >= std_max[i]:
+            normalize.append(1)
+        else:
+            normalize.append((standardize[i]-std_min[i])/std_range[i])
+    db.close()
+
+    return normalize
 
 
 def main():
@@ -341,24 +356,35 @@ def main():
     columns = df_songFeatures.columns.drop("name")
 
     std_scaler = StandardScaler().fit(df_songFeatures[columns])
-    df_songFeatures[columns] = pd.DataFrame(
+
+    df_standardize = pd.DataFrame(
         std_scaler.transform(df_songFeatures[columns]))
-    df_songFeatures.to_csv(
+    df_standardize.to_csv(
         "../test & learn/EDA Result/songFeatures_standardize.csv")
-    normal_scaler = Normalizer().fit(df_songFeatures[columns])
-    df_songFeatures[columns] = pd.DataFrame(
-        (normal_scaler.transform(df_songFeatures[columns])+1)/2)
-    df_songFeatures.to_csv(
-        "../test & learn/EDA Result/songFeatures_normalize.csv")
+    std_max = [df_standardize.T.iloc[i].max()
+               for i in range(C.NUMBER_FEATURES)]
+    std_min = [df_standardize.T.iloc[i].min()
+               for i in range(C.NUMBER_FEATURES)]
+    # normal_scaler = Normalizer().fit(df_songFeatures[columns])
+    # df_songFeatures[columns] = pd.DataFrame(
+    #     (normal_scaler.transform(df_songFeatures[columns])+1)/2)
+    # df_songFeatures.to_csv(
+    #     "../test & learn/EDA Result/songFeatures_normalize.csv")
 
     # store scaler into zodb
     db1 = ZODB("./Transformer/StandardScaler.fs")
     db1.dbroot[0] = std_scaler
-    db2 = ZODB("./Transformer/Normalizer.fs")
-    db2.dbroot[0] = normal_scaler
+    db2 = ZODB("./Transformer/Constants.fs")
+    db2.dbroot["std_max"] = std_max
+    db2.dbroot["std_min"] = std_min
     transaction.commit()
     db1.close()
     db2.close()
+
+    df_songFeatures[columns] = [Normalization(
+        df_songFeatures[columns].iloc[[i]].values, std_max, std_min) for i in range(C.NUMBER_SONGS)]
+
+    print(df_songFeatures[columns])
 
     '''
     # corr

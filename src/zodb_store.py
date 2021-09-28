@@ -5,6 +5,7 @@ from ILBDM import ILBDM
 import Constant as C
 from MusicTree import treeNode
 from Individual import Individual
+import Feature as Feature
 
 from mido import MidiFile
 
@@ -18,13 +19,13 @@ def storeIntoDB(name):
     parsedMIDI = ProcessedMIDI(mid)
     result_ILBDM = ILBDM(parsedMIDI)
     musicTree = treeNode(
-        0, parsedMIDI.noteSeq[C.PITCHINDEX], parsedMIDI.noteSeq[C.DURATIONINDEX], result_ILBDM)
+        name, 0, parsedMIDI.noteSeq[C.PITCHINDEX], parsedMIDI.noteSeq[C.DURATIONINDEX], result_ILBDM)
     cuttingPoint = MusicSegmentation.musicSegmentation2(
         parsedMIDI, result_ILBDM)
     signaturePossibilities = MusicSegmentation.extractSignatures(parsedMIDI)
     db = ZODB(dbpath)
     dbroot = db.dbroot
-
+    scaler = Feature.getScaler()
     for i, signature in enumerate(signaturePossibilities):
         dbroot[i] = Individual(parsedMIDI, cuttingPoint,
                                signaturePossibilities, signature, [musicTree])
@@ -41,8 +42,9 @@ if __name__ == "__main__":
     name = sys.argv[1]
     if name == "all":
         from progress.bar import ShadyBar
-        path = os.path.join( os.path.dirname(__file__), '../midi_file')
-        all_midi_files = [ f[:-4] for f in os.listdir(path) if f.endswith('.mid') ]
+        path = os.path.join(os.path.dirname(__file__), '../midi_file')
+        all_midi_files = [f[:-4]
+                          for f in os.listdir(path) if f.endswith('.mid')]
         n_midi_files = len(all_midi_files)
         with ShadyBar('Store to ZODB', max=n_midi_files) as bar:
             for i in range(n_midi_files):

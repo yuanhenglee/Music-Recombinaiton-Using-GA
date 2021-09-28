@@ -11,3 +11,6 @@ AccumulativeWeight = 3
 
 # RP
 MINRPLENTH = 3
+
+NUMBER_FEATURES = 22
+NUMBER_SONGS = 97

@@ -1,13 +1,13 @@
 import matplotlib.pyplot as plt
-import numpy as np
 import Utility
 import os
 import Constant as C
-from zodb import ZODB
+from zodb import ZODB, transaction
 import matplotlib
 import pandas as pd
+import numpy as np
 from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer, scale
 import seaborn as sns
 
 
@@ -249,6 +249,22 @@ def sumOfSquareOfInterval(parsedMIDI):
     return sum(i*i for i in parsedMIDI.noteSeq[C.INTERVALINDEX])
 
 
+def musicCounter(tree_list):
+    ids = set(i.id[0] for i in tree_list)
+    return len(ids)
+
+
+def getScaler():
+    path_Data = "../test & learn/EDA Result/songFeatures.csv"
+    data = pd.read_csv(path_Data)
+    data.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
+    df_numeric = data.drop(columns=["name", "feature"])
+    # PCA
+    scaler = MinMaxScaler()
+    scaler.fit(df_numeric)
+    return scaler
+
+
 def main():
 
     # get data from DB
@@ -298,8 +314,9 @@ def main():
         "SumOfSquareOfInterval": [sumOfSquareOfInterval(i) for i in parsedMIDIs]
     })
 
-    # save features in csv
-    df_songFeatures.to_csv("../test & learn/EDA Result/songFeatures.csv")
+    # normalized features
+    df_songFeatures.to_csv(
+        "../test & learn/EDA Result/songFeatures.csv")
 
     # numeric features only
     df_numeric = df_songFeatures.drop(columns='name')
@@ -321,6 +338,29 @@ def main():
     df_MeanSTD = df_MeanSTD.sort_values(by=['CV'])
     df_MeanSTD.to_csv("../test & learn/EDA Result/songMeanSTD_ordered.csv")
 
+    columns = df_songFeatures.columns.drop("name")
+
+    std_scaler = StandardScaler().fit(df_songFeatures[columns])
+    df_songFeatures[columns] = pd.DataFrame(
+        std_scaler.transform(df_songFeatures[columns]))
+    df_songFeatures.to_csv(
+        "../test & learn/EDA Result/songFeatures_standardize.csv")
+    normal_scaler = Normalizer().fit(df_songFeatures[columns])
+    df_songFeatures[columns] = pd.DataFrame(
+        (normal_scaler.transform(df_songFeatures[columns])+1)/2)
+    df_songFeatures.to_csv(
+        "../test & learn/EDA Result/songFeatures_normalize.csv")
+
+    # store scaler into zodb
+    db1 = ZODB("./Transformer/StandardScaler.fs")
+    db1.dbroot[0] = std_scaler
+    db2 = ZODB("./Transformer/Normalizer.fs")
+    db2.dbroot[0] = normal_scaler
+    transaction.commit()
+    db1.close()
+    db2.close()
+
+    '''
     # corr
     sns_plot = sns.heatmap(df_numeric.corr(), annot=True)
     sns_plot.figure.savefig("../test & learn/EDA Result/corrHeatmap.pdf")
@@ -330,7 +370,7 @@ def main():
 
     # Make biplot with the number of features
     # get PC scores
-    pca_scores = PCA().fit_transform(df_st)
+    pca_scores = PCA().fit_transform(df_numeric)
 
     # get 2D biplot
     import plotly
@@ -338,6 +378,8 @@ def main():
     fig = px.scatter(pca_scores, x=0, y=1, color=df_songFeatures['name'])
     plotly.offline.plot(fig, filename='../test & learn/EDA Result/PCA.html')
     # fig.savefig("../test & learn/EDA Result/PCA.pdf")
+
+    '''
 
 
 if __name__ == '__main__':

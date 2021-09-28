@@ -3,6 +3,7 @@ import Fitness as Fitness
 import Feature as Feature
 import numpy as np
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
 
 class Individual:
@@ -19,13 +20,15 @@ class Individual:
         # features
         self.df_features = pd.DataFrame()
         self.calculateAllFeatures()
+        # TODO features need to be normalized
 
         # fitness function
         self.fitness = -1
         Fitness.updateFitness(self)
 
         # ! TEST
-        # self.printIndividual()
+        # self.details()
+        # print(self.df_features)
 
     def calculateAllFeatures(self):
         repeatedPitchPattern = Feature.repeatedPitchPattern(self.parsedMIDI)
@@ -54,6 +57,7 @@ class Individual:
             "leapDensity": [Feature.leapDensity(self.parsedMIDI)],
             "sumOfSquareOfInterval": [Feature.sumOfSquareOfInterval(self.parsedMIDI)]
         }
+
         self.df_features = pd.DataFrame(features)
         # print(self.df_features)
 

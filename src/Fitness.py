@@ -2,10 +2,11 @@ import numpy as np
 import pandas as pd
 import math
 
+from Feature import musicCounter
 
-def calculateSimilarity(_min, _max, value, ancestors_value):
-    maxDistance = max([_max-value, value-_min])
-    return 1-abs(ancestors_value-value)/maxDistance
+
+def calculateSimilarity(value, ancestors_value):
+    return 1-abs(ancestors_value-value)
 
 
 def calculateConsensus(mean, std, value):
@@ -44,8 +45,8 @@ def updateFitness(individual):
 
     for ancestor in ancestors:
         for i in range(len(similarity_score)):
-            similarity_score[i] = calculateSimilarity(data["min"][i], data["max"][i],
-                                                      individual.df_features.iloc[0, i], ancestor.df_features.iloc[0, i])
+            similarity_score[i] = calculateSimilarity(
+                individual.df_features.iloc[0, i], ancestor.df_features.iloc[0, i])
         similarity += similarity_score.mean()
     similarity = similarity/len(ancestors)*50
 
@@ -69,4 +70,11 @@ def updateFitness(individual):
 
     inRange += (inRange_score.mean())*25
 
-    individual.fitness += similarity + consensus + inRange
+    # music Count
+    musicCount = musicCounter(individual.tree_list)
+    print("similarity: ", similarity)
+    print("consensus: ", consensus)
+    print("inRange: ", inRange)
+    print("musicCount: ", musicCount)
+
+    individual.fitness += (similarity + consensus + inRange) * musicCount

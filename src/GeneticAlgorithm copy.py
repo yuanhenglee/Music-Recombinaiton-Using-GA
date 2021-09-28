@@ -64,7 +64,7 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
             break
 
         ''' Generating next generation using crossover. '''
-        population += crossover(population,
+        population += crossover(population, initialAncestors,
                                 n_offspring=crossover_rate * max_population)
 
         # TODO control how many individuals will be mutated.
@@ -83,7 +83,7 @@ def natural_selection(population, n_selected):
         return population[0:n_selected]
 
 
-def crossover(parents, n_offspring):
+def crossover(parents, initialAncestors, n_offspring):
     offspring = []
     n_times_trying = 0
     # stop when offspring size satisfies the criteria or either the n_times_trying exceed
@@ -303,8 +303,9 @@ if __name__ == "__main__":
             population.append(dbroot[key])
         db.close()
 
+    # print(ids)
     new_population = startGA(initialAncestors, population,
-                             max_population=30, max_generation=1000)
+                             max_population=30, max_generation=2)
     bestOffspring = findBestOffspring(new_population)
     if bestOffspring != None:
         bestOffspring.parsedMIDI.printMIDI()

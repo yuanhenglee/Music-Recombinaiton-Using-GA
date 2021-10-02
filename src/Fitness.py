@@ -41,7 +41,7 @@ def updateFitness(individual):
     orderedData.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
 
     # similarity
-    similarity_score = np.zeros(22)
+    similarity_score = np.zeros(21)
 
     for ancestor in ancestors:
         for i in range(len(similarity_score)):
@@ -72,9 +72,9 @@ def updateFitness(individual):
 
     # music Count
     musicCount = musicCounter(individual.tree_list)
-    print("similarity: ", similarity)
-    print("consensus: ", consensus)
-    print("inRange: ", inRange)
-    print("musicCount: ", musicCount)
+    # print("similarity: ", similarity)
+    # print("consensus: ", consensus)
+    # print("inRange: ", inRange)
+    # print("musicCount: ", musicCount)
 
     individual.fitness += (similarity + consensus + inRange) * musicCount

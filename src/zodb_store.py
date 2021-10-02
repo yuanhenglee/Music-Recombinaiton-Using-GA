@@ -25,7 +25,6 @@ def storeIntoDB(name):
     signaturePossibilities = MusicSegmentation.extractSignatures(parsedMIDI)
     db = ZODB(dbpath)
     dbroot = db.dbroot
-    scaler = Feature.getScaler()
     for i, signature in enumerate(signaturePossibilities):
         dbroot[i] = Individual(parsedMIDI, cuttingPoint,
                                signaturePossibilities, signature, [musicTree])

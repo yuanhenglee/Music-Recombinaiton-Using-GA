@@ -384,7 +384,7 @@ def main():
     df_songFeatures[columns] = [Normalization(
         df_songFeatures[columns].iloc[[i]].values, std_max, std_min) for i in range(C.NUMBER_SONGS)]
 
-    print(df_songFeatures[columns])
+    # print(df_songFeatures[columns])
 
     '''
     # corr

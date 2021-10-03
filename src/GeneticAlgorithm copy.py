@@ -7,7 +7,7 @@ import Preprocess
 import MusicSegmentation_2
 from Individual import Individual
 from Fitness import updateFitness
-from ILBDM import ILBDM
+from ILBDM import ILBDM, ILBDM_elementary_noteSeq
 import Utility
 import Constant as C
 
@@ -64,12 +64,12 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
             break
 
         ''' Generating next generation using crossover. '''
-        population += crossover(population, initialAncestors,
-                                n_offspring=crossover_rate * max_population)
+        # population += crossover(population, initialAncestors,
+        #                         n_offspring=crossover_rate * max_population)
 
         # TODO control how many individuals will be mutated.
         ''' Adding some variations to the offspring using mutation. '''
-        # offspring_mutation = mutation(population)
+        population += mutation(population, mutation_rate * max_population)
 
     return population
 
@@ -195,68 +195,74 @@ def crossover(parents, initialAncestors, n_offspring):
 # TODO preserve the original individual
 
 
-def mutation(offspring_crossover):
+def mutation(parents, mutation_size):
     newPopulation = []
-    # int(len(offspring_crossover)*0.3)
-    mutation_size = len(offspring_crossover)
     count = 0
-    for offspring in offspring_crossover:
+
+    for main_parent in parents:
         if count == mutation_size:
             break
-        count = count+1
-        new_parsedMIDI = Preprocess.ProcessedMIDI(None, offspring.parsedMIDI)
-        newOffspring = Individual(new_parsedMIDI, offspring.cuttingPoint, offspring.allElementGroups,
-                                  offspring.signature, False, offspring.ancestor)
+        count += 1
+
+        child = copy.deepcopy(main_parent)
+        child.isAncestor = False
+        child.ancestor = initialAncestors
+
         # selected element can not be signature
         start = 0
         end = 0
-        while (start, end+1) in newOffspring.signature or (start == 0 and end == 0):
+        while (start, end+1) in child.signature or (start == 0 and end == 0):
             selected_elementIndex = random.randint(
-                0, len(newOffspring.cuttingPoint)-1)
-            start = 0 if selected_elementIndex == 0 else newOffspring.cuttingPoint[
+                0, len(child.cuttingPoint)-1)
+            start = 0 if selected_elementIndex == 0 else child.cuttingPoint[
                 selected_elementIndex-1]+1
-            end = newOffspring.cuttingPoint[selected_elementIndex]
-        pitchShifting(start, end, newOffspring.parsedMIDI)
-        # offspring.parsedMIDI.printMIDI()
-        pitchOrderReverse(start, end, newOffspring.parsedMIDI)
-        newOffspring.parsedMIDI.updateFieldVariable(newOffspring.parsedMIDI)
-        newOffspring.calculateAllFeatures()
-        newPopulation.append(newOffspring)
+            end = child.cuttingPoint[selected_elementIndex]
+        if bool(random.getrandbits(1)):
+            pitchShifting(start, end, child)
+        else:
+            pitchOrderReverse(start, end, child)
 
-    return offspring_crossover + newPopulation
+        child.parsedMIDI.updateFieldVariable(child.parsedMIDI)
+        child.calculateAllFeatures()
+        newPopulation.append(child)
+
+    return newPopulation
 
 
 def pitchOrderReverse(start, end, target):
     # Pitch
-    target.noteSeq[C.PITCHINDEX][start:end +
-                                 1] = np.flipud(target.noteSeq[C.PITCHINDEX][start:end+1])
+    target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end +
+                                            1] = np.flipud(target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end+1])
     # Duration
-    target.noteSeq[C.DURATIONINDEX][start:end +
-                                    1] = np.flipud(target.noteSeq[C.DURATIONINDEX][start:end+1])
+    target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end +
+                                               1] = np.flipud(target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end+1])
     # Rest
-    target.noteSeq[C.RESTINDEX][start:end +
-                                1] = np.flipud(target.noteSeq[C.RESTINDEX][start:end+1])
+    target.parsedMIDI.noteSeq[C.RESTINDEX][start:end +
+                                           1] = np.flipud(target.parsedMIDI.noteSeq[C.RESTINDEX][start:end+1])
     # Interval
 
     def calculateInterval(i):
-        if i < 0 or i >= target.numberOfNotes-1:
+        if i < 0 or i >= target.parsedMIDI.numberOfNotes-1:
             return
-        if target.noteSeq[C.PITCHINDEX][i+1] == 0:
-            if i + 2 < target.numberOfNotes:
-                nextNextPitch = target.noteSeq[C.PITCHINDEX][i+2]
-                target.noteSeq[C.INTERVALINDEX][i]\
-                    = abs(nextNextPitch - target.noteSeq[C.PITCHINDEX][i])
-                target.noteSeq[C.INTERVALINDEX][i+1]\
-                    = abs(nextNextPitch - target.noteSeq[C.PITCHINDEX][i])
+        if target.parsedMIDI.noteSeq[C.PITCHINDEX][i+1] == 0:
+            if i + 2 < target.parsedMIDI.numberOfNotes:
+                nextNextPitch = target.parsedMIDI.noteSeq[C.PITCHINDEX][i+2]
+                target.parsedMIDI.noteSeq[C.INTERVALINDEX][i]\
+                    = abs(nextNextPitch - target.parsedMIDI.noteSeq[C.PITCHINDEX][i])
+                target.parsedMIDI.noteSeq[C.INTERVALINDEX][i+1]\
+                    = abs(nextNextPitch - target.parsedMIDI.noteSeq[C.PITCHINDEX][i])
             else:
-                target.noteSeq[C.INTERVALINDEX][i] = 0
+                target.parsedMIDI.noteSeq[C.INTERVALINDEX][i] = 0
         else:
-            target.noteSeq[C.INTERVALINDEX][i]\
-                = abs(target.noteSeq[C.PITCHINDEX][i+1] - target.noteSeq[C.PITCHINDEX][i])
+            target.parsedMIDI.noteSeq[C.INTERVALINDEX][i]\
+                = abs(target.parsedMIDI.noteSeq[C.PITCHINDEX][i+1] - target.parsedMIDI.noteSeq[C.PITCHINDEX][i])
     for i in range(start-2, end + 2):
         calculateInterval(i)
 
-    # TODO reconstruct accumulative beat sequence( merge into segmentation? )
+    newElementarySeq = np.vstack(
+        [target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end+1],
+         target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end+1]])
+    mutateTree(start, end, target, newElementarySeq)
 
 
 def pitchShifting(start, end, target):
@@ -266,15 +272,52 @@ def pitchShifting(start, end, target):
         move = move * -1
     newPitchSeq = []
     for i in range(start, end+1):
-        if target.noteSeq[C.PITCHINDEX][i] != 0:
-            newPitch = target.noteSeq[C.PITCHINDEX][i] + move
+        if target.parsedMIDI.noteSeq[C.PITCHINDEX][i] != 0:
+            newPitch = target.parsedMIDI.noteSeq[C.PITCHINDEX][i] + move
             if Utility.isValidPitch(newPitch):
                 newPitchSeq.append(newPitch)
             else:
                 return
         else:
             newPitchSeq.append(0)
-    target.noteSeq[C.PITCHINDEX][start:end+1] = newPitchSeq
+    # noteSeq mutation
+
+    target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end+1] = newPitchSeq
+    newElementarySeq = np.vstack(
+        [newPitchSeq, target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end+1]])
+    mutateTree(start, end, target, newElementarySeq)
+
+
+def mutateTree(start, end, target, newElementarySeq):
+    # tree mutation
+    # TODO: filler tree
+    fillerTree = MusicTree.treeNode(
+        "mutated", 0,
+        newElementarySeq[0],
+        newElementarySeq[1],
+        ILBDM_elementary_noteSeq(newElementarySeq))
+    gaps_in_tree_index = []
+    acc_tree_index = 0
+    for i, tree in enumerate(target.tree_list):
+        if acc_tree_index <= start and end <= acc_tree_index + len(tree.pitchSeq):
+            split_trees, gap_index_split_trees = tree.splitToThree(
+                start-acc_tree_index, end-acc_tree_index)
+            if i+1 < len(target.tree_list):
+                target.tree_list = target.tree_list[:i] + \
+                    split_trees + target.tree_list[i+1:]
+            else:
+                target.tree_list = target.tree_list[:i] + split_trees
+            gaps_in_tree_index.append(i+gap_index_split_trees)
+        acc_tree_index += len(tree.pitchSeq)
+
+    # replace each gap tree
+    tmp_tree_list = []
+    for t in range(len(target.tree_list)):
+        if t in gaps_in_tree_index:
+            tmp_tree_list += [fillerTree]
+        else:
+            tmp_tree_list.append(target.tree_list[t])
+    target.tree_list = tmp_tree_list
 
 
 def findBestOffspring(population):
@@ -303,12 +346,15 @@ if __name__ == "__main__":
             population.append(dbroot[key])
         db.close()
 
+    print(len(population[0].parsedMIDI.noteSeq[0]))
     # print(ids)
     new_population = startGA(initialAncestors, population,
-                             max_population=30, max_generation=2)
+                             max_population=30, max_generation=200)
     bestOffspring = findBestOffspring(new_population)
     if bestOffspring != None:
         bestOffspring.parsedMIDI.printMIDI()
+        print(bestOffspring.tree_list)
+        print(bestOffspring.cuttingPoint)
         mid_output = Demo.parsed2MIDI(bestOffspring.parsedMIDI)
         cur_time = str(time.strftime('%m_%d_%H_%M', time.localtime()))
         mid_output.save('../output/' + cur_time + ".mid")

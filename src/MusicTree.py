@@ -20,6 +20,7 @@ def findSolutionForBlank(blank_length, musicTrees):
                     possible_trees[length] = tree.hashTable[length]
     # print( possible_trees )
 
+    solution = []
     # randomly select till find solution
     while possible_trees != {}:
         # key1 = blank_length

@@ -64,8 +64,8 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
             break
 
         ''' Generating next generation using crossover. '''
-        # population += crossover(population, initialAncestors,
-        #                         n_offspring=crossover_rate * max_population)
+        population += crossover(population, initialAncestors,
+                                n_offspring=crossover_rate * max_population)
 
         # TODO control how many individuals will be mutated.
         ''' Adding some variations to the offspring using mutation. '''
@@ -141,6 +141,11 @@ def crossover(parents, initialAncestors, n_offspring):
         # print("blank length: ", blank_length)
         filler_trees = MusicTree.findSolutionForBlank(
             blank_length, sub_parent.tree_list)
+
+        s = 0
+        for t in filler_trees:
+            s += t.length
+        print(s, ":", blank_length)
         # case where filling fail
         if filler_trees == None:
             continue
@@ -168,6 +173,7 @@ def crossover(parents, initialAncestors, n_offspring):
         tmp_tree_list = []
         for t in range(len(child.tree_list)):
             if t in gaps_in_tree_index:
+                print("replacing ", child.tree_list[t], " with ", filler_trees)
                 tmp_tree_list += filler_trees
             else:
                 tmp_tree_list.append(child.tree_list[t])
@@ -349,7 +355,7 @@ if __name__ == "__main__":
     print(len(population[0].parsedMIDI.noteSeq[0]))
     # print(ids)
     new_population = startGA(initialAncestors, population,
-                             max_population=30, max_generation=200)
+                             max_population=30, max_generation=20)
     bestOffspring = findBestOffspring(new_population)
     if bestOffspring != None:
         bestOffspring.parsedMIDI.printMIDI()

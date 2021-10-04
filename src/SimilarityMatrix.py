@@ -118,6 +118,14 @@ def elementsClustering(target, cuttingInterval, threshold):
     elementGroups = []
     for i in range(len(cuttingInterval)-1):
         for j in range(i+1, len(cuttingInterval)):
+            # discard grouping with diff len, might lose some clursting comp
+            length_i = noteIndexToTimeIndex[cuttingInterval[i]
+                                            [1]] - noteIndexToTimeIndex[cuttingInterval[i][0]]
+            length_j = noteIndexToTimeIndex[cuttingInterval[j]
+                                            [1]] - noteIndexToTimeIndex[cuttingInterval[j][0]]
+            if length_i != length_j:
+                continue
+
             similarity = diagonalMean(
                 matrix, cuttingInterval[i], cuttingInterval[j], noteIndexToTimeIndex)
             if similarity >= threshold:

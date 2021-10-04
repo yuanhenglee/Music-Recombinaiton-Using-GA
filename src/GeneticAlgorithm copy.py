@@ -352,15 +352,14 @@ if __name__ == "__main__":
             population.append(dbroot[key])
         db.close()
 
-    print(len(population[0].parsedMIDI.noteSeq[0]))
     # print(ids)
     new_population = startGA(initialAncestors, population,
-                             max_population=30, max_generation=20)
-    bestOffspring = findBestOffspring(new_population)
+                             max_population=10, max_generation=2)
+    # bestOffspring = findBestOffspring(new_population)
+    bestOffspring = population[0]
+
     if bestOffspring != None:
         bestOffspring.parsedMIDI.printMIDI()
-        print(bestOffspring.tree_list)
-        print(bestOffspring.cuttingPoint)
         mid_output = Demo.parsed2MIDI(bestOffspring.parsedMIDI)
         cur_time = str(time.strftime('%m_%d_%H_%M', time.localtime()))
         mid_output.save('../output/' + cur_time + ".mid")

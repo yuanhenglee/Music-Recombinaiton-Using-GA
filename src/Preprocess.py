@@ -31,8 +31,9 @@ class ProcessedMIDI:
             self.OG_Mido = None
             self.updateFieldVariable(inputProcessedMIDI)
 
-    def updateFieldVariable(self, inputProcessedMIDI = None):
-        if inputProcessedMIDI is None: inputProcessedMIDI = self
+    def updateFieldVariable(self, inputProcessedMIDI=None):
+        if inputProcessedMIDI is None:
+            inputProcessedMIDI = self
         self.noteSeq = inputProcessedMIDI.noteSeq
         self.tempo = inputProcessedMIDI.tempo
         self.ticks_per_beat = inputProcessedMIDI.ticks_per_beat
@@ -43,7 +44,7 @@ class ProcessedMIDI:
         self.highestNote = np.max(inputProcessedMIDI.noteSeq[C.PITCHINDEX])
         self.totalDuration = np.sum(
             inputProcessedMIDI.noteSeq[C.DURATIONINDEX])
-        self.minSegment = int(self.totalDuration / 16)
+        self.minSegment = min(int(self.totalDuration / 16), 4)
 
     def exploreMIDI(self):
         timeSet = []  # store possible periods
@@ -185,11 +186,12 @@ class ProcessedMIDI:
         print("Accumulative Beat Sequence:")
         Utility.formattedPrint(self.noteSeq[C.ACCUMULATIVEINDEX].astype(int))
 
-def expandElementarySequence( elementarySequence ):
+
+def expandElementarySequence(elementarySequence):
     # assert( len(pitchSeq) == len(durationSeq), "different length between pitchSeq & durationSeq")
-    numberOfNotes = elementarySequence.shape[1] 
-    noteSeq = np.zeros((6, numberOfNotes)) 
-    noteSeq[C.PITCHINDEX] = elementarySequence[0] 
+    numberOfNotes = elementarySequence.shape[1]
+    noteSeq = np.zeros((6, numberOfNotes))
+    noteSeq[C.PITCHINDEX] = elementarySequence[0]
     noteSeq[C.DURATIONINDEX] = elementarySequence[1]
 
     # add pitch interval sequence & temporary rest sequence encodingVG
@@ -222,5 +224,5 @@ def expandElementarySequence( elementarySequence ):
                 if preDuration < 8:
                     if noteSeq[C.PITCHINDEX][i-1] != 0 or preDuration <= 4:
                         noteSeq[C.ACCUMULATIVEINDEX][i] += noteSeq[C.ACCUMULATIVEINDEX][i-1]
-    
+
     return noteSeq

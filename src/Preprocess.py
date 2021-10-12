@@ -80,7 +80,7 @@ class ProcessedMIDI:
         # OFFSET = 1 - self.lowestNote
 
         # initialize
-        self.noteSeq = np.zeros((6, self.numberOfNotes))
+        self.noteSeq = np.zeros((7, self.numberOfNotes))
         curNoteIndex = 0
 
         for track in (self.OG_Mido.tracks):

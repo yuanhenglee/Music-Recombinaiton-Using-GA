@@ -5,17 +5,33 @@ from SimilarityMatrix import elementsClustering
 
 
 def extractSignatures(target):
-    LBDM_result = ILBDM(target)
-    cuttingPoint = musicSegmentation2(target, LBDM_result)
-    # make sure first & last interval in list
-    cuttingPoint = [-1] + cuttingPoint + [target.numberOfNotes-1]
-    cuttingInterval = [(cuttingPoint[i]+1, cuttingPoint[i+1]+1)
-                       for i in range(len(cuttingPoint)-1)]
-    # print(cuttingInterval)
+    # LBDM_result = ILBDM(target)
+    # cuttingPoint = musicSegmentation2(target, LBDM_result)
+    # # make sure first & last interval in list
+    # cuttingPoint = [-1] + cuttingPoint + [target.numberOfNotes-1]
+    element_seq = target.noteSeq[C.ELEMENTINDEX]
+    cuttingInterval = []
+    start = 0
+    for i in range(len(element_seq)):
+        if i == len(element_seq)-1 or element_seq[i] != element_seq[i+1]:
+            end = i+1
+            cuttingInterval.append((start, end))
+            start = i+1
+
+    # cuttingInterval = [(cuttingPoint[i]+1, cuttingPoint[i+1]+1)
+    #                    for i in range(len(cuttingPoint)-1)]
     possibleSignatures = elementsClustering(target, cuttingInterval, 0.8)
     if possibleSignatures == []:
         return [{(i, j)} for i, j in cuttingInterval]
     else:
+        # elements in the same element group have the same element number
+        for signature in possibleSignatures:
+            element_number = -1
+            for (i, j) in signature:
+                if element_number == -1:
+                    element_number = element_seq[i]
+                element_seq[i:j] = element_number
+
         return possibleSignatures
 
 
@@ -44,6 +60,16 @@ def musicSegmentation2(target, LBDM):
 
     cuttingPoint.sort()
     # print("Cutting Point = ", cuttingPoint)
+    '''
+    use cutting point to divide element (noteSeq[C.ELEMENTINDEX])
+    [0. 0. 0. 0. 0. 0. 0. 0. 0. 1. 1. 1. 1. 1. 1. 1. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 2. 
+    3. 3. 3. 3. 3. 3. 3. 3. 4. 4. 4. 4. 4. 4. 4. 4. 4. 4. 4. 5. 5. 5. 5. 5. 5. 5. 5. 5. 
+    6. 6. 6. 6. 6. 6. 6. 6. 6. 7. 7. 7. 7. 7. 7. 7. 7. 8.]
+    '''
+    start_index = 0
+    for i, index in enumerate(cuttingPoint):
+        target.noteSeq[C.ELEMENTINDEX][start_index:index+1] = i
+        start_index = index + 1
     return cuttingPoint
     # target.noteSeq[C.SEGMENTATIONINDEX] = cuttingPoint
 

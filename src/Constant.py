@@ -9,6 +9,8 @@ RESTINDEX = 3
 # accumulative beat count
 ACCUMULATIVEINDEX = 4
 SEGMENTATIONINDEX = 5
+ELEMENTINDEX = 6
+
 BeatInMeasure = 16
 AccumulativeWeight = 3
 

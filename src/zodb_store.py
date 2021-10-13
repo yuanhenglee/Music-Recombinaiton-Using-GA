@@ -22,14 +22,15 @@ def storeIntoDB(name):
         name, 0, parsedMIDI.noteSeq[C.PITCHINDEX], parsedMIDI.noteSeq[C.DURATIONINDEX], result_ILBDM)
     cuttingPoint = MusicSegmentation.musicSegmentation2(
         parsedMIDI, result_ILBDM)
-    signaturePossibilities = MusicSegmentation.extractSignatures(parsedMIDI)
+    MusicSegmentation.extractSignatures(parsedMIDI)
     MusicSegmentation.hashElementNumber(parsedMIDI, name)
+    allElementGroups = set(parsedMIDI.noteSeq[C.ELEMENTINDEX])
 
     db = ZODB(dbpath)
     dbroot = db.dbroot
-    for i, signature in enumerate(signaturePossibilities):
-        dbroot[i] = Individual(parsedMIDI, cuttingPoint,
-                               signaturePossibilities, signature, [musicTree])
+    for i, signature in enumerate(allElementGroups):
+        dbroot[i] = Individual(
+            parsedMIDI, allElementGroups, signature, [musicTree])
     transaction.commit()
     db.close()
 

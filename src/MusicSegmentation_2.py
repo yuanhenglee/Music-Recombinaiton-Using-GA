@@ -27,9 +27,7 @@ def extractSignatures(target):
     # cuttingInterval = [(cuttingPoint[i]+1, cuttingPoint[i+1]+1)
     #                    for i in range(len(cuttingPoint)-1)]
     possibleSignatures = elementsClustering(target, cuttingInterval, 0.8)
-    if possibleSignatures == []:
-        return [{(i, j)} for i, j in cuttingInterval]
-    else:
+    if possibleSignatures != []:
         # elements in the same element group have the same element number
         for signature in possibleSignatures:
             element_number = -1
@@ -37,8 +35,6 @@ def extractSignatures(target):
                 if element_number == -1:
                     element_number = element_seq[i]
                 element_seq[i:j] = element_number
-
-        return possibleSignatures
 
 
 def checkCuttingPoint(index, LBDM, cuttingPoint, target):

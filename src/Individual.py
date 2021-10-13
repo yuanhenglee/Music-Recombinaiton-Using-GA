@@ -7,11 +7,10 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 class Individual:
-    def __init__(self, _parsedMIDI, _cuttingPoint, _allElementGroups, _signature, _musicTree, _isAncestor=True, _ancestorIndividual=None):
+    def __init__(self, _parsedMIDI, _allElementGroups, _signature, _musicTree, _isAncestor=True, _ancestorIndividual=None):
         self.parsedMIDI = _parsedMIDI
         self.signature = _signature
         self.allElementGroups = _allElementGroups
-        self.cuttingPoint = _cuttingPoint
         self.tree_list = _musicTree
         self.isAncestor = _isAncestor
         self.ancestor = [self] if _isAncestor else _ancestorIndividual

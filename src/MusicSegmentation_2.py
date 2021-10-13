@@ -4,6 +4,12 @@ from ILBDM import ILBDM
 from SimilarityMatrix import elementsClustering
 
 
+def hashElementNumber(target, name):
+    for i, value in enumerate(target.noteSeq[C.ELEMENTINDEX]):
+        value = hash((name, value))
+        target.noteSeq[C.ELEMENTINDEX][i] = str(value)
+
+
 def extractSignatures(target):
     # LBDM_result = ILBDM(target)
     # cuttingPoint = musicSegmentation2(target, LBDM_result)

@@ -190,7 +190,7 @@ class ProcessedMIDI:
 def expandElementarySequence(elementarySequence):
     # assert( len(pitchSeq) == len(durationSeq), "different length between pitchSeq & durationSeq")
     numberOfNotes = elementarySequence.shape[1]
-    noteSeq = np.zeros((6, numberOfNotes))
+    noteSeq = np.zeros((7, numberOfNotes))
     noteSeq[C.PITCHINDEX] = elementarySequence[0]
     noteSeq[C.DURATIONINDEX] = elementarySequence[1]
 

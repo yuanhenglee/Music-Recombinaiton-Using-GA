@@ -18,12 +18,12 @@ def storeIntoDB(name):
     mid = MidiFile(midipath)
     parsedMIDI = ProcessedMIDI(mid)
     result_ILBDM = ILBDM(parsedMIDI)
-    musicTree = treeNode(
-        name, 0, parsedMIDI.noteSeq[C.PITCHINDEX], parsedMIDI.noteSeq[C.DURATIONINDEX], result_ILBDM)
     cuttingPoint = MusicSegmentation.musicSegmentation2(
         parsedMIDI, result_ILBDM)
     MusicSegmentation.extractSignatures(parsedMIDI)
     MusicSegmentation.hashElementNumber(parsedMIDI, name)
+    musicTree = treeNode(
+        name, 0, parsedMIDI.noteSeq[C.PITCHINDEX], parsedMIDI.noteSeq[C.DURATIONINDEX], parsedMIDI.noteSeq[C.ELEMENTINDEX], result_ILBDM)
     allElementGroups = set(parsedMIDI.noteSeq[C.ELEMENTINDEX])
 
     db = ZODB(dbpath)

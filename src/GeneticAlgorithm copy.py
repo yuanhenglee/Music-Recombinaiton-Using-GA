@@ -95,40 +95,27 @@ def crossover(parents, initialAncestors, n_offspring):
 
         ''' Crossover '''
         # crossover
-        # print("cutting point: \n", main_parent.cuttingPoint)
-        # print("signature: \n", main_parent.signature)
         # find elements to be crossovered
-        invalid_elements_start_index = []
-        for signature in main_parent.signature:
-            invalid_elements_start_index.append(signature[1]-1)
-        relative_elements = []
-        for elementGroup in main_parent.allElementGroups:
-            elements = []
-            for element in elementGroup:
-                elements.append(element[1]-1)
-            relative_elements.append(elements)
-        # print("all signature: \n", main_parent.allElementGroups)
-        while True:
-            point = []
-            indexOfSelectedElement = random.randint(
-                0, len(main_parent.cuttingPoint)-2)
-            cuttingPoint = main_parent.cuttingPoint
-            if cuttingPoint[indexOfSelectedElement] not in invalid_elements_start_index:
-                for elements in relative_elements:
-                    if cuttingPoint[indexOfSelectedElement] in elements:
-                        for end in elements:
-                            end_index = cuttingPoint.index(end)
-                            start = 0 if end_index == 0 else cuttingPoint[end_index-1]+1
-                            point.append((int(start), int(end)))
-                        break
-                if point == []:
-                    end = cuttingPoint[indexOfSelectedElement]
-                    start = 0 if indexOfSelectedElement == 0 else cuttingPoint[
-                        indexOfSelectedElement-1]+1
-                    point.append((int(start), int(end)))
-                break
-        point.sort(key=lambda x: x[0])
-        # print("index to be crossovered: \n", point)
+        signature = main_parent.signature
+        element_number_set = main_parent.allElementGroups.copy()
+        element_number_set.remove(signature)
+        selected_element_number = random.sample(element_number_set, 1)
+        print(selected_element_number)
+
+        point = []
+        start = -1
+        element_number_list = main_parent.parsedMIDI.noteSeq[C.ELEMENTINDEX]
+        for i, number in enumerate(element_number_list):
+            if number == selected_element_number and start == -1:
+                start = i
+            elif number != selected_element_number and start != -1:
+                end = i
+                point.append((start, end))
+                start = -1
+            if start != -1 and i == len(element_number_list)-1:
+                end = i+1
+                point.append((start, end))
+        print(point)
 
         # construct offspring based on main_parent
         child = copy.deepcopy(main_parent)
@@ -137,19 +124,20 @@ def crossover(parents, initialAncestors, n_offspring):
 
         # find suitable sequence for filler
         blank_length = int(
-            sum(main_parent.parsedMIDI.noteSeq[C.DURATIONINDEX][point[0][0]:point[0][1]]))
+            sum(main_parent.parsedMIDI.noteSeq[C.DURATIONINDEX][point[0][0]:(point[0][1])]))
         # print("blank length: ", blank_length)
         filler_trees = MusicTree.findSolutionForBlank(
             blank_length, sub_parent.tree_list)
 
-        s = 0
-        for t in filler_trees:
-            s += t.length
-        print(s, ":", blank_length)
         # case where filling fail
         if filler_trees == None:
             continue
         # print(f"{filler_trees=}")
+        rand_value = random.seed()
+        new_num = hash((main_parent.signature, rand_value))
+        for tree in filler_trees:
+            for i in range(len(tree.elementary_noteSeq[2])):
+                tree.elementary_noteSeq[2][i] = new_num
 
         # filling the blank
 
@@ -182,12 +170,16 @@ def crossover(parents, initialAncestors, n_offspring):
         # print(child.tree_list)
 
         # construct noteSeq for child
-        tmp_elementary_noteSeq = np.array([[], []])
+        tmp_elementary_noteSeq = np.array([[], [], []])
         for tree in child.tree_list:
             tmp_elementary_noteSeq = np.hstack(
                 [tmp_elementary_noteSeq, tree.elementary_noteSeq])
+        tmp_element_number_list = tmp_elementary_noteSeq[2].copy()
         child.parsedMIDI.noteSeq = Preprocess.expandElementarySequence(
             tmp_elementary_noteSeq)
+        # update element number list
+        child.parsedMIDI.noteSeq[C.ELEMENTINDEX] = tmp_element_number_list
+        print(child.parsedMIDI.noteSeq[C.ELEMENTINDEX])
         child.parsedMIDI.updateFieldVariable()
         child.calculateAllFeatures()
 

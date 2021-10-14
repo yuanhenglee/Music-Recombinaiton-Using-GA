@@ -8,9 +8,10 @@ import random
 
 
 def findSolutionForBlank(blank_length, musicTrees):
-    # store all possible subsequence ( length < blank_length )
+    # store all possible subsequence ( length < blank_length)
+    tmp_musicTrees = musicTrees.copy()
     possible_trees = {}
-    for tree in musicTrees:
+    for tree in tmp_musicTrees:
         for length in range(blank_length+1):
             if length in tree.hashTable:
                 if length in possible_trees:
@@ -38,12 +39,14 @@ def findSolutionForBlank(blank_length, musicTrees):
 
 
 class treeNode:
-    def __init__(self, _id, _startIndex, _pitchSeq, _durationSeq, _LBDM=[]):
+    def __init__(self, _id, _startIndex, _pitchSeq, _durationSeq, _elementSeq, _LBDM=[]):
         if len(_pitchSeq) == len(_durationSeq) or len(_pitchSeq) == len(_LBDM):
             self.id = _id,
-            self.elementary_noteSeq = np.vstack([_pitchSeq, _durationSeq])
+            self.elementary_noteSeq = np.vstack(
+                [_pitchSeq, _durationSeq, _elementSeq])
             self.pitchSeq = _pitchSeq
             self.durationSeq = _durationSeq
+            self.elementSeq = _elementSeq
             self.startIndex = _startIndex
             self.LBDM = _LBDM
             self.length = int(sum(_durationSeq))
@@ -60,35 +63,16 @@ class treeNode:
                 maxIndex = np.argmax(_LBDM[:-1])
                 # print("left:")
                 self.left = treeNode(
-                    self.id, self.startIndex, _pitchSeq[:maxIndex+1], _durationSeq[:maxIndex+1], _LBDM[:maxIndex+1])
+                    self.id, self.startIndex, _pitchSeq[:maxIndex+1], _durationSeq[:maxIndex+1], _elementSeq[:maxIndex+1], _LBDM[:maxIndex+1])
                 # print("right:")
                 self.right = treeNode(
-                    self.id, self.startIndex + maxIndex+1, _pitchSeq[maxIndex+1:], _durationSeq[maxIndex+1:], _LBDM[maxIndex+1:])
+                    self.id, self.startIndex + maxIndex+1, _pitchSeq[maxIndex+1:], _durationSeq[maxIndex+1:], _elementSeq[maxIndex+1:], _LBDM[maxIndex+1:])
 
                 self.updateHashTable(self.left.hashTable)
                 self.updateHashTable(self.right.hashTable)
 
     def __repr__(self):
         return "\nlength: " + str(self.length) + str(self.pitchSeq)
-
-    def copyNode(self, otherNode):
-        self.id = otherNode.id
-        self.pitchSeq = otherNode.pitchSeq
-        self.durationSeq = otherNode.durationSeq
-        self.length = otherNode.length
-        self.startIndex = otherNode.startIndex
-        self.LBDM = otherNode.LBDM
-        self.hashTable = copy.deepcopy(otherNode.hashTable)
-        self.left = treeNode(self.id, 0, [], [])
-        self.right = treeNode(self.id, 0, [], [])
-        if otherNode.left != None:
-            self.left.copyNode(otherNode.left)
-        else:
-            self.left = None
-        if otherNode.right != None:
-            self.right.copyNode(otherNode.right)
-        else:
-            self.right = None
 
     def updateHashTable(self, newHashTable):
         for k, v in newHashTable.items():
@@ -102,18 +86,18 @@ class treeNode:
         gap_index_split_trees = 0
         if index1 > 0:
             trees.append(treeNode(
-                self.id, 0, self.pitchSeq[:index1], self.durationSeq[:index1], self.LBDM[:index1]))
+                self.id, 0, self.pitchSeq[:index1], self.durationSeq[:index1], self.elementSeq[:index1], self.LBDM[:index1]))
             gap_index_split_trees += 1
 
         if fill_in_None:
             trees.append(None)
         else:
             trees.append(treeNode(
-                self.id, 0, self.pitchSeq[index1:index2], self.durationSeq[index1:index2], self.LBDM[index1:index2]))
+                self.id, 0, self.pitchSeq[index1:index2], self.durationSeq[index1:index2], self.elementSeq[index1:index2], self.LBDM[index1:index2]))
 
         if index2 < len(self.pitchSeq):
             trees.append(treeNode(
-                self.id, 0, self.pitchSeq[index2:], self.durationSeq[index2:], self.LBDM[index2:]))
+                self.id, 0, self.pitchSeq[index2:], self.durationSeq[index2:], self.elementSeq[index2:], self.LBDM[index2:]))
 
         return trees, gap_index_split_trees
 
@@ -130,11 +114,11 @@ if __name__ == "__main__":
     LBDM_result = ILBDM(parsedMIDI)
     pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
     durationSeq = parsedMIDI.noteSeq[C.DURATIONINDEX]
-    test = treeNode("0", 0, pitchSeq, durationSeq, LBDM_result)
-    ''' test copyNode '''
-    test2 = treeNode("0", 0, [], [])
-    test2.copyNode(test)
-    ''' test hashTable '''
-    print(test.hashTable)
-    test2.hashTable.pop(103, None)
-    print(103 in test.hashTable)
+    # test = treeNode("0", 0, pitchSeq, durationSeq, LBDM_result)
+    # ''' test copyNode '''
+    # test2 = treeNode("0", 0, [], [])
+    # test2.copyNode(test)
+    # ''' test hashTable '''
+    # print(test.hashTable)
+    # test2.hashTable.pop(103, None)
+    # print(103 in test.hashTable)

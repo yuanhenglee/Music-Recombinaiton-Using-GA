@@ -105,7 +105,7 @@ def crossover(parents, initialAncestors, n_offspring):
 
         # find suitable sequence for filler
         blank_length = int(
-            sum(main_parent.parsedMIDI.noteSeq[C.DURATIONINDEX][point[0][0]:(point[0][1])]))
+            sum(main_parent.parsedMIDI.noteSeq[C.DURATIONINDEX][point[0][0]:point[0][1]]))
         # print("blank length: ", blank_length)
         filler_trees = MusicTree.findSolutionForBlank(
             blank_length, sub_parent.tree_list)
@@ -160,6 +160,7 @@ def crossover(parents, initialAncestors, n_offspring):
             tmp_elementary_noteSeq)
         # update element number list
         child.parsedMIDI.noteSeq[C.ELEMENTINDEX] = tmp_element_number_list
+        child.allElementGroups = set(tmp_element_number_list)
         # print(child.parsedMIDI.noteSeq[C.ELEMENTINDEX])
         child.parsedMIDI.updateFieldVariable()
         child.calculateAllFeatures()
@@ -237,6 +238,7 @@ def pitchOrderReverse(start, end, target):
     new_num = hash(("mutation", target.signature, rand_value))
     newElementSeq = [new_num]*(end-start)
     target.parsedMIDI.noteSeq[C.ELEMENTINDEX][start:end] = newElementSeq
+    target.allElementGroups = set(target.parsedMIDI.noteSeq[C.ELEMENTINDEX])
 
     newElementarySeq = np.vstack(
         [target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end],
@@ -266,6 +268,7 @@ def pitchShifting(start, end, target):
     newElementSeq = [new_num]*(end-start)
     target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end] = newPitchSeq
     target.parsedMIDI.noteSeq[C.ELEMENTINDEX][start:end] = newElementSeq
+    target.allElementGroups = set(target.parsedMIDI.noteSeq[C.ELEMENTINDEX])
     newElementarySeq = np.vstack(
         [newPitchSeq, target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end], newElementSeq])
     mutateTree(start, end, target, newElementarySeq)
@@ -353,7 +356,7 @@ if __name__ == "__main__":
 
     # print(ids)
     new_population = startGA(initialAncestors, population,
-                             max_population=10, max_generation=2)
+                             max_population=30, max_generation=100)
     # bestOffspring = findBestOffspring(new_population)
     bestOffspring = population[0]
 

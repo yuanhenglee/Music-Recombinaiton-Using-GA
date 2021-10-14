@@ -77,4 +77,4 @@ def updateFitness(individual):
     # print("inRange: ", inRange)
     # print("musicCount: ", musicCount)
 
-    individual.fitness += (similarity + consensus + inRange) * musicCount
+    individual.fitness += similarity + consensus + inRange

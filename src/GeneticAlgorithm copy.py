@@ -67,9 +67,10 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
         population += crossover(population, initialAncestors,
                                 n_offspring=crossover_rate * max_population)
 
-        # TODO control how many individuals will be mutated.
+        # TODO control how many individuals will be mutated
         ''' Adding some variations to the offspring using mutation. '''
-        population += mutation(population, mutation_rate * max_population)
+        population += mutation(population, initialAncestors,
+                               int(mutation_rate * max_population))
 
     return population
 
@@ -96,27 +97,7 @@ def crossover(parents, initialAncestors, n_offspring):
         ''' Crossover '''
         # crossover
         # find elements to be crossovered
-        signature = main_parent.signature
-        element_number_set = main_parent.allElementGroups.copy()
-        element_number_set.remove(signature)
-        selected_element_number = random.sample(element_number_set, 1)
-        print(selected_element_number)
-
-        point = []
-        start = -1
-        element_number_list = main_parent.parsedMIDI.noteSeq[C.ELEMENTINDEX]
-        for i, number in enumerate(element_number_list):
-            if number == selected_element_number and start == -1:
-                start = i
-            elif number != selected_element_number and start != -1:
-                end = i
-                point.append((start, end))
-                start = -1
-            if start != -1 and i == len(element_number_list)-1:
-                end = i+1
-                point.append((start, end))
-        print(point)
-
+        point = selectRandomElement(main_parent)
         # construct offspring based on main_parent
         child = copy.deepcopy(main_parent)
         child.isAncestor = False
@@ -134,7 +115,7 @@ def crossover(parents, initialAncestors, n_offspring):
             continue
         # print(f"{filler_trees=}")
         rand_value = random.seed()
-        new_num = hash((main_parent.signature, rand_value))
+        new_num = hash(("crossover", main_parent.signature, rand_value))
         for tree in filler_trees:
             for i in range(len(tree.elementary_noteSeq[2])):
                 tree.elementary_noteSeq[2][i] = new_num
@@ -161,7 +142,7 @@ def crossover(parents, initialAncestors, n_offspring):
         tmp_tree_list = []
         for t in range(len(child.tree_list)):
             if t in gaps_in_tree_index:
-                print("replacing ", child.tree_list[t], " with ", filler_trees)
+                # print("replacing ", child.tree_list[t], " with ", filler_trees)
                 tmp_tree_list += filler_trees
             else:
                 tmp_tree_list.append(child.tree_list[t])
@@ -179,7 +160,7 @@ def crossover(parents, initialAncestors, n_offspring):
             tmp_elementary_noteSeq)
         # update element number list
         child.parsedMIDI.noteSeq[C.ELEMENTINDEX] = tmp_element_number_list
-        print(child.parsedMIDI.noteSeq[C.ELEMENTINDEX])
+        # print(child.parsedMIDI.noteSeq[C.ELEMENTINDEX])
         child.parsedMIDI.updateFieldVariable()
         child.calculateAllFeatures()
 
@@ -193,35 +174,29 @@ def crossover(parents, initialAncestors, n_offspring):
 # TODO preserve the original individual
 
 
-def mutation(parents, mutation_size):
+def mutation(parents, initialAncestors, mutation_size):
     newPopulation = []
-    count = 0
 
-    for main_parent in parents:
-        if count == mutation_size:
-            break
-        count += 1
+    selected_parents = random.sample(parents, mutation_size)
+
+    for main_parent in selected_parents:
 
         child = copy.deepcopy(main_parent)
         child.isAncestor = False
         child.ancestor = initialAncestors
 
-        # selected element can not be signature
-        start = 0
-        end = 0
-        while (start, end+1) in child.signature or (start == 0 and end == 0):
-            selected_elementIndex = random.randint(
-                0, len(child.cuttingPoint)-1)
-            start = 0 if selected_elementIndex == 0 else child.cuttingPoint[
-                selected_elementIndex-1]+1
-            end = child.cuttingPoint[selected_elementIndex]
+        point = selectRandomElement(child)
+
         if bool(random.getrandbits(1)):
-            pitchShifting(start, end, child)
+            for (start, end) in point:
+                pitchShifting(start, end, child)
         else:
-            pitchOrderReverse(start, end, child)
+            for (start, end) in point:
+                pitchOrderReverse(start, end, child)
 
         child.parsedMIDI.updateFieldVariable(child.parsedMIDI)
         child.calculateAllFeatures()
+        # print(child.parsedMIDI.noteSeq[C.ELEMENTINDEX])
         newPopulation.append(child)
 
     return newPopulation
@@ -229,14 +204,14 @@ def mutation(parents, mutation_size):
 
 def pitchOrderReverse(start, end, target):
     # Pitch
-    target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end +
-                                            1] = np.flipud(target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end+1])
+    target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end] = np.flipud(
+        target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end])
     # Duration
-    target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end +
-                                               1] = np.flipud(target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end+1])
+    target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end] = np.flipud(
+        target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end])
     # Rest
-    target.parsedMIDI.noteSeq[C.RESTINDEX][start:end +
-                                           1] = np.flipud(target.parsedMIDI.noteSeq[C.RESTINDEX][start:end+1])
+    target.parsedMIDI.noteSeq[C.RESTINDEX][start:end] = np.flipud(
+        target.parsedMIDI.noteSeq[C.RESTINDEX][start:end])
     # Interval
 
     def calculateInterval(i):
@@ -257,9 +232,15 @@ def pitchOrderReverse(start, end, target):
     for i in range(start-2, end + 2):
         calculateInterval(i)
 
+    # Element
+    rand_value = random.seed()
+    new_num = hash(("mutation", target.signature, rand_value))
+    newElementSeq = [new_num]*(end-start)
+    target.parsedMIDI.noteSeq[C.ELEMENTINDEX][start:end] = newElementSeq
+
     newElementarySeq = np.vstack(
-        [target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end+1],
-         target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end+1]])
+        [target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end],
+         target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end], newElementSeq])
     mutateTree(start, end, target, newElementarySeq)
 
 
@@ -269,7 +250,7 @@ def pitchShifting(start, end, target):
     if negative == 1:
         move = move * -1
     newPitchSeq = []
-    for i in range(start, end+1):
+    for i in range(start, end):
         if target.parsedMIDI.noteSeq[C.PITCHINDEX][i] != 0:
             newPitch = target.parsedMIDI.noteSeq[C.PITCHINDEX][i] + move
             if Utility.isValidPitch(newPitch):
@@ -280,9 +261,13 @@ def pitchShifting(start, end, target):
             newPitchSeq.append(0)
     # noteSeq mutation
 
-    target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end+1] = newPitchSeq
+    rand_value = random.seed()
+    new_num = hash(("mutation", target.signature, rand_value))
+    newElementSeq = [new_num]*(end-start)
+    target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end] = newPitchSeq
+    target.parsedMIDI.noteSeq[C.ELEMENTINDEX][start:end] = newElementSeq
     newElementarySeq = np.vstack(
-        [newPitchSeq, target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end+1]])
+        [newPitchSeq, target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end], newElementSeq])
     mutateTree(start, end, target, newElementarySeq)
 
 
@@ -324,6 +309,28 @@ def findBestOffspring(population):
         if i.isAncestor != True:
             return i
     return None
+
+
+def selectRandomElement(individual):
+    # selected element can not be signature
+    element_number_set = individual.allElementGroups.copy()
+    element_number_set.remove(individual.signature)
+    selected_element_number = random.sample(element_number_set, 1)
+    point = []
+    start = -1
+    element_number_list = individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]
+    for i, number in enumerate(element_number_list):
+        if number == selected_element_number and start == -1:
+            start = i
+        elif number != selected_element_number and start != -1:
+            end = i
+            point.append((start, end))
+            start = -1
+        if start != -1 and i == len(element_number_list)-1:
+            end = i+1
+            point.append((start, end))
+    # print(point)
+    return point
 
 
 if __name__ == "__main__":

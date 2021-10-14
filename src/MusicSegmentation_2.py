@@ -7,7 +7,7 @@ from SimilarityMatrix import elementsClustering
 def hashElementNumber(target, name):
     for i, value in enumerate(target.noteSeq[C.ELEMENTINDEX]):
         value = hash((name, value))
-        target.noteSeq[C.ELEMENTINDEX][i] = str(value)
+        target.noteSeq[C.ELEMENTINDEX][i] = value
 
 
 def extractSignatures(target):

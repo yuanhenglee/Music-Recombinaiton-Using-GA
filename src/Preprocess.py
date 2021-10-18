@@ -156,7 +156,7 @@ class ProcessedMIDI:
 
         for i in range(self.numberOfNotes):
             self.totalDuration += int(self.noteSeq[C.DURATIONINDEX][i])
-        self.minSegment = (int)(self.totalDuration / 16)
+        self.minSegment = min(int(self.totalDuration / 16), 4)
         # TODO rest note
         self.lowestNote = self.noteSeq[C.PITCHINDEX][self.noteSeq[C.PITCHINDEX] > 0].min(
         )

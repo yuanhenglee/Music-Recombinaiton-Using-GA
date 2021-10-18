@@ -2,7 +2,26 @@ import numpy as np
 import pandas as pd
 import math
 
-from Feature import musicCounter
+import Constant as C
+
+
+def musicSourceVariety(individual):
+    sum_of_duration1 = 0
+    sum_of_duration2 = 0
+    for tree in individual.tree_list:
+        if tree.id == C.INPUT_NAMES[0]:
+            sum_of_duration1 += tree.length
+        elif tree.id == C.INPUT_NAMES[1]:
+            sum_of_duration2 += tree.length
+        # else:
+        #     print(tree.id)
+        #     print(C.INPUT_NAMES)
+        #     raise ValueError("Wrong tree id")
+
+    sum_of_duration = sum_of_duration1+sum_of_duration2
+    result = 1 - abs(C.INPUT_RATE - sum_of_duration1/sum_of_duration)
+
+    return result
 
 
 def calculateSimilarity(value, ancestors_value):
@@ -70,11 +89,16 @@ def updateFitness(individual):
 
     inRange += (inRange_score.mean())*25
 
-    # music Count
-    musicCount = musicCounter(individual.tree_list)
+    # music Source Variety
+    music_source_variety = musicSourceVariety(individual)
+
     # print("similarity: ", similarity)
     # print("consensus: ", consensus)
     # print("inRange: ", inRange)
     # print("musicCount: ", musicCount)
 
-    individual.fitness += similarity + consensus + inRange
+    individual.fitness = similarity + consensus + \
+        inRange + (music_source_variety*100)
+
+    individual.fitness_detail = [similarity,
+                                 consensus, inRange, music_source_variety]

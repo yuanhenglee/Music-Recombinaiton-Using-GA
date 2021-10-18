@@ -9,7 +9,7 @@ import random
 
 def findSolutionForBlank(blank_length, musicTrees):
     # store all possible subsequence ( length < blank_length)
-    tmp_musicTrees = musicTrees.copy()
+    tmp_musicTrees = copy.deepcopy(musicTrees)
     possible_trees = {}
     for tree in tmp_musicTrees:
         for length in range(blank_length+1):
@@ -41,7 +41,7 @@ def findSolutionForBlank(blank_length, musicTrees):
 class treeNode:
     def __init__(self, _id, _startIndex, _pitchSeq, _durationSeq, _elementSeq, _LBDM=[]):
         if len(_pitchSeq) == len(_durationSeq) or len(_pitchSeq) == len(_LBDM):
-            self.id = _id,
+            self.id = _id
             self.elementary_noteSeq = np.vstack(
                 [_pitchSeq, _durationSeq, _elementSeq])
             self.pitchSeq = _pitchSeq

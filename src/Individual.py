@@ -23,7 +23,7 @@ class Individual:
 
         # fitness function
         self.fitness = -1
-        Fitness.updateFitness(self)
+        # Fitness.updateFitness(self)
 
         # ! TEST
         # self.details()

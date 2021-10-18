@@ -249,11 +249,6 @@ def sumOfSquareOfInterval(parsedMIDI):
     return sum(i*i for i in parsedMIDI.noteSeq[C.INTERVALINDEX])
 
 
-def musicCounter(tree_list):
-    ids = set(i.id[0] for i in tree_list)
-    return len(ids)
-
-
 def Normalization(features_list, std_max, std_min):
     db = ZODB("./Transformer/StandardScaler.fs")
     std_scal = db.dbroot[0]

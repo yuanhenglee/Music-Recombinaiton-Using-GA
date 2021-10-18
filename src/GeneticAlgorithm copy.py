@@ -1,5 +1,6 @@
 from hashlib import new
 import sys
+import os
 import time
 from mido import MidiFile
 from Feature import main
@@ -155,12 +156,18 @@ def crossover(parents, initialAncestors, n_offspring):
         for tree in child.tree_list:
             tmp_elementary_noteSeq = np.hstack(
                 [tmp_elementary_noteSeq, tree.elementary_noteSeq])
-        tmp_element_number_list = tmp_elementary_noteSeq[2].copy()
+        tmp_element_number_list = copy.deepcopy(tmp_elementary_noteSeq[2])
         child.parsedMIDI.noteSeq = Preprocess.expandElementarySequence(
             tmp_elementary_noteSeq)
         # update element number list
         child.parsedMIDI.noteSeq[C.ELEMENTINDEX] = tmp_element_number_list
         child.allElementGroups = set(tmp_element_number_list)
+        if child.signature not in child.allElementGroups:
+            print("main_parent signature: \n", main_parent.signature)
+            print("child signature: \n", child.signature)
+            print("main_parent group: \n", main_parent.allElementGroups)
+            print("child group: \n", child.allElementGroups)
+            print("Error in crossover")
         # print(child.parsedMIDI.noteSeq[C.ELEMENTINDEX])
         child.parsedMIDI.updateFieldVariable()
         child.calculateAllFeatures()
@@ -239,6 +246,8 @@ def pitchOrderReverse(start, end, target):
     newElementSeq = [new_num]*(end-start)
     target.parsedMIDI.noteSeq[C.ELEMENTINDEX][start:end] = newElementSeq
     target.allElementGroups = set(target.parsedMIDI.noteSeq[C.ELEMENTINDEX])
+    if target.signature not in target.allElementGroups:
+        print("Error in reverse")
 
     newElementarySeq = np.vstack(
         [target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end],
@@ -269,6 +278,8 @@ def pitchShifting(start, end, target):
     target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end] = newPitchSeq
     target.parsedMIDI.noteSeq[C.ELEMENTINDEX][start:end] = newElementSeq
     target.allElementGroups = set(target.parsedMIDI.noteSeq[C.ELEMENTINDEX])
+    if target.signature not in target.allElementGroups:
+        print("Error in shifting")
     newElementarySeq = np.vstack(
         [newPitchSeq, target.parsedMIDI.noteSeq[C.DURATIONINDEX][start:end], newElementSeq])
     mutateTree(start, end, target, newElementarySeq)
@@ -281,6 +292,7 @@ def mutateTree(start, end, target, newElementarySeq):
         "mutated", 0,
         newElementarySeq[0],
         newElementarySeq[1],
+        newElementarySeq[2],
         ILBDM_elementary_noteSeq(newElementarySeq))
     gaps_in_tree_index = []
     acc_tree_index = 0
@@ -316,9 +328,9 @@ def findBestOffspring(population):
 
 def selectRandomElement(individual):
     # selected element can not be signature
-    element_number_set = individual.allElementGroups.copy()
+    element_number_set = copy.deepcopy(individual.allElementGroups)
     element_number_set.remove(individual.signature)
-    selected_element_number = random.sample(element_number_set, 1)
+    selected_element_number = random.sample(element_number_set, 1)[0]
     point = []
     start = -1
     element_number_list = individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]
@@ -332,14 +344,14 @@ def selectRandomElement(individual):
         if start != -1 and i == len(element_number_list)-1:
             end = i+1
             point.append((start, end))
-    # print(point)
     return point
 
 
 if __name__ == "__main__":
 
     try:
-        paths = sys.argv[1:]
+        paths = sys.argv[1:3]
+        rate = sys.argv[3]
     except:
         print("Missing input MIDI file!")
 
@@ -353,10 +365,13 @@ if __name__ == "__main__":
         for key in dbroot.keys():
             population.append(dbroot[key])
         db.close()
-
+        string_list = path.split("/")
+        name = string_list[-1]
+        C.INPUT_NAMES.append(name[:-3])
+    C.INPUT_RATE = float(rate)
     # print(ids)
     new_population = startGA(initialAncestors, population,
-                             max_population=30, max_generation=100)
+                             max_population=30, max_generation=2)
     # bestOffspring = findBestOffspring(new_population)
     bestOffspring = population[0]
 
@@ -365,3 +380,9 @@ if __name__ == "__main__":
         mid_output = Demo.parsed2MIDI(bestOffspring.parsedMIDI)
         cur_time = str(time.strftime('%m_%d_%H_%M', time.localtime()))
         mid_output.save('../output/' + cur_time + ".mid")
+        os.makedirs("../output/" + cur_time)
+        dbpath = "../output/" + cur_time + "/" + cur_time + ".fs"
+        db = ZODB(dbpath)
+        db.dbroot["Individual"] = bestOffspring
+        transaction.commit()
+        db.close()

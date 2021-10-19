@@ -29,7 +29,7 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
             updateFitness(individual)
 
         if generation >= generation_to_kill and len(population) > max_population:
-            population.sort(key=lambda x: x.fitness, reverse=True)
+            population.sort(key=lambda x: x.fitness)
             tmp_population = []
             key_fitness = 0
             for individual in population:
@@ -42,7 +42,7 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
 
         for i in population:
             if i.isAncestor != True:
-                if i.fitness > best_score:
+                if i.fitness < best_score:
                     best_score = i.fitness
                     generation_best_score_was_born = generation
                 break
@@ -81,7 +81,7 @@ def natural_selection(population, n_selected):
     if len(population) <= n_selected:
         return population
     else:
-        population.sort(key=lambda x: x.fitness, reverse=True)
+        population.sort(key=lambda x: x.fitness)
         return population[0:n_selected]
 
 
@@ -371,7 +371,7 @@ if __name__ == "__main__":
     C.INPUT_RATE = float(rate)
     # print(ids)
     new_population = startGA(initialAncestors, population,
-                             max_population=30, max_generation=2)
+                             max_population=30, max_generation=100)
     # bestOffspring = findBestOffspring(new_population)
     bestOffspring = population[0]
 

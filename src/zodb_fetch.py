@@ -1,5 +1,7 @@
+from Fitness import updateFitness
 from zodb import ZODB
 import Constant as C
+import Fitness
 from ILBDM import ILBDM
 import sys
 
@@ -8,6 +10,8 @@ dbroot = db.dbroot
 print(dbroot.keys())
 for key in dbroot.keys():
     individual = dbroot[key]
+    Fitness.updateFitness(individual)
+    break
     result_ILBDM = ILBDM(individual.parsedMIDI)
     print(result_ILBDM)
     for i in range(len(dbroot[key].parsedMIDI.noteSeq[C.ELEMENTINDEX])):

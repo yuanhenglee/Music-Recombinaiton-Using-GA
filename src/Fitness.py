@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
+import Feature
 
 import Constant as C
 
@@ -19,28 +20,25 @@ def musicSourceVariety(individual):
         #     raise ValueError("Wrong tree id")
 
     sum_of_duration = sum_of_duration1+sum_of_duration2
-    result = 1 - abs(C.INPUT_RATE - sum_of_duration1/sum_of_duration)
+    if sum_of_duration == 0:
+        return 1
+    result = abs(C.INPUT_RATE - sum_of_duration1/sum_of_duration)
 
     return result
 
 
 def calculateSimilarity(value, ancestors_value):
-    return 1-abs(ancestors_value-value)
+    return abs(ancestors_value-value)
 
 
-def calculateConsensus(mean, std, value):
-    distance = math.floor(abs(mean - value)/std)
-    score = (2-distance)/2
-    if score > 0:
-        return score
-    else:
-        return 0
+def calculateConsensus(value):
+    return abs(value)
 
 
 def calculateInRange(max, min, value):
     if value <= max and value >= min:
-        return 1
-    return 0
+        return 0
+    return 1
 
 
 def updateFitness(individual):
@@ -60,12 +58,12 @@ def updateFitness(individual):
     orderedData.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
 
     # similarity
-    similarity_score = np.zeros(21)
+    similarity_score = np.zeros(22)
 
     for ancestor in ancestors:
         for i in range(len(similarity_score)):
             similarity_score[i] = calculateSimilarity(
-                individual.df_features.iloc[0, i], ancestor.df_features.iloc[0, i])
+                individual.df_features_std.iloc[0, i], ancestor.df_features_std.iloc[0, i])
         similarity += similarity_score.mean()
     similarity = similarity/len(ancestors)*50
 
@@ -76,7 +74,7 @@ def updateFitness(individual):
         featureName = orderedData["feature"][i]
         index = data[data["feature"] == featureName].index.values[0]
         consensus_score[i] = calculateConsensus(
-            data["mean"][index], data["std"][index], individual.df_features.iloc[0, index])
+            individual.df_features_std.iloc[0, index])
 
     consensus += (consensus_score.mean())*25
 
@@ -98,7 +96,8 @@ def updateFitness(individual):
     # print("musicCount: ", musicCount)
 
     individual.fitness = similarity + consensus + \
-        inRange + (music_source_variety*100)
+        inRange + (music_source_variety)
 
     individual.fitness_detail = [similarity,
                                  consensus, inRange, music_source_variety]
+    # print(individual.fitness_detail)

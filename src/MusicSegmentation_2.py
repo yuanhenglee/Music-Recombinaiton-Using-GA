@@ -37,28 +37,46 @@ def extractSignatures(target):
                 element_seq[i:j] = element_number
 
 
-def checkCuttingPoint(index, LBDM, cuttingPoint, target):
-    sumDuration = target.noteSeq[C.DURATIONINDEX][index]
-    cut = index
-    while sumDuration <= target.minSegment and index < target.numberOfNotes - 1:
-        if LBDM[cut] < LBDM[index+1]:
-            cut = checkCuttingPoint(index+1, LBDM, cuttingPoint, target)
-            return cut
-        else:
-            index += 1
-            sumDuration += target.noteSeq[C.DURATIONINDEX][index]
-    cuttingPoint.append(cut)
-    return index
+def tooClose(cuttingPoint, index, minSegment):
+    for i in range(1, minSegment):
+        if index-i in cuttingPoint or index+i in cuttingPoint:
+            return True
+    return False
+
+
+def checkCuttingPoint(LBDM, target):
+    index_lbdm = [(i, LBDM[i]) for i in range(len(LBDM))]
+    cuttingPoint = []
+    index_lbdm = sorted(index_lbdm, key=lambda x: x[1])
+    while(len(index_lbdm) > 0):
+        index_selected = index_lbdm.pop()
+        if not tooClose(cuttingPoint, index_selected[0], target.minSegment):
+            cuttingPoint.append(index_selected[0])
+    return cuttingPoint
+    # return cuttingPoint
+# def checkCuttingPoint(index, LBDM, cuttingPoint, target):
+#     sumDuration = target.noteSeq[C.DURATIONINDEX][index]
+#     cut = index
+#     while sumDuration <= target.minSegment and index < target.numberOfNotes - 1:
+#         if LBDM[cut] < LBDM[index+1]:
+#             cut = checkCuttingPoint(index+1, LBDM, cuttingPoint, target)
+#             return cut
+#         else:
+#             index += 1
+#             sumDuration += target.noteSeq[C.DURATIONINDEX][index]
+#     cuttingPoint.append(cut)
+#     return index
 
 
 def musicSegmentation2(target, LBDM):
     size_Note = LBDM.size
+    cuttingPoint = checkCuttingPoint(LBDM, target)
     # cuttingPoint = np.zeros(size_Note, dtype=int)
-    cuttingPoint = [target.numberOfNotes-1]
+    # cuttingPoint = [target.numberOfNotes-1]
 
-    i = 0
-    while i < size_Note-1:
-        i = checkCuttingPoint(i, LBDM, cuttingPoint, target) + 1
+    # i = 0
+    # while i < size_Note-1:
+    #     i = checkCuttingPoint(i, LBDM, cuttingPoint, target) + 1
 
     cuttingPoint.sort()
     # print("Cutting Point = ", cuttingPoint)
@@ -81,7 +99,6 @@ def musicTree(target, LBDM):
 
 
 if __name__ == "__main__":
-
     import sys
     from mido import MidiFile
     from Preprocess import ProcessedMIDI
@@ -92,8 +109,8 @@ if __name__ == "__main__":
     LBDM_result = ILBDM(parsedMIDI)
     cuttingPoint = musicSegmentation2(
         parsedMIDI, LBDM_result)
-    signaturePossibilities = extractSignatures(
-        parsedMIDI)
+    # signaturePossibilities = extractSignatures(
+    #     parsedMIDI)
     print(LBDM_result)
     print(cuttingPoint)
-    print(signaturePossibilities)
+    # print(signaturePossibilities)

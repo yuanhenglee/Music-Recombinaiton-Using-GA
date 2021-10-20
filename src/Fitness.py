@@ -9,19 +9,24 @@ import Constant as C
 def musicSourceVariety(individual):
     sum_of_duration1 = 0
     sum_of_duration2 = 0
+    sum_of_duration_mutated = 0
     for tree in individual.tree_list:
         if tree.id == C.INPUT_NAMES[0]:
             sum_of_duration1 += tree.length
         elif tree.id == C.INPUT_NAMES[1]:
             sum_of_duration2 += tree.length
+        elif tree.id == "Mutated":
+            sum_of_duration_mutated += tree.length
         # else:
         #     print(tree.id)
         #     print(C.INPUT_NAMES)
         #     raise ValueError("Wrong tree id")
 
     sum_of_duration = sum_of_duration1+sum_of_duration2
-    if sum_of_duration == 0:
-        return 1
+    # print(f"{sum_of_duration=}")
+    # print(f"{sum_of_duration1=}")
+    # print(f"{sum_of_duration2=}")
+    # print(f"{sum_of_duration_mutated=}")
     result = abs(C.INPUT_RATE - sum_of_duration1/sum_of_duration)
 
     return result
@@ -65,7 +70,7 @@ def updateFitness(individual):
             similarity_score[i] = calculateSimilarity(
                 individual.df_features_std.iloc[0, i], ancestor.df_features_std.iloc[0, i])
         similarity += similarity_score.mean()
-    similarity = similarity/len(ancestors)*50
+    similarity = similarity/len(ancestors)
 
     # consensus
     consensus_score = np.zeros(10)
@@ -76,7 +81,7 @@ def updateFitness(individual):
         consensus_score[i] = calculateConsensus(
             individual.df_features_std.iloc[0, index])
 
-    consensus += (consensus_score.mean())*25
+    consensus += (consensus_score.mean())
 
     # inRange
     inRange_score = np.zeros(22)
@@ -85,7 +90,7 @@ def updateFitness(individual):
         inRange_score[i] = calculateInRange(
             data["max"][i], data["min"][i], individual.df_features.iloc[0, i])
 
-    inRange += (inRange_score.mean())*25
+    inRange += (inRange_score.mean())
 
     # music Source Variety
     music_source_variety = musicSourceVariety(individual)
@@ -95,9 +100,13 @@ def updateFitness(individual):
     # print("inRange: ", inRange)
     # print("musicCount: ", musicCount)
 
-    individual.fitness = similarity + consensus + \
-        inRange + (music_source_variety)
-
     individual.fitness_detail = [similarity,
                                  consensus, inRange, music_source_variety]
+
+    total_fitness = 0
+    for i in range(len(C.FITNESS_WEIGHT)):
+        individual.fitness_detail[i] = C.FITNESS_WEIGHT[i] * individual.fitness_detail[i]
+
+    individual.fitness = sum(individual.fitness_detail) 
+
     # print(individual.fitness_detail)

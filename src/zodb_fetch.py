@@ -12,8 +12,10 @@ for key in dbroot.keys():
     individual = dbroot[key]
     # print(individual.signature)
     # print(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX])
-    for tree in individual.tree_list:
-        print(tree.id)
+    # for tree in individual.tree_list:
+    #     print(tree.id)
+    print(individual.df_features)
+    print(individual.df_features_std)
     print(individual.fitness_detail)
     print(individual.fitness)
     # Fitness.updateFitness(individual)

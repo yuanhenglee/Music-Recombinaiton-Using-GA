@@ -9,6 +9,7 @@ import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer, scale
 import seaborn as sns
+import copy
 
 
 def calculateFeature(func):
@@ -244,21 +245,30 @@ def leapDensity(parsedMIDI):
             largeLeap += 1
     return largeLeap/(parsedMIDI.numberOfNotes-1)
 
+def bigLeapDensity(parsedMIDI):
+    largeLeap = 0
+    pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
+    for i in range(len(pitchSeq)-1):
+        interval = pitchSeq[i+1] - pitchSeq[i]
+        if interval > 7:
+            largeLeap += 1
+    return largeLeap/(parsedMIDI.numberOfNotes-1)
 
 def sumOfSquareOfInterval(parsedMIDI):
     return sum(i*i for i in parsedMIDI.noteSeq[C.INTERVALINDEX])
 
 
 def standardization(df_features):
+    tmp_features = copy.deepcopy(df_features)
     path_Data = "../test & learn/EDA Result/songMeanSTD.csv"
     data = pd.read_csv(path_Data)
     mean = data["mean"]
     std = data["std"]
-    for i, feature in enumerate(df_features):
+    for i, feature in enumerate(tmp_features):
         # print(feature)
-        df_features[feature] = (df_features[feature] -
+        tmp_features[feature] = (tmp_features[feature] -
                                 mean[i])/std[i]
-    return df_features
+    return tmp_features
 
 
 def main():
@@ -306,7 +316,8 @@ def main():
         "Reapted Rhythm_3":   f_repeatedRhythmic_3,
         "Reapted Pitch_4":   f_repeatedPitch_4,
         "Reapted Rhythm_4":   f_repeatedRhythmic_4,
-        "LeapDensity":      [restDensity(i) for i in parsedMIDIs],
+        "LeapDensity":      [leapDensity(i) for i in parsedMIDIs],
+        "BigLeapDensity":      [bigLeapDensity(i) for i in parsedMIDIs],
         "SumOfSquareOfInterval": [sumOfSquareOfInterval(i) for i in parsedMIDIs]
     })
 

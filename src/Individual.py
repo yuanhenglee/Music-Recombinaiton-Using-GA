@@ -55,6 +55,7 @@ class Individual:
             "Repeated Pitch_4": [repeatedPitchPattern[2]],
             "Repeated Rhythm_4": [repeatedRhythmPattern[2]],
             "LeapDensity": [Feature.leapDensity(self.parsedMIDI)],
+            "BigLeapDensity":[Feature.bigLeapDensity(self.parsedMIDI)],
             "SumOfSquareOfInterval": [Feature.sumOfSquareOfInterval(self.parsedMIDI)]
         }
 

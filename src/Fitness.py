@@ -63,7 +63,7 @@ def updateFitness(individual):
     orderedData.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
 
     # similarity
-    similarity_score = np.zeros(22)
+    similarity_score = np.zeros(C.NUMBER_FEATURES)
 
     for ancestor in ancestors:
         for i in range(len(similarity_score)):
@@ -84,7 +84,7 @@ def updateFitness(individual):
     consensus += (consensus_score.mean())
 
     # inRange
-    inRange_score = np.zeros(22)
+    inRange_score = np.zeros(C.NUMBER_FEATURES)
 
     for i in range(len(inRange_score)):
         inRange_score[i] = calculateInRange(

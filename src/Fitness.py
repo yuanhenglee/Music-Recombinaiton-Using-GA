@@ -27,6 +27,8 @@ def musicSourceVariety(individual):
     # print(f"{sum_of_duration1=}")
     # print(f"{sum_of_duration2=}")
     # print(f"{sum_of_duration_mutated=}")
+    if sum_of_duration == 0:
+        return 1
     result = abs(C.INPUT_RATE - sum_of_duration1/sum_of_duration)
 
     return result
@@ -47,7 +49,6 @@ def calculateInRange(max, min, value):
 
 
 def updateFitness(individual):
-    ancestors = individual.ancestor
     individual.fitness = 0
 
     # fitness score initialize
@@ -55,35 +56,42 @@ def updateFitness(individual):
     consensus = 0
     inRange = 0
 
-    path_orderedData = "../test & learn/EDA Result/songMeanSTD_ordered.csv"
+    # path_orderedData = "../test & learn/EDA Result/songMeanSTD_ordered.csv"
     path_Data = "../test & learn/EDA Result/songMeanSTD.csv"
     data = pd.read_csv(path_Data)
-    orderedData = pd.read_csv(path_orderedData)
-    data.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
-    orderedData.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
+    # orderedData = pd.read_csv(path_orderedData)
+    # data.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
+    # orderedData.rename(columns={"Unnamed: 0": "feature"}, inplace=True)
 
     # similarity
-    similarity_score = np.zeros(C.NUMBER_FEATURES)
+    similarity = 0
+    for ancestor in individual.ancestor:
+        df_tmp = C.similarity_weight * (ancestor.df_features_std - individual.df_features_std)
+        similarity += df_tmp.abs().to_numpy().sum()
+    # similarity_score = np.zeros(C.NUMBER_FEATURES)
 
-    for ancestor in ancestors:
-        for i in range(len(similarity_score)):
-            similarity_score[i] = calculateSimilarity(
-                individual.df_features_std.iloc[0, i], ancestor.df_features_std.iloc[0, i])
-        similarity += similarity_score.mean()
-    similarity = similarity/len(ancestors)
+    # for ancestor in ancestors:
+    #     for i in range(len(similarity_score)):
+    #         similarity_score[i] = calculateSimilarity(
+    #             individual.df_features_std.iloc[0, i], ancestor.df_features_std.iloc[0, i])
+    #     similarity += similarity_score.mean()
+    # similarity = similarity/len(ancestors)
 
     # consensus
-    consensus_score = np.zeros(10)
+    df_consensus_score = C.consensus_weight * individual.df_features_std
+    consensus = df_consensus_score.abs().to_numpy().sum()
 
-    for i in range(len(consensus_score)):
-        featureName = orderedData["feature"][i]
-        index = data[data["feature"] == featureName].index.values[0]
-        consensus_score[i] = calculateConsensus(
-            individual.df_features_std.iloc[0, index])
+        # consensus_score = np.zeros(10)
 
-    consensus += (consensus_score.mean())
+        # for i in range(len(consensus_score)):
+        #     featureName = orderedData["feature"][i]
+        #     index = data[data["feature"] == featureName].index.values[0]
+        #     consensus_score[i] = calculateConsensus(
+        #         individual.df_features_std.iloc[0, index])
 
-    # inRange
+        # consensus += (consensus_score.mean())
+
+        # inRange
     inRange_score = np.zeros(C.NUMBER_FEATURES)
 
     for i in range(len(inRange_score)):
@@ -98,15 +106,18 @@ def updateFitness(individual):
     # print("similarity: ", similarity)
     # print("consensus: ", consensus)
     # print("inRange: ", inRange)
-    # print("musicCount: ", musicCount)
+
+    n_tree = len(individual.tree_list)
+    n_tree_score = 0 if 10<=n_tree<=16 else 1
+    
 
     individual.fitness_detail = [similarity,
-                                 consensus, inRange, music_source_variety]
+                                 consensus, inRange, music_source_variety, n_tree_score]
 
-    total_fitness = 0
     for i in range(len(C.FITNESS_WEIGHT)):
-        individual.fitness_detail[i] = C.FITNESS_WEIGHT[i] * individual.fitness_detail[i]
+        individual.fitness_detail[i] = C.FITNESS_WEIGHT[i] * \
+            individual.fitness_detail[i]
 
-    individual.fitness = sum(individual.fitness_detail) 
+    individual.fitness = sum(individual.fitness_detail)
 
     # print(individual.fitness_detail)

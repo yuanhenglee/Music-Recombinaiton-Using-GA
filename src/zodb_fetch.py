@@ -4,6 +4,7 @@ import Constant as C
 import Fitness
 from ILBDM import ILBDM
 import sys
+import Fitness
 
 db = ZODB(sys.argv[1])
 dbroot = db.dbroot
@@ -12,10 +13,9 @@ for key in dbroot.keys():
     individual = dbroot[key]
     # print(individual.signature)
     # print(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX])
-    # for tree in individual.tree_list:
-    #     print(tree.id)
-    print(individual.df_features)
-    print(individual.df_features_std)
+    for tree in individual.tree_list:
+        print(tree.id)
+    # Fitness.updateFitness(individual) 
     print(individual.fitness_detail)
     print(individual.fitness)
     # Fitness.updateFitness(individual)

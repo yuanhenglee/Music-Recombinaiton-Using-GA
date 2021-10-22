@@ -108,7 +108,12 @@ def updateFitness(individual):
     # print("inRange: ", inRange)
 
     n_tree = len(individual.tree_list)
-    n_tree_score = 0 if 10<=n_tree<=16 else 1
+    if 10<=n_tree<=16:
+        n_tree_score = 0
+    elif 10>n_tree:
+        n_tree_score = abs(n_tree - 10)
+    elif n_tree>16:
+        n_tree_score = abs(n_tree - 16)
     
 
     individual.fitness_detail = [similarity,

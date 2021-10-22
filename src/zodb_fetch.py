@@ -5,6 +5,7 @@ import Fitness
 from ILBDM import ILBDM
 import sys
 import Fitness
+import numpy as np
 
 db = ZODB(sys.argv[1])
 dbroot = db.dbroot
@@ -15,9 +16,10 @@ for key in dbroot.keys():
     # print(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX])
     for tree in individual.tree_list:
         print(tree.id)
+    print(np.unique(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]))
     # Fitness.updateFitness(individual) 
-    print(individual.fitness_detail)
-    print(individual.fitness)
+    # print(individual.fitness_detail)
+    # print(individual.fitness)
     # Fitness.updateFitness(individual)
     # break
     # result_ILBDM = ILBDM(individual.parsedMIDI)

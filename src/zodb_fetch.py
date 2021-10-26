@@ -5,19 +5,23 @@ import Fitness
 from ILBDM import ILBDM
 import sys
 import Fitness
+import numpy as np
 
 db = ZODB(sys.argv[1])
 dbroot = db.dbroot
 print(dbroot.keys())
 for key in dbroot.keys():
     individual = dbroot[key]
+    individual.parsedMIDI.printMIDI()
+    print(np.median(individual.parsedMIDI.noteSeq[C.PITCHINDEX]))
     # print(individual.signature)
     # print(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX])
-    for tree in individual.tree_list:
-        print(tree.id)
+    # for tree in individual.tree_list:
+    #     print(tree.id)
+    # print(np.unique(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]))
     # Fitness.updateFitness(individual) 
-    print(individual.fitness_detail)
-    print(individual.fitness)
+    # print(individual.fitness_detail)
+    # print(individual.fitness)
     # Fitness.updateFitness(individual)
     # break
     # result_ILBDM = ILBDM(individual.parsedMIDI)

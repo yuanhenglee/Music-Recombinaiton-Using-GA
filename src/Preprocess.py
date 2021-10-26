@@ -157,7 +157,9 @@ class ProcessedMIDI:
         for i in range(self.numberOfNotes):
             self.totalDuration += int(self.noteSeq[C.DURATIONINDEX][i])
         self.minSegment = min(int(self.totalDuration / 16), 4)
-        # TODO rest note
+
+        self.noteSeq[C.PITCHINDEX] = Utility.allignCenterC(self.noteSeq[C.PITCHINDEX])
+
         self.lowestNote = self.noteSeq[C.PITCHINDEX][self.noteSeq[C.PITCHINDEX] > 0].min(
         )
         self.highestNote = np.max(self.noteSeq[C.PITCHINDEX])

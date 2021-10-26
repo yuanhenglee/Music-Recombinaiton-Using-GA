@@ -35,6 +35,7 @@ def recodePitch(n):
     """                           
         range: c2 to c7
         c2 in midi: 36 -> 1
+        c4 in midi: 60 -> 15
         c6 in midi: 84 -> 29
         c7 in midi: 96 -> 36
         formula: 
@@ -73,6 +74,17 @@ def countNonScaleNote(pitchSeq):
         if not i.is_integer():
             NonScaleCount += 1
     return NonScaleCount
+
+
+def allignCenterC( noteSeq ):
+    median = np.median(noteSeq)
+    # median//7 == 2: center
+    offset = 2-median//7
+    for i in noteSeq: i+=offset
+    return noteSeq
+
+
+
 
 # if __name__ == '__main__':
 #     arr = np.random.randint( low=36, high=85, size=10000 )

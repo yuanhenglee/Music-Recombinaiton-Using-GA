@@ -12,11 +12,13 @@ dbroot = db.dbroot
 print(dbroot.keys())
 for key in dbroot.keys():
     individual = dbroot[key]
+    individual.parsedMIDI.printMIDI()
+    print(np.median(individual.parsedMIDI.noteSeq[C.PITCHINDEX]))
     # print(individual.signature)
     # print(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX])
-    for tree in individual.tree_list:
-        print(tree.id)
-    print(np.unique(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]))
+    # for tree in individual.tree_list:
+    #     print(tree.id)
+    # print(np.unique(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]))
     # Fitness.updateFitness(individual) 
     # print(individual.fitness_detail)
     # print(individual.fitness)

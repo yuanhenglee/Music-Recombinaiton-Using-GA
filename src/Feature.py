@@ -6,10 +6,11 @@ from zodb import ZODB, transaction
 import matplotlib
 import pandas as pd
 import numpy as np
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer, scale
-import seaborn as sns
+# from sklearn.decomposition import PCA
+# from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer, scale
+# import seaborn as sns
 import copy
+from collections import Counter
 
 
 def calculateFeature(func):
@@ -271,6 +272,8 @@ def standardization(df_features):
     return tmp_features
 
 
+
+
 def main():
 
     # get data from DB
@@ -365,6 +368,20 @@ def main():
     # fig.savefig("../test & learn/EDA Result/PCA.pdf")
 
     '''
+
+    # exploring pitch of long notes
+    long_notes_pitch = {}
+    for count, parsedMIDI in enumerate(parsedMIDIs):
+        for i in range(parsedMIDI.numberOfNotes):
+            if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4, np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
+                pitch = (float(parsedMIDI.noteSeq[C.PITCHINDEX][i]%7))
+                if not pitch.is_integer(): print(names[count])
+                if pitch in long_notes_pitch: 
+                    long_notes_pitch[pitch] += 1
+                else:
+                    long_notes_pitch[pitch] = 1
+    long_notes_pitch = sorted(long_notes_pitch.items(), key=lambda x: x[1], reverse=True)
+    print(long_notes_pitch)
 
 
 if __name__ == '__main__':

@@ -65,7 +65,8 @@ def calculateInRange(max, min, value):
         return 0
     return 1
 
-def elementsTransition( individual ):
+
+def elementsTransition(individual):
     first_note = individual.tree_list[0].pitchSeq[-1]
     each_score = []
     for tree in individual.tree_list[1:]:
@@ -84,7 +85,6 @@ def elementsTransition( individual ):
         return np.mean(each_score)
     else:
         return 0
-
 
 
 def updateFitness(individual):
@@ -120,8 +120,8 @@ def updateFitness(individual):
     # consensus
     df_consensus_score = C.consensus_weight * individual.df_features_std
     consensus = df_consensus_score.abs().to_numpy().sum()
-    consensus += elementsTransition(individual) 
-    
+    consensus += elementsTransition(individual)
+    consensus += calculateLongNote(individual)
 
     # consensus_score = np.zeros(10)
 
@@ -167,5 +167,3 @@ def updateFitness(individual):
     individual.fitness = sum(individual.fitness_detail)
 
     # print(individual.fitness_detail)
-
-    

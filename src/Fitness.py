@@ -42,6 +42,24 @@ def calculateConsensus(value):
     return abs(value)
 
 
+def calculateLongNote(individual):
+    long_note_score = []
+    parsedMIDI = individual.parsedMIDI
+    valid_note_1 = [1, 2, 3]
+    valid_note_2 = [7, 6, 5]
+    if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4, np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
+        pitch = (float(parsedMIDI.noteSeq[C.PITCHINDEX][i] % 7))
+        if pitch in valid_note_1:
+            long_note_score.append(0)
+        elif pitch in valid_note_2:
+            long_note_score.append(1)
+        else:
+            long_note_score.append(5)
+    long_note_score = np.mean(long_note_score)
+
+    return long_note_score
+
+
 def calculateInRange(max, min, value):
     if value <= max and value >= min:
         return 0
@@ -66,7 +84,8 @@ def updateFitness(individual):
     # similarity
     similarity = 0
     for ancestor in individual.ancestor:
-        df_tmp = C.similarity_weight * (ancestor.df_features_std - individual.df_features_std)
+        df_tmp = C.similarity_weight * \
+            (ancestor.df_features_std - individual.df_features_std)
         similarity += df_tmp.abs().to_numpy().sum()
     # similarity_score = np.zeros(C.NUMBER_FEATURES)
 
@@ -81,17 +100,17 @@ def updateFitness(individual):
     df_consensus_score = C.consensus_weight * individual.df_features_std
     consensus = df_consensus_score.abs().to_numpy().sum()
 
-        # consensus_score = np.zeros(10)
+    # consensus_score = np.zeros(10)
 
-        # for i in range(len(consensus_score)):
-        #     featureName = orderedData["feature"][i]
-        #     index = data[data["feature"] == featureName].index.values[0]
-        #     consensus_score[i] = calculateConsensus(
-        #         individual.df_features_std.iloc[0, index])
+    # for i in range(len(consensus_score)):
+    #     featureName = orderedData["feature"][i]
+    #     index = data[data["feature"] == featureName].index.values[0]
+    #     consensus_score[i] = calculateConsensus(
+    #         individual.df_features_std.iloc[0, index])
 
-        # consensus += (consensus_score.mean())
+    # consensus += (consensus_score.mean())
 
-        # inRange
+    # inRange
     inRange_score = np.zeros(C.NUMBER_FEATURES)
 
     for i in range(len(inRange_score)):
@@ -108,13 +127,12 @@ def updateFitness(individual):
     # print("inRange: ", inRange)
 
     n_tree = len(individual.tree_list)
-    if 10<=n_tree<=16:
+    if 10 <= n_tree <= 16:
         n_tree_score = 0
-    elif 10>n_tree:
+    elif 10 > n_tree:
         n_tree_score = abs(n_tree - 10)
-    elif n_tree>16:
+    elif n_tree > 16:
         n_tree_score = abs(n_tree - 16)
-    
 
     individual.fitness_detail = [similarity,
                                  consensus, inRange, music_source_variety, n_tree_score]

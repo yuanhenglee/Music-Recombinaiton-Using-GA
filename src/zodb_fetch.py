@@ -1,4 +1,5 @@
 from Fitness import updateFitness
+from Fitness import elementsTransition 
 from zodb import ZODB
 import Constant as C
 import Fitness
@@ -13,7 +14,7 @@ print(dbroot.keys())
 for key in dbroot.keys():
     individual = dbroot[key]
     individual.parsedMIDI.printMIDI()
-    print(np.median(individual.parsedMIDI.noteSeq[C.PITCHINDEX]))
+    print(elementsTransition(individual))
     # print(individual.signature)
     # print(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX])
     # for tree in individual.tree_list:

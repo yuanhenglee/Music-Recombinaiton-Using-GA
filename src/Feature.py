@@ -10,7 +10,7 @@ import numpy as np
 # from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer, scale
 # import seaborn as sns
 import copy
-from collections import Counter
+import csv
 
 
 def calculateFeature(func):
@@ -246,6 +246,7 @@ def leapDensity(parsedMIDI):
             largeLeap += 1
     return largeLeap/(parsedMIDI.numberOfNotes-1)
 
+
 def bigLeapDensity(parsedMIDI):
     largeLeap = 0
     pitchSeq = parsedMIDI.noteSeq[C.PITCHINDEX]
@@ -254,6 +255,7 @@ def bigLeapDensity(parsedMIDI):
         if interval > 7:
             largeLeap += 1
     return largeLeap/(parsedMIDI.numberOfNotes-1)
+
 
 def sumOfSquareOfInterval(parsedMIDI):
     return sum(i*i for i in parsedMIDI.noteSeq[C.INTERVALINDEX])
@@ -268,10 +270,20 @@ def standardization(df_features):
     for i, feature in enumerate(tmp_features):
         # print(feature)
         tmp_features[feature] = (tmp_features[feature] -
-                                mean[i])/std[i]
+                                 mean[i])/std[i]
     return tmp_features
 
-
+def intervalBtwElement(parsedMIDI):
+    dict_interval = dict()
+    cur_number = parsedMIDI.noteSeq[C.ELEMENTINDEX][0]
+    for i, number in enumerate(parsedMIDI.noteSeq[C.ELEMENTINDEX]):
+        if number != cur_number:
+            interval = int(parsedMIDI.noteSeq[C.INTERVALINDEX][i-1])
+            dict_interval[interval] = dict_interval.get(interval, 0)+1
+            cur_number = number
+    dict_interval = dict(
+        sorted(dict_interval.items(), key=lambda item: item[1], reverse=True))
+    return dict_interval
 
 
 def main():
@@ -347,6 +359,16 @@ def main():
     df_MeanSTD.to_csv("../test & learn/EDA Result/songMeanSTD.csv")
     df_MeanSTD = df_MeanSTD.sort_values(by=['CV'])
     df_MeanSTD.to_csv("../test & learn/EDA Result/songMeanSTD_ordered.csv")
+
+    # interval between element
+
+    dict_allInterval = dict()
+    for i in parsedMIDIs:
+        x = dict_allInterval
+        y = intervalBtwElement(i)
+        dict_allInterval = {k: x.get(k, 0) + y.get(k, 0)
+                            for k in set(x) | set(y)}
+    # print(dict_allInterval)
 
     '''
     # corr

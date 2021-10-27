@@ -45,16 +45,17 @@ def calculateConsensus(value):
 def calculateLongNote(individual):
     long_note_score = []
     parsedMIDI = individual.parsedMIDI
-    valid_note_1 = [1, 2, 3]
-    valid_note_2 = [7, 6, 5]
-    if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4, np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
-        pitch = (float(parsedMIDI.noteSeq[C.PITCHINDEX][i] % 7))
-        if pitch in valid_note_1:
-            long_note_score.append(0)
-        elif pitch in valid_note_2:
-            long_note_score.append(1)
-        else:
-            long_note_score.append(5)
+    valid_note_1 = [1.0, 2.0, 3.0]
+    valid_note_2 = [7.0, 6.0, 5.0]
+    for i in range(parsedMIDI.numberOfNotes):
+        if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4, np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
+            pitch = (float(parsedMIDI.noteSeq[C.PITCHINDEX][i] % 7))
+            if pitch in valid_note_1:
+                long_note_score.append(0)
+            elif pitch in valid_note_2:
+                long_note_score.append(1)
+            else:
+                long_note_score.append(5)
     long_note_score = np.mean(long_note_score)
 
     return long_note_score

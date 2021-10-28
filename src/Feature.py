@@ -392,18 +392,46 @@ def main():
     '''
 
     # exploring pitch of long notes
-    long_notes_pitch = {}
-    for count, parsedMIDI in enumerate(parsedMIDIs):
-        for i in range(parsedMIDI.numberOfNotes):
-            if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4, np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
-                pitch = (float(parsedMIDI.noteSeq[C.PITCHINDEX][i]%7))
-                if not pitch.is_integer(): print(names[count])
-                if pitch in long_notes_pitch: 
-                    long_notes_pitch[pitch] += 1
-                else:
-                    long_notes_pitch[pitch] = 1
-    long_notes_pitch = sorted(long_notes_pitch.items(), key=lambda x: x[1], reverse=True)
-    print(long_notes_pitch)
+    # long_notes_pitch = {}
+    # for count, parsedMIDI in enumerate(parsedMIDIs):
+    #     for i in range(parsedMIDI.numberOfNotes):
+    #         if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4, np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
+    #             pitch = (float(parsedMIDI.noteSeq[C.PITCHINDEX][i]%7))
+    #             if not pitch.is_integer(): print(names[count])
+    #             if pitch in long_notes_pitch: 
+    #                 long_notes_pitch[pitch] += 1
+    #             else:
+    #                 long_notes_pitch[pitch] = 1
+    # long_notes_pitch = sorted(long_notes_pitch.items(), key=lambda x: x[1], reverse=True)
+    # print(long_notes_pitch)
+    # exploring end of song
+    # last_note= {'up':0, 'down':0, 'm':0, 'v':0, 'flat': 0}
+    # for count, parsedMIDI in enumerate(parsedMIDIs):
+    #     last_interval = float(parsedMIDI.noteSeq[C.PITCHINDEX][-1] - parsedMIDI.noteSeq[C.PITCHINDEX][-2])
+    #     last_2_interval = float(parsedMIDI.noteSeq[C.PITCHINDEX][-2] - parsedMIDI.noteSeq[C.PITCHINDEX][-3])
+    #     if parsedMIDI.noteSeq[C.PITCHINDEX][-1] == 0:
+    #         last_interval = float(parsedMIDI.noteSeq[C.PITCHINDEX][-2] - parsedMIDI.noteSeq[C.PITCHINDEX][-3])
+    #         last_2_interval = float(parsedMIDI.noteSeq[C.PITCHINDEX][-3] - parsedMIDI.noteSeq[C.PITCHINDEX][-4])
+
+    #     if last_interval < 0:
+    #         if last_2_interval <= 0:
+    #             last_note['down'] += 1
+    #         else:
+    #             last_note['v'] += 1
+    #     elif last_interval > 0:
+    #         if last_2_interval < 0:
+    #             last_note['m'] += 1
+    #         else:
+    #             last_note['up'] += 1
+    #     else:
+    #         if last_2_interval < 0:
+    #             last_note['down'] += 1
+    #         elif last_2_interval > 0:
+    #             last_note['up'] += 1
+    #         else:
+    #             last_note['flat'] += 1
+    # print(last_note)
+
 
 
 if __name__ == '__main__':

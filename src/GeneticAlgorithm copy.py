@@ -55,6 +55,10 @@ def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3,
                 print("*", end="")
             else:
                 print(" ", end="")
+            if np.isnan(individual.fitness):
+                print(individual.tree_list[0].id)
+                quit()
+
             print(round(individual.fitness, 6))
         # print("\n", population[0].parsedMIDI.noteSeq[C.INTERVALINDEX])
         # ! TEST ONLY
@@ -376,10 +380,13 @@ if __name__ == "__main__":
 
     try:
         paths = sys.argv[1:3]
-        rate = sys.argv[3]
     except:
         print("Missing input MIDI file!")
 
+    try:
+        rate = sys.argv[3]
+    except:
+        rate = 0.5
     population = []
     initialAncestors = []
 

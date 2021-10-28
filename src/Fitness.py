@@ -56,7 +56,10 @@ def calculateLongNote(individual):
                 long_note_score.append(1)
             else:
                 long_note_score.append(5)
-    long_note_score = np.mean(long_note_score)
+    if len(long_note_score) > 0:
+        long_note_score = np.mean(long_note_score)
+    else:
+        long_note_score = 0
 
     return long_note_score
 
@@ -69,23 +72,69 @@ def calculateInRange(max, min, value):
 
 def elementsTransition(individual):
     first_note = individual.tree_list[0].pitchSeq[-1]
+    if first_note == 0 and len(individual.tree_list[0].pitchSeq) > 1:
+        first_note = individual.tree_list[0].pitchSeq[-2]
     each_score = []
     for tree in individual.tree_list[1:]:
         second_note = tree.pitchSeq[0]
+        if second_note == 0 and len(tree.pitchSeq) > 1:
+            second_note = tree.pitchSeq[1]
         interval = abs(second_note - first_note)
+        if first_note == 0 or second_note == 0:
+            interval = 0.0
         if interval in [0.0, 1.0, 2.0]:
             each_score.append(0)
         elif interval in [3.0, 4.0]:
             each_score.append(1)
         elif interval in [5.0, 6.0, 7.0]:
-            each_score.append(2)
+            each_score.append(10)
         else:
-            each_score.append(5)
+            each_score.append(20)
         first_note = tree.pitchSeq[-1]
+        if first_note == 0 and len(tree.pitchSeq) > 1:
+            first_note = tree.pitchSeq[-2]
+
+
+        print(tree.pitchSeq)
+        print(interval)
+
     if len(each_score) > 0:
         return np.mean(each_score)
     else:
         return 0
+
+def tailScore( individual ):
+    last_pitch = individual.parsedMIDI.noteSeq[C.PITCHINDEX][-1]
+    last_duration = individual.parsedMIDI.noteSeq[C.DURATIONINDEX][-1]
+    last_2_pitch = individual.parsedMIDI.noteSeq[C.PITCHINDEX][-2]
+    if last_pitch == 0:
+        last_pitch = individual.parsedMIDI.noteSeq[C.PITCHINDEX][-2]
+        last_duration = individual.parsedMIDI.noteSeq[C.DURATIONINDEX][-2]
+        last_2_pitch = individual.parsedMIDI.noteSeq[C.PITCHINDEX][-3]
+
+    if float(last_pitch)%7 in [1.0]:
+        score_last_pitch = 0
+    elif float(last_pitch)%7 in [2.0, 5.0, 6.0]:
+        score_last_pitch = 1
+    else:
+        score_last_pitch = 5
+
+    duration_ratio = float(last_duration) / np.mean(individual.parsedMIDI.noteSeq[C.DURATIONINDEX])
+    if duration_ratio >= 2:
+        score_last_duration = 0
+    elif duration_ratio >= 1:
+        score_last_duration = 1
+    else:
+        score_last_duration = 5
+
+    interval = abs(last_pitch - last_2_pitch)
+    if interval in [0.0, 1.0, 2.0]:
+        score_interval = 0
+    else:
+        score_interval = 5
+
+    return score_last_pitch + score_last_duration + score_interval
+
 
 
 def updateFitness(individual):
@@ -121,8 +170,9 @@ def updateFitness(individual):
     # consensus
     df_consensus_score = C.consensus_weight * individual.df_features_std
     consensus = df_consensus_score.abs().to_numpy().sum()
-    consensus += elementsTransition(individual)
+    consensus += 3 * elementsTransition(individual)
     consensus += calculateLongNote(individual)
+    consensus += tailScore(individual)
 
     # consensus_score = np.zeros(10)
 
@@ -150,13 +200,20 @@ def updateFitness(individual):
     # print("consensus: ", consensus)
     # print("inRange: ", inRange)
 
-    n_tree = len(individual.tree_list)
-    if 10 <= n_tree <= 16:
-        n_tree_score = 0
-    elif 10 > n_tree:
-        n_tree_score = abs(n_tree - 10)
-    elif n_tree > 16:
-        n_tree_score = abs(n_tree - 16)
+    # n_tree = len(individual.tree_list)
+    # if 10 <= n_tree <= 16:
+    #     n_tree_score = 0
+    # elif 10 > n_tree:
+    #     n_tree_score = abs(n_tree - 10)
+    # elif n_tree > 16:
+    #     n_tree_score = abs(n_tree - 16)
+    n_invalid_tree = 0
+    for tree in individual.tree_list:
+        if 1/16 <= tree.length/individual.parsedMIDI.totalDuration <= 1/10:
+            ...
+        else:
+            n_invalid_tree += 1
+    n_tree_score = n_invalid_tree/len(individual.tree_list)
 
     individual.fitness_detail = [similarity,
                                  consensus, inRange, music_source_variety, n_tree_score]

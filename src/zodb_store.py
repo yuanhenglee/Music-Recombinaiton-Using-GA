@@ -44,6 +44,9 @@ if __name__ == "__main__":
     name = sys.argv[1]
     if name == "all":
         from progress.bar import ShadyBar
+        dir = "./Music/"
+        for f in os.listdir(dir):
+            os.remove(os.path.join(dir, f))
         path = os.path.join(os.path.dirname(__file__), '../midi_file')
         all_midi_files = [f[:-4]
                           for f in os.listdir(path) if f.endswith('.mid')]

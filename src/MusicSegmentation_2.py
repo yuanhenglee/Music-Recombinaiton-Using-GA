@@ -36,11 +36,27 @@ def extractSignatures(target):
                     element_number = element_seq[i]
                 element_seq[i:j] = element_number
 
-
-def tooClose(cuttingPoint, index, minSegment):
-    for i in range(1, minSegment):
-        if index-i in cuttingPoint or index+i in cuttingPoint:
+# 2 0 0 1 0 0 0 
+def tooClose(cuttingPoint, index, minSegment, noteSeq):
+    # for i in range(1, minSegment):
+    distance = 0
+    offset = 0
+    while distance <= minSegment:
+        if index+offset >= len(noteSeq[C.DURATIONINDEX]):
+            break
+        if index+offset in cuttingPoint:
             return True
+        distance += noteSeq[C.DURATIONINDEX][index+offset]
+        offset += 1
+    distance = 0
+    offset = 0
+    while distance <= minSegment:
+        if index-offset < 0:
+            break
+        if index-offset in cuttingPoint:
+            return True
+        distance += noteSeq[C.DURATIONINDEX][index-offset]
+        offset += 1
     return False
 
 
@@ -50,23 +66,9 @@ def checkCuttingPoint(LBDM, target):
     index_lbdm = sorted(index_lbdm, key=lambda x: x[1])
     while(len(index_lbdm) > 0):
         index_selected = index_lbdm.pop()
-        if not tooClose(cuttingPoint, index_selected[0], target.minSegment):
+        if not tooClose(cuttingPoint, index_selected[0], target.minSegment, target.noteSeq):
             cuttingPoint.append(index_selected[0])
     return cuttingPoint
-    # return cuttingPoint
-# def checkCuttingPoint(index, LBDM, cuttingPoint, target):
-#     sumDuration = target.noteSeq[C.DURATIONINDEX][index]
-#     cut = index
-#     while sumDuration <= target.minSegment and index < target.numberOfNotes - 1:
-#         if LBDM[cut] < LBDM[index+1]:
-#             cut = checkCuttingPoint(index+1, LBDM, cuttingPoint, target)
-#             return cut
-#         else:
-#             index += 1
-#             sumDuration += target.noteSeq[C.DURATIONINDEX][index]
-#     cuttingPoint.append(cut)
-#     return index
-
 
 def musicSegmentation2(target, LBDM):
     size_Note = LBDM.size
@@ -103,10 +105,12 @@ if __name__ == "__main__":
     from mido import MidiFile
     from Preprocess import ProcessedMIDI
 
-    path = sys.argv[1]
+    # path = sys.argv[1]
+    path = "../midi_file/CHANGE.mid" 
     mid = MidiFile(path)
     parsedMIDI = ProcessedMIDI(mid)
     LBDM_result = ILBDM(parsedMIDI)
+    # print( tooClose([5], 6, 5, parsedMIDI.noteSeq))
     cuttingPoint = musicSegmentation2(
         parsedMIDI, LBDM_result)
     # signaturePossibilities = extractSignatures(

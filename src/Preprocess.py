@@ -44,7 +44,8 @@ class ProcessedMIDI:
         self.highestNote = np.max(inputProcessedMIDI.noteSeq[C.PITCHINDEX])
         self.totalDuration = np.sum(
             inputProcessedMIDI.noteSeq[C.DURATIONINDEX])
-        self.minSegment = min(int(self.totalDuration / 16), 4)
+        # self.minSegment = min(int(self.totalDuration / 16), 4 )
+        self.minSegment = int(self.totalDuration / 16)
 
     def exploreMIDI(self):
         timeSet = []  # store possible periods
@@ -151,18 +152,22 @@ class ProcessedMIDI:
                         if preDuration < 8:
                             if self.noteSeq[C.PITCHINDEX][i-1] != 0 or preDuration <= 4:
                                 self.noteSeq[C.ACCUMULATIVEINDEX][i] += self.noteSeq[C.ACCUMULATIVEINDEX][i-1]
-        self.noteSeq[C.DURATIONINDEX] = [
-            int(i) for i in self.noteSeq[C.DURATIONINDEX]]
-
-        for i in range(self.numberOfNotes):
-            self.totalDuration += int(self.noteSeq[C.DURATIONINDEX][i])
-        self.minSegment = min(int(self.totalDuration / 16), 4)
+        self.totalDuration = int(np.sum(
+            self.noteSeq[C.DURATIONINDEX]))
+        # self.minSegment = min(int(self.totalDuration / 16), 4)
+        self.minSegment = int(self.totalDuration / 16)
 
         self.noteSeq[C.PITCHINDEX] = Utility.allignCenterC(self.noteSeq[C.PITCHINDEX])
 
         self.lowestNote = self.noteSeq[C.PITCHINDEX][self.noteSeq[C.PITCHINDEX] > 0].min(
         )
         self.highestNote = np.max(self.noteSeq[C.PITCHINDEX])
+
+        # duration_median = np.median(self.noteSeq[C.DURATIONINDEX])
+        # if duration_median < C.DESIRE_AVG_DURATION:
+        #     self.noteSeq[C.DURATIONINDEX] = ( self.noteSeq[C.DURATIONINDEX] * C.DESIRE_AVG_DURATION//duration_median).astype(int)
+        # if (C.DESIRE_AVG_DURATION//duration_median).astype(int) != 0:
+        #     self.minLengthInTicks /= (C.DESIRE_AVG_DURATION//duration_median).astype(int)
 
     def printMIDI(self):
 
@@ -196,7 +201,7 @@ def expandElementarySequence(elementarySequence):
     noteSeq[C.PITCHINDEX] = elementarySequence[0]
     noteSeq[C.DURATIONINDEX] = elementarySequence[1]
 
-    # add pitch interval sequence & temporary rest sequence encodingVG
+    # add pitch interval sequence & temporary rest sequence encoding:
     # by the current encoding method, same note & (note,break) are both been consider as interval = 0
     for i, curPitch in enumerate(noteSeq[C.PITCHINDEX][:-1]):
         nextPitch = noteSeq[C.PITCHINDEX][i+1]

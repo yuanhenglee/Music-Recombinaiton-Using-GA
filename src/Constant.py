@@ -2,6 +2,7 @@ from numpy.core.fromnumeric import std
 import pandas as pd
 
 
+DESIRE_AVG_DURATION = 4
 BREAK = 0
 PITCHINDEX = 0
 DURATIONINDEX = 1
@@ -21,10 +22,10 @@ MINRPLENTH = 3
 NUMBER_FEATURES = 23
 NUMBER_SONGS = 97
 
-INPUT_NAMES = []
+INPUT_NAMES = ["CHANGE", "Colorful"]
 INPUT_RATE = 0.1
 
-FITNESS_WEIGHT = [ 1,2,5,100,20]
+FITNESS_WEIGHT = [ 1,2,5,200,500]
 
 
 consensus_weight = pd.DataFrame(
@@ -42,7 +43,7 @@ consensus_weight = pd.DataFrame(
         "Note Density":   [0],
         "Rest Density":   [0],
         "Rhythmic Variety":   [0],
-        "Rhythmic Range":   [0],
+        "Rhythmic Range":   [1],
         "Repeated Pitch_2":  [0], 
         "Repeated Rhythm_2":  [0], 
         "Repeated Pitch_3":  [0], 

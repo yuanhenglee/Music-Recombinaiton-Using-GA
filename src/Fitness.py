@@ -48,7 +48,7 @@ def calculateLongNote(individual):
     valid_note_1 = [1.0, 2.0, 3.0]
     valid_note_2 = [7.0, 6.0, 5.0]
     for i in range(parsedMIDI.numberOfNotes):
-        if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4, np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
+        if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4 , np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
             pitch = (float(parsedMIDI.noteSeq[C.PITCHINDEX][i] % 7))
             if pitch in valid_note_1:
                 long_note_score.append(0)
@@ -95,8 +95,8 @@ def elementsTransition(individual):
             first_note = tree.pitchSeq[-2]
 
 
-        print(tree.pitchSeq)
-        print(interval)
+        # print(tree.pitchSeq)
+        # print(interval)
 
     if len(each_score) > 0:
         return np.mean(each_score)
@@ -209,7 +209,7 @@ def updateFitness(individual):
     #     n_tree_score = abs(n_tree - 16)
     n_invalid_tree = 0
     for tree in individual.tree_list:
-        if 1/16 <= tree.length/individual.parsedMIDI.totalDuration <= 1/10:
+        if 1/16 <= tree.length/individual.parsedMIDI.totalDuration:#  <= 1/10:
             ...
         else:
             n_invalid_tree += 1

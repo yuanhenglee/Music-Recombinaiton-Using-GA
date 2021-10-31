@@ -25,13 +25,13 @@ NUMBER_SONGS = 97
 INPUT_NAMES = []
 INPUT_RATE = 0.5
 
-FITNESS_WEIGHT = [ 1,2,5,200,500]
+FITNESS_WEIGHT = [1, 2, 5, 200, 500, 1]
 
 
 consensus_weight = pd.DataFrame(
     {
         "Pitch Variety":   [0],
-        "Pitch Range":  [1], 
+        "Pitch Range":  [1],
         "Key Centered":   [1],
         "Non-scale Notes":   [1],
         "Dissonant Intervals":   [1],
@@ -44,12 +44,12 @@ consensus_weight = pd.DataFrame(
         "Rest Density":   [0],
         "Rhythmic Variety":   [0],
         "Rhythmic Range":   [1],
-        "Repeated Pitch_2":  [0], 
-        "Repeated Rhythm_2":  [0], 
-        "Repeated Pitch_3":  [0], 
-        "Repeated Rhythm_3":  [0], 
-        "Repeated Pitch_4":  [0], 
-        "Repeated Rhythm_4":  [0], 
+        "Repeated Pitch_2":  [0],
+        "Repeated Rhythm_2":  [0],
+        "Repeated Pitch_3":  [0],
+        "Repeated Rhythm_3":  [0],
+        "Repeated Pitch_4":  [0],
+        "Repeated Rhythm_4":  [0],
         "LeapDensity":      [1],
         "BigLeapDensity":      [1],
         "SumOfSquareOfInterval": [1]
@@ -58,7 +58,7 @@ consensus_weight = pd.DataFrame(
 similarity_weight = pd.DataFrame(
     {
         "Pitch Variety":   [0],
-        "Pitch Range":  [0], 
+        "Pitch Range":  [0],
         "Key Centered":   [1],
         "Non-scale Notes":   [1],
         "Dissonant Intervals":   [1],
@@ -71,12 +71,12 @@ similarity_weight = pd.DataFrame(
         "Rest Density":   [1],
         "Rhythmic Variety":   [0],
         "Rhythmic Range":   [0],
-        "Repeated Pitch_2":  [1], 
-        "Repeated Rhythm_2":  [1], 
-        "Repeated Pitch_3":  [1], 
-        "Repeated Rhythm_3":  [1], 
-        "Repeated Pitch_4":  [1], 
-        "Repeated Rhythm_4":  [1], 
+        "Repeated Pitch_2":  [1],
+        "Repeated Rhythm_2":  [1],
+        "Repeated Pitch_3":  [1],
+        "Repeated Rhythm_3":  [1],
+        "Repeated Pitch_4":  [1],
+        "Repeated Rhythm_4":  [1],
         "LeapDensity":      [1],
         "BigLeapDensity":      [1],
         "SumOfSquareOfInterval": [1]

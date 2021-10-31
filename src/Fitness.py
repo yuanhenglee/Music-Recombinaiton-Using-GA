@@ -48,7 +48,7 @@ def calculateLongNote(individual):
     valid_note_1 = [1.0, 2.0, 3.0]
     valid_note_2 = [7.0, 6.0, 5.0]
     for i in range(parsedMIDI.numberOfNotes):
-        if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4 , np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
+        if parsedMIDI.noteSeq[C.DURATIONINDEX][i] > max(4, np.percentile(parsedMIDI.noteSeq[C.DURATIONINDEX], 75)):
             pitch = (float(parsedMIDI.noteSeq[C.PITCHINDEX][i] % 7))
             if pitch in valid_note_1:
                 long_note_score.append(0)
@@ -94,7 +94,6 @@ def elementsTransition(individual):
         if first_note == 0 and len(tree.pitchSeq) > 1:
             first_note = tree.pitchSeq[-2]
 
-
         # print(tree.pitchSeq)
         # print(interval)
 
@@ -103,7 +102,8 @@ def elementsTransition(individual):
     else:
         return 0
 
-def tailScore( individual ):
+
+def tailScore(individual):
     last_pitch = individual.parsedMIDI.noteSeq[C.PITCHINDEX][-1]
     last_duration = individual.parsedMIDI.noteSeq[C.DURATIONINDEX][-1]
     last_2_pitch = individual.parsedMIDI.noteSeq[C.PITCHINDEX][-2]
@@ -112,14 +112,15 @@ def tailScore( individual ):
         last_duration = individual.parsedMIDI.noteSeq[C.DURATIONINDEX][-2]
         last_2_pitch = individual.parsedMIDI.noteSeq[C.PITCHINDEX][-3]
 
-    if float(last_pitch)%7 in [1.0]:
+    if float(last_pitch) % 7 in [1.0]:
         score_last_pitch = 0
-    elif float(last_pitch)%7 in [2.0, 5.0, 6.0]:
+    elif float(last_pitch) % 7 in [2.0, 5.0, 6.0]:
         score_last_pitch = 1
     else:
         score_last_pitch = 5
 
-    duration_ratio = float(last_duration) / np.mean(individual.parsedMIDI.noteSeq[C.DURATIONINDEX])
+    duration_ratio = float(last_duration) / \
+        np.mean(individual.parsedMIDI.noteSeq[C.DURATIONINDEX])
     if duration_ratio >= 2:
         score_last_duration = 0
     elif duration_ratio >= 1:
@@ -134,7 +135,6 @@ def tailScore( individual ):
         score_interval = 5
 
     return score_last_pitch + score_last_duration + score_interval
-
 
 
 def updateFitness(individual):
@@ -207,16 +207,31 @@ def updateFitness(individual):
     #     n_tree_score = abs(n_tree - 10)
     # elif n_tree > 16:
     #     n_tree_score = abs(n_tree - 16)
+
+    # n tree score
     n_invalid_tree = 0
     for tree in individual.tree_list:
-        if 1/16 <= tree.length/individual.parsedMIDI.totalDuration:#  <= 1/10:
+        if 1/16 <= tree.length/individual.parsedMIDI.totalDuration:  # <= 1/10:
             ...
         else:
             n_invalid_tree += 1
     n_tree_score = n_invalid_tree/len(individual.tree_list)
 
+    # element alternate rate
+    n_element_alternate = 0
+    if len(individual.tree_list) <= 1:
+        element_alternate_score = 1
+    else:
+        cur_tree_id = individual.tree_list[0].id
+        for tree in individual.tree_list:
+            if tree.id != cur_tree_id:
+                n_element_alternate += 1
+                cur_tree_id = tree.id
+        element_alternate_score = 1 - n_element_alternate / \
+            (len(individual.tree_list)-1)
+
     individual.fitness_detail = [similarity,
-                                 consensus, inRange, music_source_variety, n_tree_score]
+                                 consensus, inRange, music_source_variety, n_tree_score, element_alternate_score]
 
     for i in range(len(C.FITNESS_WEIGHT)):
         individual.fitness_detail[i] = C.FITNESS_WEIGHT[i] * \

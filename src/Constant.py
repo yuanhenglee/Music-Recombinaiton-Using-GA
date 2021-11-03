@@ -25,7 +25,7 @@ NUMBER_SONGS = 97
 INPUT_NAMES = []
 INPUT_RATE = 0.5
 
-FITNESS_WEIGHT = [1, 2, 5, 200, 500, 1]
+FITNESS_WEIGHT = [1, 2, 5, 200, 500, 10]
 
 
 consensus_weight = pd.DataFrame(

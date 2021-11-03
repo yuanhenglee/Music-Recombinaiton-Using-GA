@@ -21,7 +21,7 @@ import MusicTree
 
 
 def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3, max_generation=1000, max_population=1000, n_generation_terminate=100, generation_to_kill=10):
-    best_score = 99999999999 
+    best_score = 99999999999
     generation_best_score_was_born = 1
     for generation in range(1, max_generation+1):
         # Measuring the fitness of each chromosome in the population.
@@ -88,7 +88,7 @@ def natural_selection(population, n_selected_goal):
         population.sort(key=lambda x: x.fitness)
         ancestors = []
         for i in population[n_selected_goal:]:
-            if i.isAncestor :
+            if i.isAncestor:
                 ancestors.append(i)
         return population[0:n_selected_goal] + ancestors
 
@@ -123,7 +123,8 @@ def crossover(parents, initialAncestors, n_offspring):
         if filler_trees == None:
             continue
         # print(f"{filler_trees=}")
-        rand_value = random.seed()
+        np.random.seed(int(time.time()))
+        rand_value = random.rand()
         new_num = hash(("crossover", main_parent.signature, rand_value))
         for tree in filler_trees:
             for i in range(len(tree.elementary_noteSeq[2])):
@@ -249,7 +250,8 @@ def pitchOrderReverse(start, end, target, id):
         calculateInterval(i)
 
     # Element
-    rand_value = random.seed()
+    np.random.seed(int(time.time()))
+    rand_value = random.rand()
     new_num = hash(("mutation", target.signature, rand_value))
     newElementSeq = [new_num]*(end-start)
     target.parsedMIDI.noteSeq[C.ELEMENTINDEX][start:end] = newElementSeq
@@ -352,17 +354,19 @@ def selectRandomElement(individual):
         if start != -1 and i == len(element_number_list)-1:
             end = i+1
             point.append((start, end))
-    
+
     # finding tree been select
     acc_tree_index = 0
-    duration_before = sum([i for i in individual.parsedMIDI.noteSeq[C.DURATIONINDEX][:point[0][0]]])
-    duration_after = sum([i for i in individual.parsedMIDI.noteSeq[C.DURATIONINDEX][:point[0][1]]])
-    
+    duration_before = sum(
+        [i for i in individual.parsedMIDI.noteSeq[C.DURATIONINDEX][:point[0][0]]])
+    duration_after = sum(
+        [i for i in individual.parsedMIDI.noteSeq[C.DURATIONINDEX][:point[0][1]]])
+
     for tree in individual.tree_list:
-        acc_tree_index+=tree.length
-        if( tree_sublist == [] and duration_before < acc_tree_index ):
+        acc_tree_index += tree.length
+        if(tree_sublist == [] and duration_before < acc_tree_index):
             tree_sublist.append(tree)
-        if( duration_before <= acc_tree_index <= duration_after):
+        if(duration_before <= acc_tree_index <= duration_after):
             tree_sublist.append(tree)
 
     if len(tree_sublist) == 1:

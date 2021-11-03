@@ -20,7 +20,7 @@ for key in dbroot.keys():
     for tree in individual.tree_list:
         print(tree.id)
     # print(np.unique(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]))
-    Fitness.updateFitness(individual)
+    # Fitness.updateFitness(individual)
     print(individual.fitness_detail)
     # print(individual.fitness)
     # Fitness.updateFitness(individual)

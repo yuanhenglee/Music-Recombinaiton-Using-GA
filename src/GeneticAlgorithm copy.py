@@ -124,8 +124,8 @@ def crossover(parents, initialAncestors, n_offspring):
             continue
         # print(f"{filler_trees=}")
         np.random.seed(int(time.time()))
-        rand_value = random.rand()
-        new_num = hash(("crossover", main_parent.signature, rand_value))
+        rand_value = np.random.rand()
+        new_num = hash((rand_value, main_parent.signature, "crossover"))
         for tree in filler_trees:
             for i in range(len(tree.elementary_noteSeq[2])):
                 tree.elementary_noteSeq[2][i] = new_num
@@ -251,8 +251,9 @@ def pitchOrderReverse(start, end, target, id):
 
     # Element
     np.random.seed(int(time.time()))
-    rand_value = random.rand()
-    new_num = hash(("mutation", target.signature, rand_value))
+    rand_value = np.random.rand()
+    # new_num = hash(("mutation", target.signature, rand_value))
+    new_num = hash((rand_value, target.signature, "mutation"))
     newElementSeq = [new_num]*(end-start)
     target.parsedMIDI.noteSeq[C.ELEMENTINDEX][start:end] = newElementSeq
     target.allElementGroups = set(target.parsedMIDI.noteSeq[C.ELEMENTINDEX])
@@ -282,8 +283,9 @@ def pitchShifting(start, end, target, id):
             newPitchSeq.append(0)
     # noteSeq mutation
 
-    rand_value = random.seed()
-    new_num = hash(("mutation", target.signature, rand_value))
+    np.random.seed(int(time.time()))
+    rand_value = np.random.rand()
+    new_num = hash((rand_value, target.signature, "mutation"))
     newElementSeq = [new_num]*(end-start)
     target.parsedMIDI.noteSeq[C.PITCHINDEX][start:end] = newPitchSeq
     target.parsedMIDI.noteSeq[C.ELEMENTINDEX][start:end] = newElementSeq

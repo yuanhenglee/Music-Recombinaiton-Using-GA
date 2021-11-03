@@ -18,7 +18,7 @@ for key in dbroot.keys():
     # print(individual.signature)
     # print(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX])
     for tree in individual.tree_list:
-        print(tree.id)
+        print(tree.id, len(tree.pitchSeq))
     # print(np.unique(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]))
     # Fitness.updateFitness(individual)
     print(individual.fitness_detail)
@@ -27,14 +27,17 @@ for key in dbroot.keys():
     # break
     # result_ILBDM = ILBDM(individual.parsedMIDI)
     # print(result_ILBDM)
-    # for i in range(len(dbroot[key].parsedMIDI.noteSeq[C.ELEMENTINDEX])):
-    #     if i == 0:
-    #         print(0, end=' ')
-    #     else:
-    #         if individual.parsedMIDI.noteSeq[C.ELEMENTINDEX][i] != individual.parsedMIDI.noteSeq[C.ELEMENTINDEX][i-1]:
-    #             print(1, end=" ")
-    #         else:
-    #             print(0, end=' ')
+    count = 1
+    element_set = {} 
+    for i in range(len(dbroot[key].parsedMIDI.noteSeq[C.ELEMENTINDEX])):
+        if not individual.parsedMIDI.noteSeq[C.ELEMENTINDEX][i] in element_set:
+            print(count, end=" ")
+            element_set[individual.parsedMIDI.noteSeq[C.ELEMENTINDEX][i]] = count
+            count+=1
+        else:
+            print(element_set[individual.parsedMIDI.noteSeq[C.ELEMENTINDEX][i]], end = " ")
+            
+    print(element_set)
 
 
 db.close()

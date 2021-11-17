@@ -116,14 +116,18 @@ def crossover(parents, initialAncestors, n_offspring):
         mask = np.random.randint(2, size=main_parent_length)
         # print("mask: ", mask)
         # print("before pitch: ", child_noteSeq[C.PITCHINDEX])
+        tmp_element_number_list = child_noteSeq[C.ELEMENTINDEX]
         for i in range(main_parent_length):
             if mask[i] == 1:
                 elementarySequence[0][i] = sub_parent.parsedMIDI.noteSeq[C.PITCHINDEX][i %
                                                                                        sub_parent_length]
                 elementarySequence[1][i] = sub_parent.parsedMIDI.noteSeq[C.DURATIONINDEX][i %
                                                                                           sub_parent_length]
+                tmp_element_number_list[i] = sub_parent.parsedMIDI.noteSeq[C.ELEMENTINDEX][i %
+                                                                                           sub_parent_length]
         child.parsedMIDI.noteSeq = Preprocess.expandElementarySequence(
             elementarySequence)
+        child.parsedMIDI.noteSeq[C.ELEMENTINDEX] = tmp_element_number_list
         # print("after pitch: ", child.parsedMIDI.noteSeq[C.PITCHINDEX])
 
         child.parsedMIDI.updateFieldVariable()
@@ -164,9 +168,10 @@ def mutation(parents, initialAncestors, mutation_size):
                 if is_negative == 1:
                     move *= -1
                 elementarySequence[0][i] += move
-
+        tmp_element_number_list = child.parsedMIDI.noteSeq[C.ELEMENTINDEX]
         child.parsedMIDI.noteSeq = Preprocess.expandElementarySequence(
             elementarySequence)
+        child.parsedMIDI.noteSeq[C.ELEMENTINDEX] = tmp_element_number_list
         # print("after pitch: ", child.parsedMIDI.noteSeq[C.PITCHINDEX])
 
         child.parsedMIDI.updateFieldVariable(child.parsedMIDI)
@@ -253,6 +258,10 @@ if __name__ == "__main__":
         name = string_list[-1]
         C.INPUT_NAMES.append(name[:-3])
     C.INPUT_RATE = float(rate)
+
+    for i, individual in enumerate(population):
+        individual.parsedMIDI.noteSeq[C.ELEMENTINDEX] = np.full(
+            individual.parsedMIDI.numberOfNotes, i)
     # print(ids)
     new_population = startGA(initialAncestors, population,
                              max_population=30, max_generation=1000)

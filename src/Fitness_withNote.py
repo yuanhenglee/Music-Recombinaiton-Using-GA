@@ -7,30 +7,8 @@ import Constant as C
 
 
 def musicSourceVariety(individual):
-    sum_of_duration1 = 0
-    sum_of_duration2 = 0
-    sum_of_duration_mutated = 0
-    for tree in individual.tree_list:
-        if tree.id == C.INPUT_NAMES[0]:
-            sum_of_duration1 += tree.length
-        elif tree.id == C.INPUT_NAMES[1]:
-            sum_of_duration2 += tree.length
-        elif tree.id == "Mutated":
-            sum_of_duration_mutated += tree.length
-        # else:
-        #     print(tree.id)
-        #     print(C.INPUT_NAMES)
-        #     raise ValueError("Wrong tree id")
-
-    sum_of_duration = sum_of_duration1+sum_of_duration2
-    # print(f"{sum_of_duration=}")
-    # print(f"{sum_of_duration1=}")
-    # print(f"{sum_of_duration2=}")
-    # print(f"{sum_of_duration_mutated=}")
-    if sum_of_duration == 0:
-        return 1
-    result = abs(C.INPUT_RATE - sum_of_duration1/sum_of_duration)
-
+    result = abs(1 - C.INPUT_RATE -
+                 np.mean(individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]))
     return result
 
 
@@ -194,7 +172,7 @@ def updateFitness(individual):
     inRange += (inRange_score.mean())
 
     # music Source Variety
-    # music_source_variety = musicSourceVariety(individual)
+    music_source_variety = musicSourceVariety(individual)
 
     # print("similarity: ", similarity)
     # print("consensus: ", consensus)
@@ -217,21 +195,17 @@ def updateFitness(individual):
     #         n_invalid_tree += 1
     # n_tree_score = n_invalid_tree/len(individual.tree_list)
 
-    # # element alternate rate
-    # n_element_alternate = 0
-    # if len(individual.tree_list) <= 1:
-    #     element_alternate_score = 1
-    # else:
-    #     cur_tree_id = individual.tree_list[0].id
-    #     for tree in individual.tree_list:
-    #         if tree.id != cur_tree_id:
-    #             n_element_alternate += 1
-    #             cur_tree_id = tree.id
-    #     element_alternate_score = 1 - n_element_alternate / \
-    #         (len(individual.tree_list)-1)
+    # element alternate rate
+    n_element_alternate = 0
+    elementSeq = individual.parsedMIDI.noteSeq[C.ELEMENTINDEX]
+    for i in range(len(elementSeq)-1):
+        if elementSeq[i] != elementSeq[i+1]:
+            n_element_alternate += 1
+    element_alternate_score = 1 - n_element_alternate / \
+        (individual.parsedMIDI.numberOfNotes)
 
     individual.fitness_detail = [similarity,
-                                 consensus, inRange]
+                                 consensus, inRange, music_source_variety, element_alternate_score]
 
     for i in range(len(individual.fitness_detail)):
         individual.fitness_detail[i] = C.FITNESS_WEIGHT[i] * \

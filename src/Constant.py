@@ -26,6 +26,7 @@ INPUT_NAMES = []
 INPUT_RATE = 0.5
 
 FITNESS_WEIGHT = [1, 2, 5, 200, 500, 10]
+FITNESS_WEIGHT_2 = [1, 4, 10]
 
 
 consensus_weight = pd.DataFrame(

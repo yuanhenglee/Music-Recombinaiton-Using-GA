@@ -20,7 +20,7 @@ import Demo
 import MusicTree
 
 
-def startGA(initialAncestors, population, mutation_rate=0.3, crossover_rate=0.3, max_generation=1000, max_population=1000, n_generation_terminate=100, generation_to_kill=10):
+def startGA(initialAncestors, population, mutation_rate=0.1, crossover_rate=0.3, max_generation=1000, max_population=1000, n_generation_terminate=100, generation_to_kill=10):
     best_score = 99999999999
     generation_best_score_was_born = 1
     for generation in range(1, max_generation+1):

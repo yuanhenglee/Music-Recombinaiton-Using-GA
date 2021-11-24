@@ -170,7 +170,7 @@ def updateFitness(individual):
     # consensus
     df_consensus_score = C.consensus_weight * individual.df_features_std
     consensus = df_consensus_score.abs().to_numpy().sum()
-    consensus += 3 * elementsTransition(individual)
+    consensus += 5 * elementsTransition(individual)
     consensus += calculateLongNote(individual)
     consensus += tailScore(individual)
 

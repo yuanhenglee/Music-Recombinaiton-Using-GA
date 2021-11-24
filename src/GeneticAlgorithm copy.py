@@ -416,10 +416,11 @@ if __name__ == "__main__":
     if bestOffspring != None:
         bestOffspring.parsedMIDI.printMIDI()
         mid_output = Demo.parsed2MIDI(bestOffspring.parsedMIDI)
-        cur_time = str(time.strftime('%m_%d_%H_%M', time.localtime()))
-        mid_output.save('../output/' + cur_time + ".mid")
-        os.makedirs("../output/" + cur_time)
-        dbpath = "../output/" + cur_time + "/" + cur_time + ".fs"
+        output_name = C.INPUT_NAMES[0]  + '&' + C.INPUT_NAMES[1]
+        cur_time = str(time.strftime('%H_%M_', time.localtime()))
+        os.makedirs("../output/" + cur_time + output_name)
+        mid_output.save('../output/' + cur_time + output_name + '/' + cur_time + output_name + ".mid")
+        dbpath = "../output/" + cur_time + output_name + "/" + cur_time + output_name + ".fs"
         db = ZODB(dbpath)
         db.dbroot["Individual"] = bestOffspring
         transaction.commit()

@@ -11,6 +11,7 @@ from Fitness_withNote import updateFitness
 from ILBDM import ILBDM, ILBDM_elementary_noteSeq
 import Utility
 import Constant as C
+from contextlib import redirect_stdout
 
 import numpy as np
 import random
@@ -248,37 +249,38 @@ if __name__ == "__main__":
     population = []
     initialAncestors = []
 
+    # load date from db
     for path in paths:
         db = ZODB(path)
         dbroot = db.dbroot
         initialAncestors.append(dbroot[0])
-        population.append(dbroot[0])
+        for key in dbroot.keys():
+            population.append(dbroot[key])
         db.close()
         string_list = path.split("/")
         name = string_list[-1]
         C.INPUT_NAMES.append(name[:-3])
     C.INPUT_RATE = float(rate)
 
-    for i, individual in enumerate(population):
-        individual.parsedMIDI.noteSeq[C.ELEMENTINDEX] = np.full(
-            individual.parsedMIDI.numberOfNotes, i)
-    # print(ids)
-    new_population = startGA(initialAncestors, population,
-                             max_population=30, max_generation=1000)
-    bestOffspring = findBestOffspring(new_population)
-    # bestOffspring = population[0]
+    #construct output dir
+    src_name = C.INPUT_NAMES[0]  + '&' + C.INPUT_NAMES[1]
+    cur_time = str(time.strftime('%H_%M_%S', time.localtime()))
+    output_name = src_name + cur_time + "_withNote" 
+    output_path = "../output/" + output_name
+    os.makedirs( output_path )
 
-    if bestOffspring != None:
-        bestOffspring.parsedMIDI.printMIDI()
-        mid_output = Demo.parsed2MIDI(bestOffspring.parsedMIDI)
-        output_name = C.INPUT_NAMES[0] + '&' + C.INPUT_NAMES[1] + '_withNote'
-        cur_time = str(time.strftime('%H_%M_', time.localtime()))
-        os.makedirs("../output/" + cur_time + output_name)
-        mid_output.save('../output/' + cur_time + output_name +
-                        '/' + cur_time + output_name + ".mid")
-        dbpath = "../output/" + cur_time + output_name + \
-            "/" + cur_time + output_name + ".fs"
-        db = ZODB(dbpath)
-        db.dbroot["Individual"] = bestOffspring
-        transaction.commit()
-        db.close()
+    with open(output_path+'/log.txt', 'w') as f:
+        with redirect_stdout(f):
+            # starting GA!    
+            new_population = startGA(initialAncestors, population,
+                                    max_population=30, max_generation=1000)
+            bestOffspring = findBestOffspring(new_population)
+
+            bestOffspring.parsedMIDI.printMIDI()
+            mid_output = Demo.parsed2MIDI(bestOffspring.parsedMIDI)
+            mid_output.save( output_path + '/' + output_name + ".mid")
+            dbpath = output_path + "/" + output_name + ".fs"
+            db = ZODB(dbpath)
+            db.dbroot["Individual"] = bestOffspring
+            transaction.commit()
+            db.close()

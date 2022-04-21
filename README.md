@@ -1,20 +1,30 @@
-# Music-Recombinaiton-Using-GA
+<div align="center">
 
-## Todo list
+  <h2 align="center">Music Recombination Using Element-based Genetic Algorithm</h2>
 
-### preprocess
-- [ ] File IO for any proper MIDI file
-- [ ] Prevent invalid input
-  - Polyphonic
-  - File with multiple tracks or songs
+  <p align="center">
+    Combining two music melodies while preserving its characteristics using genetic algorithm.
+  </p>
+</div>
+<br />
 
-- [x] Things we need before parsing
-  - [x] GCD( all possible time length )
-  - [x] Lowest/Highest note
-  - [x] Total length
-  - [ ] Support for multiple MIDI file
+<p align="middle">
+  <img src="./pic/result_midi_screenshot.png" />
+</p>
+<!-- [![result_demo](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID_HERE) -->
 
-- [ ] Into segments
-  - [ ] build proper data structure for LBDM ( interval sequences )
-  - [ ] calculate strength for each possible cut point
+## Features
 
+
+## Usage
+Install requirements
+```console
+$ pip install requirements.txt
+```
+
+Run:
+```console
+$ python3 src/GeneticAlgorithm.py src/Music/song1.fs src/Music/song2.fs
+```
+## Requirements
+* Python 3.9.9
